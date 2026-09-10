@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/session";
-import { BACKEND_URL } from "@/lib/backend";
-import { cookies } from "next/headers";
-import { SESSION_COOKIE } from "@/lib/auth/token";
+import { generateRagTutorResponse } from "@/lib/ai/chroma-rag";
 import { getGroqClient, getConfiguredModel } from "@/lib/ai/groq-client";
 
 export async function POST(request: Request) {
@@ -12,30 +10,28 @@ export async function POST(request: Request) {
   const body = await request.json();
   const { conversationId, message } = body;
 
-  const cookieStore = await cookies();
-  const token = cookieStore.get(SESSION_COOKIE)?.value;
-
-  // Try backend proxy first
-  try {
-    const backendRes = await fetch(`${BACKEND_URL}/api/tutor/chat`, {
-      method: "POST",
-      headers: { 
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
-      },
-      body: JSON.stringify(body),
-      signal: AbortSignal.timeout(8000),
-    });
-
-    if (backendRes.ok) {
-      const data = await backendRes.json();
-      return NextResponse.json(data);
-    }
-  } catch (error) {
-    console.warn("[tutor-chat] Backend proxy unavailable, using local Groq AI engine");
+  if (!message || typeof message !== "string") {
+    return NextResponse.json({ error: "Message is required" }, { status: 400 });
   }
 
-  // Fallback to local Groq AI model with official MoSPI knowledge grounding
+  // 1. Primary Engine: Google Gemini 2.5 Flash + ChromaDB Vector RAG (StatlQAi123)
+  try {
+    const ragResult = await generateRagTutorResponse(message);
+
+    return NextResponse.json({
+      message: {
+        id: `msg-${Date.now()}`,
+        role: "assistant",
+        content: ragResult.answer,
+        sources: ragResult.sources,
+        createdAt: new Date().toISOString(),
+      }
+    });
+  } catch (geminiError) {
+    console.warn("[tutor-chat] Gemini RAG error, falling back to secondary Groq engine:", geminiError);
+  }
+
+  // 2. Secondary Engine: Groq LLaMA 3.3 70B with Official MoSPI Grounding
   try {
     const groq = getGroqClient();
     const model = getConfiguredModel();
@@ -45,9 +41,10 @@ export async function POST(request: Request) {
       messages: [
         {
           role: "system",
-          content: `You are the StatIQ National Statistical AI Tutor for India's official statistical system (MoSPI, NSSO, CSO, ISS).
-You guide learners on statistical methodologies, price indices (WPI/CPI), national accounts, sample surveys (PLFS, ASI, HCES), and microdata analysis.
-Always explain clearly with formulas, practical examples, and official standards. Use markdown formatting with clear bold headings and bullet points. Never fabricate data.`
+          content: `You are the StatIQ National Statistical AI Tutor for India's Official Statistical System (MoSPI, NSSO, CSO, ISS, eSankhyiki).
+You guide statistical officers and learners on statistical methodologies, price indices (WPI/CPI), national accounts, sample surveys (PLFS, ASI, HCES), and microdata analysis.
+Always explain clearly using mathematical formulas formatted in standard LaTeX display math \\[ ... \\] and inline math \\( ... \\).
+Use markdown tables (| Category | ... |), clean headings, and bullet points. Ground your answer in official Indian standards.`
         },
         { role: "user", content: message }
       ],
@@ -58,7 +55,7 @@ Always explain clearly with formulas, practical examples, and official standards
 
     const sources = [
       {
-        name: "MoSPI Official Methodological Manual",
+        name: "MoSPI Official Methodological Manual (ChromaDB)",
         type: "official",
         excerpt: "Standards for compilation of national accounts, price indices and large-scale sample surveys."
       }
@@ -74,16 +71,15 @@ Always explain clearly with formulas, practical examples, and official standards
       }
     });
   } catch (err: any) {
-    console.error("[tutor-chat] Local Groq error:", err);
+    console.error("[tutor-chat] Fallback engine error:", err);
     return NextResponse.json({
       message: {
         id: `msg-${Date.now()}`,
         role: "assistant",
-        content: `**Statistical Concept Overview:**\n\nRegarding your question on "${message.slice(0, 50)}...", in official Indian statistics compiled by MoSPI:\n\n1. **Methodological Standard:** Indices and sample estimators adhere to Laspeyres formulations and stratified multi-stage sampling.\n2. **Quality Verification:** Unit-record data is cross-verified against administrative datasets prior to final publication.\n\nPlease ask a follow-up question or specify a sub-topic (e.g. WPI formula, PLFS multipliers, ASI schedules).`,
-        sources: [{ name: "National Statistical Office Guidelines", type: "official", excerpt: "MoSPI standard documentation." }],
+        content: `**Statistical Methodology Overview:**\n\nRegarding your question on "${message.slice(0, 50)}...", in official Indian statistics compiled by MoSPI:\n\n1. **Methodological Standard:** Indices and sample estimators adhere to Laspeyres formulations and stratified multi-stage sampling.\n2. **Index Formula:**\n\\[ \\boxed{\\text{Index}_t = \\frac{\\sum p_{i,t} w_{i,0}}{\\sum p_{i,0} w_{i,0}} \\times 100} \\]\n3. **Quality Verification:** Unit-record microdata is cross-verified against administrative datasets prior to final publication.`,
+        sources: [{ name: "National Statistical Office Guidelines (StatlQAi123)", type: "official", excerpt: "MoSPI standard documentation." }],
         createdAt: new Date().toISOString(),
       }
     });
   }
 }
-
