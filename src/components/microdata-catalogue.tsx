@@ -153,7 +153,7 @@ export function MicrodataCatalogue({
 
           <button
             type="submit"
-            className="glow-button px-6 py-3 rounded-2xl font-label-caps uppercase text-xs tracking-wider font-bold text-black flex items-center justify-center gap-2 shadow-md transition-transform active:scale-95"
+            className="glow-button px-6 py-3 rounded-2xl font-sans uppercase text-xs tracking-wider font-bold text-black flex items-center justify-center gap-2 shadow-md transition-transform active:scale-95"
           >
             <Search className="w-3.5 h-3.5" />
             {t("microdata.searchBtn", "Search Microdata")}
@@ -163,7 +163,7 @@ export function MicrodataCatalogue({
         {/* Quick Filter Preset Chips */}
         <div className="space-y-2 pt-2 border-t border-outline-variant/15">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-label-caps uppercase tracking-wider text-on-surface-variant font-semibold">
+            <span className="text-xs font-sans uppercase tracking-wider text-on-surface-variant font-bold">
               {t("microdata.presets", "Research Presets:")}
             </span>
             {loading && (
@@ -186,9 +186,9 @@ export function MicrodataCatalogue({
                     setQ(preset.query);
                     setPage(1);
                   }}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all flex items-center gap-1.5 ${
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-medium font-sans transition-all flex items-center gap-1.5 ${
                     isActive
-                      ? "bg-primary text-black font-semibold shadow-sm scale-105"
+                      ? "bg-primary text-black font-bold shadow-sm scale-105"
                       : "bg-surface-container-high/60 border border-outline-variant/30 text-on-surface-variant hover:text-on-surface hover:border-primary/40 hover:bg-surface-container-high"
                   }`}
                 >
@@ -260,15 +260,15 @@ export function MicrodataCatalogue({
           <div className="hidden md:block glass-panel rounded-3xl border border-outline-variant/30 overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[1000px] text-left text-xs">
-                <thead className="bg-surface-container-high/80 border-b border-outline-variant/30 text-on-surface font-label-caps uppercase text-[11px] tracking-wider">
+                <thead className="bg-surface-container-high/80 border-b border-outline-variant/30 text-on-surface uppercase text-xs tracking-wider font-bold">
                   <tr>
-                    <th className="py-4 px-5 font-semibold">{t("microdata.titleCol", "Survey Title & Scope")}</th>
-                    <th className="py-4 px-4 font-semibold">{t("microdata.idnoCol", "Official IDNO")}</th>
-                    <th className="py-4 px-4 font-semibold">{t("microdata.collectionCol", "Collection")}</th>
-                    <th className="py-4 px-4 font-semibold">{t("microdata.yearCol", "Year / Period")}</th>
-                    <th className="py-4 px-4 font-semibold">{t("microdata.producerCol", "Producer")}</th>
-                    <th className="py-4 px-4 font-semibold">{t("microdata.statusCol", "Status")}</th>
-                    <th className="py-4 px-5 font-semibold text-right">{t("microdata.actionCol", "Action")}</th>
+                    <th className="py-4 px-5">{t("microdata.titleCol", "Survey Title & Scope")}</th>
+                    <th className="py-4 px-4">{t("microdata.idnoCol", "Official IDNO")}</th>
+                    <th className="py-4 px-4">{t("microdata.collectionCol", "Collection")}</th>
+                    <th className="py-4 px-4">{t("microdata.yearCol", "Year / Period")}</th>
+                    <th className="py-4 px-4">{t("microdata.producerCol", "Producer")}</th>
+                    <th className="py-4 px-4">{t("microdata.statusCol", "Status")}</th>
+                    <th className="py-4 px-5 text-right">{t("microdata.actionCol", "Action")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-outline-variant/15 text-on-surface-variant">
@@ -296,13 +296,13 @@ export function MicrodataCatalogue({
                         </td>
 
                         <td className="py-4 px-4">
-                          <code className="font-mono text-[11px] text-primary bg-primary/5 px-2 py-1 rounded-md border border-primary/10">
+                          <code className="font-mono text-xs font-semibold text-primary bg-primary/10 px-2 py-1 rounded-md border border-primary/20">
                             {idno}
                           </code>
                         </td>
 
                         <td className="py-4 px-4">
-                          <span className="px-2.5 py-1 rounded-lg bg-surface-container-high text-[11px] font-label-caps text-on-surface font-medium border border-outline-variant/20">
+                          <span className="px-2.5 py-1 rounded-lg bg-surface-container-high text-xs text-on-surface font-semibold border border-outline-variant/20">
                             {repo}
                           </span>
                         </td>
@@ -316,8 +316,8 @@ export function MicrodataCatalogue({
                         </td>
 
                         <td className="py-4 px-4">
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold font-label-caps uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                            <CheckCircle2 className="w-2.5 h-2.5 text-emerald-500" />
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shadow-sm">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-500" />
                             VERIFIED
                           </span>
                         </td>
@@ -325,7 +325,7 @@ export function MicrodataCatalogue({
                         <td className="py-4 px-5 text-right">
                           <Link
                             href={`${detailsBase}/${encodeURIComponent(key)}`}
-                            className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-xl border border-outline-variant/40 bg-surface-container-high/60 hover:bg-primary hover:text-black hover:border-primary text-[11px] font-label-caps uppercase tracking-wider font-semibold text-on-surface transition-all shadow-sm"
+                            className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-xl border border-outline-variant/40 bg-surface-container-high/60 hover:bg-primary hover:text-black hover:border-primary text-xs uppercase tracking-wider font-bold text-on-surface transition-all shadow-sm"
                           >
                             {t("microdata.explore", "Explore →")}
                           </Link>
