@@ -6,8 +6,8 @@ import { db } from "@/db";
 import { recommendations } from "@/db/schema";
 
 const bodySchema = z.object({
-  jobRoleId: z.string().uuid(),
-  employeeId: z.string().uuid().optional(),
+  jobRoleId: z.string(),
+  employeeId: z.string().optional(),
   limit: z.number().int().positive().max(50).optional(),
 });
 

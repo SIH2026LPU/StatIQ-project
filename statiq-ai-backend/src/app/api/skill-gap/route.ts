@@ -8,8 +8,8 @@ import { employees, jobRoles } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 const querySchema = z.object({
-  employeeId: z.string().uuid().optional(),
-  jobRoleId: z.string().uuid(),
+  employeeId: z.string().optional(),
+  jobRoleId: z.string(),
 });
 
 /**

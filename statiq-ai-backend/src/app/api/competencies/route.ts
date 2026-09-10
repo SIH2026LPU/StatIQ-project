@@ -6,7 +6,7 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 const querySchema = z.object({
-  employeeId: z.string().uuid().optional(),
+  employeeId: z.string().optional(),
 });
 
 /**

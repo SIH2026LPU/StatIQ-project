@@ -4,8 +4,8 @@ import { computeRoleReadiness } from "@/lib/competency/readiness-engine";
 import { getSession } from "@/lib/auth/session";
 
 const querySchema = z.object({
-  employeeId: z.string().uuid().optional(),
-  jobRoleId: z.string().uuid(),
+  employeeId: z.string().optional(),
+  jobRoleId: z.string(),
 });
 
 /** GET /api/role-readiness?jobRoleId=...&employeeId=... — see FR-06 / design.md #10 */
