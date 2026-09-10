@@ -534,10 +534,10 @@ export function TutorChat() {
         <div className="p-4 border-b border-outline-variant/30">
           <button
             onClick={startNewChat}
-            className="w-full py-2.5 px-4 rounded-xl bg-primary-container/10 hover:bg-primary-container/20 border border-primary-container/30 text-primary-container flex items-center justify-center gap-2 font-bold font-label-caps text-xs transition-colors shadow-sm"
+            className="w-full py-3 px-4 rounded-2xl bg-primary-container/20 hover:bg-primary-container/30 border border-primary-container/50 text-primary-container flex items-center justify-center gap-2.5 font-bold font-label-caps text-xs tracking-wider transition-all shadow-[0_0_15px_rgba(57,255,20,0.12)] hover:shadow-[0_0_25px_rgba(57,255,20,0.22)] group"
           >
-            <Plus className="w-4 h-4" />
-            {t("tutor.clearChat", "New Chat")}
+            <Plus className="w-4 h-4 transition-transform group-hover:rotate-90 duration-200" />
+            {t("tutor.newChat", "New Chat")}
           </button>
         </div>
         <div className="flex-1 overflow-y-auto p-3 space-y-1 custom-scrollbar">
@@ -589,11 +589,18 @@ export function TutorChat() {
             </span>
           </div>
 
-          <div className="flex items-center gap-2 text-[10px] font-label-caps text-on-surface-variant">
-            <span className="flex items-center gap-1">
+          <div className="flex items-center gap-3 text-[10px] font-label-caps text-on-surface-variant">
+            <span className="hidden sm:flex items-center gap-1">
               <Sparkles className="w-3 h-3 text-primary-container" />
               ChromaDB Grounded (StatlQAi123)
             </span>
+            <button
+              onClick={startNewChat}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface-container border border-outline-variant/30 text-primary-container hover:bg-primary-container/10 transition-colors font-bold"
+            >
+              <Plus className="w-3 h-3" />
+              {t("tutor.newChat", "New Chat")}
+            </button>
           </div>
         </div>
 

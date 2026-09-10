@@ -233,6 +233,7 @@
     "subtitle": "Grounded in official MoSPI methodologies, National Accounts, Sampling Theory, and Price Statistics",
     "placeholder": "Ask anything about statistical surveys, CPI, GDP calculation, or sampling methodology...",
     "send": "Ask Tutor",
+    "newChat": "New Chat",
     "clearChat": "Clear Conversation",
     "aiDisclaimer": "StatIQ AI provides guidance grounded in official Indian statistical standards.",
     "typing": "AI Tutor is formulating your response..."
