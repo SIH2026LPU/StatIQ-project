@@ -21,7 +21,6 @@ type Conversation = {
 // KaTeX Math Renderer for formulas
 const renderMathFormula = (math: string, displayMode: boolean = false, key?: string | number) => {
   try {
-    // Clean up surrounding delimiters if present
     let cleanMath = math.trim();
     if (cleanMath.startsWith('\\[') && cleanMath.endsWith('\\]')) {
       cleanMath = cleanMath.slice(2, -2).trim();
@@ -43,7 +42,7 @@ const renderMathFormula = (math: string, displayMode: boolean = false, key?: str
       return (
         <div
           key={key}
-          className="my-4 overflow-x-auto py-4 px-6 rounded-2xl bg-surface-container-high/60 border border-primary-container/30 text-center shadow-md backdrop-blur-sm"
+          className="my-4 overflow-x-auto max-w-full py-4 px-6 rounded-2xl bg-surface-container-high/60 border border-primary-container/30 text-center shadow-md backdrop-blur-sm"
           dangerouslySetInnerHTML={{ __html: html }}
         />
       );
@@ -63,7 +62,6 @@ const renderMathFormula = (math: string, displayMode: boolean = false, key?: str
 
 // Inline markdown formatter (math, bold, code, links, italics)
 const renderInline = (text: string): React.ReactNode => {
-  // Split by inline math \( ... \) or $...$ first
   const mathParts = text.split(/(\\\([\s\S]*?\\\)|(?<!\$)\$(?!\$)[\s\S]+?(?<!\$)\$(?!\$))/g);
 
   return mathParts.map((mPart, mIdx) => {
@@ -74,7 +72,6 @@ const renderInline = (text: string): React.ReactNode => {
       return renderMathFormula(mPart, false, `math-${mIdx}`);
     }
 
-    // Split by code blocks `...`
     const codeParts = mPart.split(/(`[^`]+`)/g);
 
     return codeParts.map((part, i) => {
@@ -89,7 +86,6 @@ const renderInline = (text: string): React.ReactNode => {
         );
       }
 
-      // Handle bold **...**
       const boldParts = part.split(/(\*\*[^*]+\*\*)/g);
       return boldParts.map((bPart, j) => {
         if (bPart.startsWith('**') && bPart.endsWith('**')) {
@@ -100,7 +96,6 @@ const renderInline = (text: string): React.ReactNode => {
           );
         }
 
-        // Handle italics *...*
         const italicParts = bPart.split(/(\*[^*]+\*)/g);
         return italicParts.map((iPart, k) => {
           if (iPart.startsWith('*') && iPart.endsWith('*') && iPart.length > 2) {
@@ -136,13 +131,13 @@ const parseTable = (lines: string[], keyPrefix: string | number) => {
   const rows = tableRows.slice(1).filter((row) => !isDivider(row));
 
   return (
-    <div key={keyPrefix} className="my-4 overflow-hidden rounded-2xl border border-outline-variant/30 bg-surface-container-high/40 shadow-sm">
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-xs border-collapse min-w-[500px]">
+    <div key={keyPrefix} className="my-4 overflow-hidden rounded-2xl border border-outline-variant/30 bg-surface-container-high/40 shadow-sm w-full">
+      <div className="overflow-x-auto max-w-full">
+        <table className="w-full text-left text-xs border-collapse min-w-full">
           <thead className="bg-surface-container-highest/90 border-b border-outline-variant/30">
             <tr>
               {header.map((h, hIdx) => (
-                <th key={hIdx} className="py-3 px-4 font-bold text-on-surface uppercase font-label-caps text-[11px] tracking-wider">
+                <th key={hIdx} className="py-3 px-4 font-bold text-on-surface uppercase font-label-caps text-[11px] tracking-wider whitespace-nowrap">
                   {renderInline(h)}
                 </th>
               ))}
@@ -167,12 +162,10 @@ const parseTable = (lines: string[], keyPrefix: string | number) => {
 
 // Full Rich Markdown & Math Parser
 const renderMarkdown = (content: string) => {
-  // First extract display block math \[ ... \] and $$ ... $$
   const blockMathRegex = /(\\\[[\s\S]*?\\\]|\$\$[\s\S]*?\$\$)/g;
   const mathBlockParts = content.split(blockMathRegex);
 
   return mathBlockParts.map((section, sIdx) => {
-    // If it's a block math formula
     if (
       (section.startsWith('\\[') && section.endsWith('\\]')) ||
       (section.startsWith('$$') && section.endsWith('$$'))
@@ -180,55 +173,49 @@ const renderMarkdown = (content: string) => {
       return renderMathFormula(section, true, `block-math-${sIdx}`);
     }
 
-    // Code blocks regex
     const codeBlockRegex = /(```[\s\S]*?```)/g;
     const parts = section.split(codeBlockRegex);
 
     return parts.map((part, index) => {
-      // Code Block
       if (part.startsWith('```')) {
         const firstLineEnd = part.indexOf('\n');
         const lang = part.slice(3, firstLineEnd).trim();
         const code = part.slice(firstLineEnd + 1, -3).trim();
 
         return (
-          <div key={`code-${sIdx}-${index}`} className="my-4 rounded-2xl overflow-hidden border border-outline-variant/30 bg-[#12141a] text-slate-200 shadow-md" dir="ltr">
+          <div key={`code-${sIdx}-${index}`} className="my-4 rounded-2xl overflow-hidden border border-outline-variant/30 bg-[#12141a] text-slate-200 shadow-md w-full" dir="ltr">
             {lang && (
               <div className="flex items-center justify-between px-4 py-2 border-b border-white/10 bg-white/5 text-[10px] font-mono uppercase tracking-wider text-slate-400">
                 <span>{lang}</span>
               </div>
             )}
-            <pre className="p-4 overflow-x-auto text-xs font-mono leading-relaxed selection:bg-primary/30">
+            <pre className="p-4 overflow-x-auto max-w-full text-xs font-mono leading-relaxed selection:bg-primary/30">
               <code>{code}</code>
             </pre>
           </div>
         );
       }
 
-      // Process non-code block text by paragraphs and tables
       const blocks = part.split(/\n\n+/);
 
       return (
-        <div key={`text-${sIdx}-${index}`} className="space-y-3.5">
+        <div key={`text-${sIdx}-${index}`} className="space-y-3.5 w-full">
           {blocks.map((block, bIdx) => {
             const rawLines = block.split('\n').map((l) => l.trimEnd());
             const trimmedBlock = block.trim();
 
             if (!trimmedBlock) return null;
 
-            // Check if block is a Markdown Table
             const isTable = rawLines.length >= 2 && rawLines.every((l) => l.trim().startsWith('|') && l.trim().endsWith('|'));
             if (isTable) {
               const parsed = parseTable(rawLines, `${sIdx}-${index}-${bIdx}`);
               if (parsed) return parsed;
             }
 
-            // Check for Horizontal Rule
             if (/^(\*\*\*|---|___|• ---)$/.test(trimmedBlock)) {
               return <hr key={bIdx} className="my-4 border-t border-outline-variant/30" />;
             }
 
-            // Check for Headings
             if (trimmedBlock.startsWith('#### ')) {
               return (
                 <h4 key={bIdx} className="font-display font-bold text-sm text-on-surface mt-3 mb-1 text-primary-container">
@@ -239,7 +226,7 @@ const renderMarkdown = (content: string) => {
             if (trimmedBlock.startsWith('### ')) {
               return (
                 <h3 key={bIdx} className="font-display font-bold text-base md:text-lg text-on-surface mt-4 mb-1.5 flex items-center gap-2">
-                  <span className="w-1.5 h-4 bg-primary-container rounded-full" />
+                  <span className="w-1.5 h-4 bg-primary-container rounded-full shrink-0" />
                   {renderInline(trimmedBlock.replace(/^###\s+/, ''))}
                 </h3>
               );
@@ -248,7 +235,7 @@ const renderMarkdown = (content: string) => {
               return (
                 <div key={bIdx} className="mt-5 mb-2 pb-1.5 border-b border-outline-variant/30">
                   <h2 className="font-display font-bold text-lg md:text-xl text-on-surface flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-primary-container" />
+                    <Sparkles className="w-4 h-4 text-primary-container shrink-0" />
                     {renderInline(trimmedBlock.replace(/^##\s+/, ''))}
                   </h2>
                 </div>
@@ -262,7 +249,6 @@ const renderMarkdown = (content: string) => {
               );
             }
 
-            // Check for Blockquote
             if (rawLines.every((l) => l.trim().startsWith('>'))) {
               return (
                 <blockquote key={bIdx} className="border-l-4 border-primary-container/80 pl-4 py-2 my-2 bg-primary-container/5 rounded-r-xl text-sm italic text-on-surface-variant">
@@ -273,7 +259,6 @@ const renderMarkdown = (content: string) => {
               );
             }
 
-            // Check for Numbered List
             if (rawLines.every((l) => /^\d+\.\s+/.test(l.trim()))) {
               return (
                 <ol key={bIdx} className="space-y-2.5 my-3 pl-1">
@@ -287,7 +272,7 @@ const renderMarkdown = (content: string) => {
                         <span className="w-5 h-5 rounded-full bg-primary-container/20 text-primary-container text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 border border-primary-container/30">
                           {num}
                         </span>
-                        <div className="flex-1">{renderInline(itemText)}</div>
+                        <div className="flex-1 min-w-0">{renderInline(itemText)}</div>
                       </li>
                     );
                   })}
@@ -295,7 +280,6 @@ const renderMarkdown = (content: string) => {
               );
             }
 
-            // Check for Bulleted List
             if (rawLines.every((l) => /^[-*•]\s+/.test(l.trim()))) {
               return (
                 <ul key={bIdx} className="space-y-2 my-3 pl-1">
@@ -304,7 +288,7 @@ const renderMarkdown = (content: string) => {
                     return (
                       <li key={lIdx} className="flex items-start gap-2.5 text-sm text-on-surface-variant leading-relaxed">
                         <span className="w-1.5 h-1.5 rounded-full bg-primary-container shrink-0 mt-2 shadow-[0_0_8px_rgba(57,255,20,0.4)]" />
-                        <div className="flex-1">{renderInline(itemText)}</div>
+                        <div className="flex-1 min-w-0">{renderInline(itemText)}</div>
                       </li>
                     );
                   })}
@@ -312,9 +296,8 @@ const renderMarkdown = (content: string) => {
               );
             }
 
-            // Standard paragraph
             return (
-              <p key={bIdx} className="text-sm md:text-[15px] leading-relaxed text-on-surface-variant">
+              <p key={bIdx} className="text-sm md:text-[15px] leading-relaxed text-on-surface-variant break-words">
                 {renderInline(trimmedBlock)}
               </p>
             );
@@ -465,10 +448,10 @@ export function TutorChat() {
   ];
 
   return (
-    <div className="flex flex-col md:flex-row w-full h-full min-h-[650px] h-[75vh] border border-outline-variant/30 rounded-3xl overflow-hidden shadow-sm glass-panel">
+    <div className="flex flex-col md:flex-row w-full h-[78vh] min-h-[650px] border border-outline-variant/30 rounded-3xl overflow-hidden shadow-sm glass-panel">
       
       {/* Sidebar */}
-      <div className="w-full md:w-64 lg:w-72 border-b md:border-b-0 md:border-r border-outline-variant/30 flex flex-col bg-surface-container-lowest/50 flex-shrink-0">
+      <div className="w-full md:w-64 lg:w-72 border-b md:border-b-0 md:border-r border-outline-variant/30 flex flex-col bg-surface-container-lowest/50 shrink-0">
         <div className="p-4 border-b border-outline-variant/30">
           <button
             onClick={startNewChat}
@@ -478,7 +461,7 @@ export function TutorChat() {
             {t("tutor.clearChat", "New Chat")}
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto p-3 space-y-1">
+        <div className="flex-1 overflow-y-auto p-3 space-y-1 custom-scrollbar">
           <p className="text-xs font-label-caps text-on-surface-variant/50 px-2 py-2">
             {t("learner.recentActivity", "Recent Conversations")}
           </p>
@@ -513,12 +496,12 @@ export function TutorChat() {
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col relative bg-surface-container-lowest/30">
+      <div className="flex-1 flex flex-col min-w-0 bg-surface-container-lowest/30 overflow-hidden">
         
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6">
+        {/* Messages Scroll Area */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6 overflow-x-hidden custom-scrollbar">
           {messages.length === 0 && !pending && (
-            <div className="flex flex-col items-center justify-center h-full max-w-xl mx-auto text-center animate-fade-up py-8">
+            <div className="flex flex-col items-center justify-center h-full max-w-2xl mx-auto text-center animate-fade-up py-8 px-4">
               <div className="w-16 h-16 rounded-2xl bg-primary-container/10 flex items-center justify-center mb-6 border border-primary-container/30 shadow-[0_0_25px_rgba(57,255,20,0.15)]">
                 <Sparkles className="w-8 h-8 text-primary-container" />
               </div>
@@ -548,14 +531,14 @@ export function TutorChat() {
 
           {messages.map((msg, idx) => (
             <div key={msg.id || idx} className={`flex w-full animate-fade-up ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-              <div
-                className={`rounded-3xl shadow-sm transition-all ${
-                  msg.role === "user"
-                    ? "max-w-[85%] md:max-w-[70%] bg-gradient-to-r from-primary to-primary-container text-black font-medium p-5 rounded-tr-sm shadow-md"
-                    : "max-w-[95%] md:max-w-[88%] bg-surface-container-low/90 border border-outline-variant/40 p-6 md:p-7 rounded-tl-sm text-on-surface shadow-md"
-                }`}
-              >
-                {msg.role === "assistant" && (
+              {msg.role === "user" ? (
+                <div className="max-w-[85%] sm:max-w-[75%] md:max-w-[65%] bg-gradient-to-r from-primary to-primary-container text-black font-medium p-4 sm:p-5 rounded-3xl rounded-tr-sm shadow-md break-words">
+                  <p className="text-sm md:text-[15px] leading-relaxed whitespace-pre-wrap font-sans">
+                    {msg.content}
+                  </p>
+                </div>
+              ) : (
+                <div className="w-full max-w-full rounded-3xl bg-surface-container-low/90 border border-outline-variant/40 p-5 sm:p-6 md:p-8 rounded-tl-sm text-on-surface shadow-md break-words overflow-hidden">
                   <div className="flex items-center justify-between mb-4 border-b border-outline-variant/25 pb-3">
                     <div className="flex items-center gap-2">
                       <span className="w-6 h-6 rounded-lg bg-primary-container/20 text-primary-container flex items-center justify-center border border-primary-container/30">
@@ -568,46 +551,40 @@ export function TutorChat() {
 
                     <button
                       onClick={() => copyText(msg.content, msg.id)}
-                      className="text-on-surface-variant hover:text-on-surface p-1.5 rounded-lg transition-colors border border-outline-variant/30 bg-surface-container-high flex items-center gap-1.5 px-2.5 text-[10px] font-label-caps"
+                      className="text-on-surface-variant hover:text-on-surface p-1.5 rounded-lg transition-colors border border-outline-variant/30 bg-surface-container-high flex items-center gap-1.5 px-2.5 text-[10px] font-label-caps shrink-0"
                       title="Copy response"
                     >
                       {copiedId === msg.id ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                       {copiedId === msg.id ? "COPIED" : "COPY"}
                     </button>
                   </div>
-                )}
-                
-                {msg.role === "user" ? (
-                  <p className="text-sm md:text-[15px] leading-relaxed whitespace-pre-wrap font-sans">
-                    {msg.content}
-                  </p>
-                ) : (
-                  <div className="font-sans leading-relaxed text-on-surface">
+                  
+                  <div className="font-sans leading-relaxed text-on-surface w-full">
                     {renderMarkdown(msg.content)}
                   </div>
-                )}
 
-                {msg.sources && msg.sources.length > 0 && (
-                  <div className="mt-5 pt-4 border-t border-outline-variant/20 space-y-2">
-                    <p className="text-[10px] font-label-caps font-bold text-on-surface-variant flex items-center gap-1.5 tracking-wider uppercase">
-                      <Book className="w-3.5 h-3.5 text-primary-container" />
-                      VERIFIED STATISTICAL SOURCES
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {msg.sources.map((s: any, i: number) => (
-                        <div key={i} className="px-3 py-1 bg-surface-container-high rounded-lg border border-outline-variant/30 text-[11px] font-medium text-on-surface-variant" title={s.excerpt}>
-                          {s.name}
-                        </div>
-                      ))}
+                  {msg.sources && msg.sources.length > 0 && (
+                    <div className="mt-5 pt-4 border-t border-outline-variant/20 space-y-2">
+                      <p className="text-[10px] font-label-caps font-bold text-on-surface-variant flex items-center gap-1.5 tracking-wider uppercase">
+                        <Book className="w-3.5 h-3.5 text-primary-container" />
+                        VERIFIED STATISTICAL SOURCES
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {msg.sources.map((s: any, i: number) => (
+                          <div key={i} className="px-3 py-1 bg-surface-container-high rounded-lg border border-outline-variant/30 text-[11px] font-medium text-on-surface-variant" title={s.excerpt}>
+                            {s.name}
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
             </div>
           ))}
 
           {pending && (
-            <div className="flex justify-start animate-fade-up">
+            <div className="flex justify-start animate-fade-up w-full">
               <div className="bg-surface-container-low rounded-3xl rounded-tl-sm p-5 border border-outline-variant/30 shadow-sm flex items-center gap-3">
                  <div className="flex gap-1.5">
                     <span className="w-2.5 h-2.5 rounded-full bg-primary-container animate-bounce" style={{ animationDelay: "0ms" }}></span>
@@ -625,7 +602,7 @@ export function TutorChat() {
 
         {/* Input Area */}
         <div className="p-4 md:p-6 bg-surface-container-lowest/80 backdrop-blur-md border-t border-outline-variant/30 shrink-0">
-          <form onSubmit={ask} className="relative flex items-end gap-3 max-w-4xl mx-auto">
+          <form onSubmit={ask} className="relative flex items-end gap-3 max-w-5xl mx-auto w-full">
             <textarea
               className="flex-1 bg-surface-container-high/60 border border-outline-variant/40 rounded-2xl resize-none py-3.5 px-5 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary-container focus:ring-2 focus:ring-primary-container/15 transition-all min-h-[52px] max-h-[200px] font-sans"
               value={input}
