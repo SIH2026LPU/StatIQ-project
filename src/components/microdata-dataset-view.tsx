@@ -580,7 +580,7 @@ export function MicrodataDatasetView({
                             type="button"
                             disabled={isDownloading}
                             onClick={() => handleDownload(name)}
-                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-primary text-black font-label-caps uppercase text-[11px] font-bold shadow-sm hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-primary text-white font-sans uppercase text-xs font-bold shadow-sm hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
                           >
                             {isDownloading ? (
                               <>
@@ -633,9 +633,9 @@ export function MicrodataDatasetView({
                   key={t}
                   type="button"
                   onClick={() => setDictFilterType(t)}
-                  className={`px-3 py-1 rounded-lg text-[11px] font-label-caps uppercase font-semibold transition-all ${
+                  className={`px-3 py-1 rounded-lg text-xs font-sans uppercase font-bold transition-all ${
                     dictFilterType === t
-                      ? "bg-primary text-black"
+                      ? "bg-primary text-white shadow-sm"
                       : "bg-surface-container-high text-on-surface-variant hover:text-on-surface"
                   }`}
                 >

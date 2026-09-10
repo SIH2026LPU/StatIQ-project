@@ -186,10 +186,10 @@ export function MicrodataCatalogue({
                     setQ(preset.query);
                     setPage(1);
                   }}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-medium font-sans transition-all flex items-center gap-1.5 ${
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-sans transition-all flex items-center gap-1.5 ${
                     isActive
-                      ? "bg-primary text-black font-bold shadow-sm scale-105"
-                      : "bg-surface-container-high/60 border border-outline-variant/30 text-on-surface-variant hover:text-on-surface hover:border-primary/40 hover:bg-surface-container-high"
+                      ? "bg-primary text-white font-bold shadow-md scale-105"
+                      : "bg-surface-container-high/60 border border-outline-variant/30 text-on-surface-variant hover:text-on-surface hover:border-primary/40 hover:bg-surface-container-high font-medium"
                   }`}
                 >
                   <span>{preset.label}</span>
