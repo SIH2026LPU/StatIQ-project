@@ -7,11 +7,8 @@ import {
   CheckCircle2,
   AlertCircle,
   RefreshCw,
-  Send,
-  ShieldCheck,
-  Award,
-  Layers,
 } from "lucide-react";
+import { useTranslation } from "@/components/language/language-provider";
 
 type Draft = { id: string; prompt: string; status: string; difficulty: string };
 
@@ -22,6 +19,7 @@ export function QuizStudio({
   competencies: Array<{ id: string; name: string }>;
   initialDrafts: Draft[];
 }) {
+  const { t, tEntity } = useTranslation();
   const [topic, setTopic] = useState("SQL for survey microdata");
   const [competencyId, setCompetencyId] = useState("c-sql");
   const [count, setCount] = useState(3);
@@ -72,26 +70,26 @@ export function QuizStudio({
         <div className="flex items-center gap-2 pb-3 border-b border-outline-variant/20">
           <Sparkles className="w-4 h-4 text-primary" />
           <h3 className="font-display text-sm font-bold text-on-surface">
-            AI Item Generator
+            {t("quiz.generatorTitle", "AI Item Generator")}
           </h3>
         </div>
 
         <div className="space-y-1.5">
           <label className="text-xs font-label-caps text-on-surface-variant uppercase tracking-wider block">
-            Statistical Topic / Prompt
+            {t("quiz.topicPrompt", "Statistical Topic / Prompt")}
           </label>
           <input
             className="w-full rounded-xl bg-surface-container-high/60 border border-outline-variant/40 p-3 text-xs text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:border-primary transition-colors"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
-            placeholder="e.g. Sampling variance in NSS surveys"
+            placeholder={t("quiz.topicPlaceholder", "e.g. Sampling variance in NSS surveys")}
             required
           />
         </div>
 
         <div className="space-y-1.5">
           <label className="text-xs font-label-caps text-on-surface-variant uppercase tracking-wider block">
-            Target Competency
+            {t("quiz.targetCompetency", "Target Competency")}
           </label>
           <select
             className="w-full rounded-xl bg-surface-container-high/60 border border-outline-variant/40 p-3 text-xs text-on-surface focus:outline-none focus:border-primary transition-colors"
@@ -100,7 +98,7 @@ export function QuizStudio({
           >
             {competencies.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.name}
+                {tEntity(c.name)}
               </option>
             ))}
           </select>
@@ -108,7 +106,7 @@ export function QuizStudio({
 
         <div className="space-y-1.5">
           <label className="text-xs font-label-caps text-on-surface-variant uppercase tracking-wider block">
-            Difficulty Level
+            {t("assessments.difficulty", "Difficulty Level")}
           </label>
           <div className="grid grid-cols-3 gap-2">
             {(["easy", "medium", "hard"] as const).map((d) => (
@@ -122,7 +120,7 @@ export function QuizStudio({
                     : "bg-surface-container-high text-on-surface-variant hover:text-on-surface border border-outline-variant/30"
                 }`}
               >
-                {d}
+                {tEntity(d)}
               </button>
             ))}
           </div>
@@ -130,8 +128,8 @@ export function QuizStudio({
 
         <div className="space-y-1.5">
           <div className="flex justify-between text-xs font-label-caps text-on-surface-variant">
-            <span>Question Count</span>
-            <span className="font-mono text-primary font-bold">{count} items</span>
+            <span>{t("assessments.questionCount", "Question Count")}</span>
+            <span className="font-mono text-primary font-bold">{count} {t("quiz.items", "items")}</span>
           </div>
           <input
             type="range"
@@ -151,18 +149,18 @@ export function QuizStudio({
           {pending ? (
             <>
               <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-              Generating Items…
+              {t("quiz.generatingItems", "Generating Items…")}
             </>
           ) : (
             <>
               <Sparkles className="w-3.5 h-3.5" />
-              Generate for Review
+              {t("quiz.generateForReview", "Generate for Review")}
             </>
           )}
         </button>
 
         <p className="text-[11px] text-on-surface-variant/70 text-center leading-relaxed">
-          Grounded against official MoSPI documentation & verified statistical textbooks.
+          {t("quiz.groundedText", "Grounded against official MoSPI documentation & verified statistical textbooks.")}
         </p>
       </form>
 
@@ -171,10 +169,10 @@ export function QuizStudio({
         <div className="flex items-center justify-between pb-2">
           <div>
             <h3 className="font-display text-xl font-bold text-on-surface">
-              Draft Items for Review ({items.length})
+              {t("quiz.draftItemsTitle", "Draft Items for Review")} ({items.length})
             </h3>
             <p className="text-xs text-on-surface-variant mt-0.5">
-              Review and approve AI-generated questions before publishing to the live assessment pool.
+              {t("quiz.draftItemsDesc", "Review and approve AI-generated questions before publishing to the live assessment pool.")}
             </p>
           </div>
         </div>
@@ -183,10 +181,10 @@ export function QuizStudio({
           <div className="glass-panel p-12 rounded-3xl border border-outline-variant/30 text-center space-y-3">
             <HelpCircle className="w-10 h-10 text-on-surface-variant/60 mx-auto" />
             <h4 className="font-display text-base font-bold text-on-surface">
-              No draft questions in queue
+              {t("quiz.noDraftsTitle", "No draft questions in queue")}
             </h4>
             <p className="text-xs text-on-surface-variant max-w-sm mx-auto">
-              Use the generation form on the left to create new AI-grounded assessment questions.
+              {t("quiz.noDraftsDesc", "Use the generation form on the left to create new AI-grounded assessment questions.")}
             </p>
           </div>
         ) : (
@@ -207,10 +205,10 @@ export function QuizStudio({
                             : "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30"
                         }`}
                       >
-                        {item.status}
+                        {tEntity(item.status)}
                       </span>
                       <span className="text-[11px] font-label-caps text-on-surface-variant px-2 py-0.5 rounded-md bg-surface-container-high">
-                        {item.difficulty}
+                        {tEntity(item.difficulty)}
                       </span>
                     </div>
 
@@ -238,7 +236,7 @@ export function QuizStudio({
                       )}
                       <span>
                         {item.validation.ok
-                          ? "Passed official duplicate & hallucination checks"
+                          ? t("quiz.passedChecks", "Passed official duplicate & hallucination checks")
                           : item.validation.issues.join("; ")}
                       </span>
                     </div>
@@ -246,7 +244,7 @@ export function QuizStudio({
 
                   <div className="pt-3 border-t border-outline-variant/20 flex items-center justify-between">
                     <span className="text-xs text-on-surface-variant font-label-caps">
-                      {isPublished ? "Active in assessment pool" : "Awaiting faculty approval"}
+                      {isPublished ? t("quiz.activeInPool", "Active in assessment pool") : t("quiz.awaitingApproval", "Awaiting faculty approval")}
                     </span>
 
                     {!isPublished ? (
@@ -256,12 +254,12 @@ export function QuizStudio({
                         className="glow-button px-4 py-1.5 rounded-xl text-xs font-label-caps uppercase tracking-wider font-bold text-black shadow-md flex items-center gap-1.5"
                       >
                         <CheckCircle2 className="w-3.5 h-3.5" />
-                        Publish Question
+                        {t("quiz.publishQuestion", "Publish Question")}
                       </button>
                     ) : (
                       <span className="text-xs font-label-caps text-emerald-500 font-bold flex items-center gap-1">
                         <CheckCircle2 className="w-3.5 h-3.5" />
-                        Published
+                        {t("quiz.published", "Published")}
                       </span>
                     )}
                   </div>

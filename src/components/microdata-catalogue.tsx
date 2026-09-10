@@ -91,6 +91,15 @@ export function MicrodataCatalogue({
     });
   }, [rawDatasets, selectedRepo]);
 
+  const presetQueries = [
+    { label: t("microdata.presetAll", "All Surveys"), query: "", count: "187" },
+    { label: t("microdata.presetPlfs", "👥 PLFS (Labour Force)"), query: "PLFS", count: "14" },
+    { label: t("microdata.presetAsi", "🏭 ASI (Industries)"), query: "ASI", count: "52" },
+    { label: t("microdata.presetHces", "🛒 HCES (Household Consumption)"), query: "HCES", count: "3" },
+    { label: t("microdata.presetAsuse", "🏢 ASUSE (Enterprises)"), query: "ASUSE", count: "4" },
+    { label: t("microdata.presetNss", "📊 NSS (National Sample Survey)"), query: "NSS", count: "108" },
+  ];
+
   return (
     <section className="space-y-6">
       {/* Real-time Status & Provenance Strip */}
@@ -98,7 +107,7 @@ export function MicrodataCatalogue({
         <div className="flex flex-wrap items-center gap-3">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold font-label-caps uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shadow-sm">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            LIVE MoSPI Microdata
+            {t("microdata.liveBadge", "LIVE MoSPI Microdata")}
           </span>
           <span className="text-on-surface-variant font-medium">
             <strong className="text-on-surface">{total}</strong> {t("microdata.surveysAvailable", "Official Surveys Available")}
@@ -106,12 +115,12 @@ export function MicrodataCatalogue({
           <span className="hidden sm:inline-block text-outline-variant">•</span>
           <span className="hidden sm:inline-flex items-center gap-1 text-on-surface-variant">
             <ShieldCheck className="w-3.5 h-3.5 text-primary" />
-            Zero-Trust Credential Isolation
+            {t("microdata.zeroTrust", "Zero-Trust Credential Isolation")}
           </span>
         </div>
 
         <div className="flex items-center gap-2 text-on-surface-variant text-[11px]">
-          <span>Gateway:</span>
+          <span>{t("microdata.gateway", "Gateway")}:</span>
           <code className="px-1.5 py-0.5 rounded bg-surface-container-high font-mono text-primary font-semibold">
             microdata.gov.in
           </code>
@@ -175,11 +184,11 @@ export function MicrodataCatalogue({
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            {PRESET_QUERIES.map((preset) => {
+            {presetQueries.map((preset) => {
               const isActive = q === preset.query;
               return (
                 <button
-                  key={preset.label}
+                  key={preset.query || "all"}
                   type="button"
                   onClick={() => {
                     setInputVal(preset.query);
