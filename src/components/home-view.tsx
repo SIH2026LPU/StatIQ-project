@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
+import { useTranslation } from "@/components/language/language-provider";
 import {
   ArrowRight,
   Database,
@@ -156,6 +157,8 @@ const MINISTRY_LOGOS = [
 ];
 
 export function HomeView({ stats, backend }: HomeViewProps) {
+  const { t } = useTranslation();
+
   return (
     <>
       <div className="mesh-bg"></div>
@@ -168,16 +171,13 @@ export function HomeView({ stats, backend }: HomeViewProps) {
           <div className="space-y-8 z-10 relative">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-secondary-container bg-secondary-container/10 text-secondary-fixed-dim font-label-caps text-label-caps">
               <span className="w-2 h-2 rounded-full bg-secondary-container animate-pulse"></span>
-              AI-POWERED COMPETENCY INTELLIGENCE
+              {t("home.badge", "AI-POWERED COMPETENCY INTELLIGENCE")}
             </div>
             <h1 className="font-display-lg-mobile text-display-lg-mobile md:font-display-lg md:text-display-lg font-bold tracking-tighter text-on-surface">
-              Competency Intelligence <br />for{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-container to-secondary-container">
-                India&apos;s Official Statistical System
-              </span>
+              {t("home.title", "Competency Intelligence for India's Official Statistical System")}
             </h1>
             <p className="font-body-lg text-body-lg text-on-surface-variant max-w-xl">
-              StatIQ AI closes the loop: <strong className="text-on-surface">Profile → Assessment → Skill Gap → iGOT/NSSTA Recommendation → Learning → Updated Competency.</strong> Built for MoSPI. Powered by AI.
+              {t("home.subtitle", "AI-driven competency mapping, automated skill-gap analysis, personalized MoSPI-aligned learning paths, and real-time statistical intelligence for Indian Official Statistics.")}
             </p>
 
             {/* Live backend status pill */}
@@ -195,7 +195,7 @@ export function HomeView({ stats, backend }: HomeViewProps) {
                 href="/login"
                 className="glow-button text-black px-8 py-4 rounded-lg font-label-caps text-label-caps font-bold tracking-widest flex items-center justify-center gap-2"
               >
-                OPEN THE DEMO
+                {t("home.ctaSignIn", "ACCESS WORKSPACE")}
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <Link
@@ -203,7 +203,7 @@ export function HomeView({ stats, backend }: HomeViewProps) {
                 className="glass-panel px-8 py-4 rounded-lg font-label-caps text-label-caps font-bold text-on-surface hover:bg-white/5 transition-colors flex items-center justify-center gap-2"
               >
                 <Database className="w-5 h-5" />
-                OFFICIAL DATA SOURCES
+                {t("nav.dataSources", "OFFICIAL DATA SOURCES")}
               </Link>
             </div>
           </div>
@@ -229,15 +229,17 @@ export function HomeView({ stats, backend }: HomeViewProps) {
         {/* ── STATS STRIP ── */}
         <section className="space-y-8">
           <div className="text-center">
-            <p className="font-label-caps text-label-caps text-on-surface-variant tracking-widest">PLATFORM AT A GLANCE</p>
+            <p className="font-label-caps text-label-caps text-on-surface-variant tracking-widest">
+              {t("home.featuresTitle", "PLATFORM AT A GLANCE")}
+            </p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {[
-              { value: stats.competencies || "200+", label: "Competency Domains", color: "text-primary-container", border: "border-primary-container/30" },
-              { value: stats.roles || "80+", label: "Job Roles Mapped", color: "text-secondary-fixed-dim", border: "border-secondary-container/30" },
-              { value: stats.courses || "1,200+", label: "iGOT Courses", color: "text-tertiary-fixed-dim", border: "border-tertiary-container/30" },
+              { value: stats.competencies || "200+", label: t("home.statsCompetencies", "Competency Domains"), color: "text-primary-container", border: "border-primary-container/30" },
+              { value: stats.roles || "80+", label: t("home.statsRoles", "Job Roles Mapped"), color: "text-secondary-fixed-dim", border: "border-secondary-container/30" },
+              { value: stats.courses || "1,200+", label: t("home.statsCourses", "iGOT Courses"), color: "text-tertiary-fixed-dim", border: "border-tertiary-container/30" },
               { value: "14", label: "Ministries / Bodies", color: "text-primary-fixed-dim", border: "border-primary-fixed/30" },
-              { value: stats.sources || "12+", label: "Official Data Sources", color: "text-secondary-fixed-dim", border: "border-secondary-fixed/30" },
+              { value: stats.sources || "12+", label: t("home.statsSources", "Official Data Sources"), color: "text-secondary-fixed-dim", border: "border-secondary-fixed/30" },
             ].map((s) => (
               <div
                 key={s.label}
@@ -255,7 +257,7 @@ export function HomeView({ stats, backend }: HomeViewProps) {
           <div className="text-center space-y-4 max-w-2xl mx-auto">
             <p className="font-label-caps text-label-caps text-on-surface-variant tracking-widest">THE INTELLIGENCE LOOP</p>
             <h2 className="font-display-lg-mobile text-display-lg-mobile md:font-display-lg md:text-display-lg font-bold text-on-surface tracking-tight">
-              How It Works
+              {t("home.featuresSubtitle", "How It Works")}
             </h2>
             <p className="font-body-md text-body-md text-on-surface-variant">
               A closed-loop system that continuously improves your competency passport from first login to promotion.
@@ -263,7 +265,6 @@ export function HomeView({ stats, backend }: HomeViewProps) {
           </div>
 
           <div className="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Connecting line (desktop) */}
             <div className="hidden lg:block absolute top-12 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-primary-container/20 via-secondary-container/40 to-primary-container/20 z-0" />
 
             {HOW_IT_WORKS.map((item) => {
@@ -298,7 +299,7 @@ export function HomeView({ stats, backend }: HomeViewProps) {
           <div className="text-center space-y-4 max-w-2xl mx-auto">
             <p className="font-label-caps text-label-caps text-on-surface-variant tracking-widest">CORE CAPABILITIES</p>
             <h2 className="font-display-lg-mobile text-display-lg-mobile md:font-display-lg md:text-display-lg font-bold text-on-surface tracking-tight">
-              Everything You Need
+              {t("home.featuresTitle", "Everything You Need")}
             </h2>
             <p className="font-body-md text-body-md text-on-surface-variant">
               Purpose-built for India&apos;s statistical workforce. Not a generic LMS.
@@ -343,7 +344,7 @@ export function HomeView({ stats, backend }: HomeViewProps) {
 
           <div className="text-center">
             <Link href="/features" className="glow-button-secondary px-8 py-3 rounded-full font-label-caps text-label-caps inline-flex items-center gap-2">
-              SEE ALL FEATURES
+              {t("common.viewAll", "SEE ALL FEATURES")}
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
@@ -411,10 +412,12 @@ export function HomeView({ stats, backend }: HomeViewProps) {
           </div>
         </section>
 
-        {/* ── MINISTRY / BACKED BY STRIP ── */}
+        {/* ── MINISTRY STRIP ── */}
         <section className="space-y-10">
           <div className="text-center">
-            <p className="font-label-caps text-label-caps text-on-surface-variant tracking-widest">ALIGNED WITH OFFICIAL BODIES</p>
+            <p className="font-label-caps text-label-caps text-on-surface-variant tracking-widest">
+              {t("home.architectureSubtitle", "ALIGNED WITH OFFICIAL BODIES")}
+            </p>
           </div>
           <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
             {MINISTRY_LOGOS.map((m) => (
@@ -437,7 +440,9 @@ export function HomeView({ stats, backend }: HomeViewProps) {
           <div className="space-y-6">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary-container/10 border border-primary-container/30">
               <Zap className="w-4 h-4 text-primary-container" />
-              <span className="font-label-caps text-label-caps text-primary-container text-xs">OFFICIAL DATA SOURCES</span>
+              <span className="font-label-caps text-label-caps text-primary-container text-xs">
+                {t("nav.dataSources", "OFFICIAL DATA SOURCES")}
+              </span>
             </div>
             <h2 className="font-display-lg-mobile text-display-lg-mobile font-bold text-on-surface tracking-tight">
               Backed by Real Government Data
@@ -446,7 +451,7 @@ export function HomeView({ stats, backend }: HomeViewProps) {
               Every competency domain, every role, and every learning recommendation is derived from official MoSPI, NCS, and DoPT sources — not scraped or synthesised.
             </p>
             <Link href="/sources" className="glow-button text-black px-6 py-3 rounded-lg font-label-caps text-label-caps font-bold inline-flex items-center gap-2">
-              EXPLORE SOURCES
+              {t("home.ctaExplore", "EXPLORE SOURCES")}
               <Database className="w-4 h-4" />
             </Link>
           </div>
@@ -478,19 +483,19 @@ export function HomeView({ stats, backend }: HomeViewProps) {
               SIH 2026 · PROBLEM STATEMENT 26101
             </div>
             <h2 className="font-display-lg-mobile text-display-lg-mobile md:font-display-lg md:text-display-lg font-bold text-on-surface tracking-tight max-w-3xl">
-              Ready to Accelerate India&apos;s Statistical Workforce?
+              {t("home.startJourney", "Ready to Accelerate India's Statistical Workforce?")}
             </h2>
             <p className="font-body-lg text-body-lg text-on-surface-variant max-w-xl">
-              Join the demo and see how StatIQ AI transforms competency data into actionable learning in under 60 seconds.
+              {t("home.subtitle", "Join the demo and see how StatIQ AI transforms competency data into actionable learning in under 60 seconds.")}
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link href="/login" className="glow-button text-black px-10 py-4 rounded-xl font-label-caps text-label-caps font-bold tracking-widest inline-flex items-center gap-2">
-                GET STARTED FREE
+                {t("actions.signIn", "GET STARTED FREE")}
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <Link href="/catalogue" className="glow-button-secondary px-10 py-4 rounded-xl font-label-caps text-label-caps font-bold tracking-widest inline-flex items-center gap-2">
                 <BookOpen className="w-5 h-5" />
-                BROWSE CATALOGUE
+                {t("nav.catalogue", "BROWSE CATALOGUE")}
               </Link>
             </div>
           </div>

@@ -1,82 +1,167 @@
 import { TranslationResponse } from "./types";
 
 const ULCA_CONFIG_URL = "https://meity-auth.ulcacontrib.org/ulca/apis/v0/model/getModelsPipeline";
+const DEFAULT_INFERENCE_URL = "https://dhruva-api.bhashini.gov.in/services/inference/pipeline";
+const DEFAULT_PIPELINE_ID = "64392f96daac500b55c543cd";
 
-interface BhashiniConfig {
-  userID: string;
-  ulcaApiKey: string;
+interface BhashiniCredentials {
+  udyatKey: string;
+  inferenceKey: string;
+  userId?: string;
   pipelineId: string;
 }
 
-function getBhashiniConfig(): BhashiniConfig {
-  const userID = process.env.BHASHINI_USER_ID;
-  const ulcaApiKey = process.env.BHASHINI_ULCA_API_KEY;
-  const pipelineId = process.env.BHASHINI_PIPELINE_ID;
-
-  if (!userID || !ulcaApiKey || !pipelineId) {
-    throw new Error("Missing BHASHINI environment variables");
-  }
-
-  return { userID, ulcaApiKey, pipelineId };
+interface CachedPipelineConfig {
+  serviceIdMap: Record<string, string>; // e.g. "en-hi": "ai4bharat/indictrans-v2-all-gpu--t4"
+  callbackUrl: string;
+  inferenceApiKeyName: string;
+  inferenceApiKeyValue: string;
+  expiresAt: number;
 }
 
-export async function translateViaBhashini(text: string, sourceLang: string, targetLang: string): Promise<TranslationResponse> {
-  try {
-    const config = getBhashiniConfig();
+let cachedConfig: CachedPipelineConfig | null = null;
+const CONFIG_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour TTL
 
-    // 1. Pipeline Config Call
-    const configPayload = {
-      pipelineTasks: [
-        {
-          taskType: "translation",
-          config: {
-            language: {
-              sourceLanguage: sourceLang,
-              targetLanguage: targetLang,
+function getCredentials(): BhashiniCredentials {
+  const udyatKey = process.env.BHASHINI_UDYAT_KEY || process.env.BHASHINI_ULCA_API_KEY || "";
+  const inferenceKey = process.env.BHASHINI_INFERENCE_KEY || "";
+  const userId = process.env.BHASHINI_USER_ID || "";
+  const pipelineId = process.env.BHASHINI_PIPELINE_ID || DEFAULT_PIPELINE_ID;
+
+  return { udyatKey, inferenceKey, userId, pipelineId };
+}
+
+/**
+ * Resolves the Bhashini translation pipeline config and dynamic service ID.
+ */
+export async function getPipelineConfig(sourceLang = "en", targetLang = "hi"): Promise<{
+  serviceId: string;
+  callbackUrl: string;
+  inferenceApiKeyName: string;
+  inferenceApiKeyValue: string;
+}> {
+  const creds = getCredentials();
+  const pairKey = `${sourceLang}-${targetLang}`;
+
+  // Return cached config if still valid
+  if (cachedConfig && Date.now() < cachedConfig.expiresAt) {
+    const serviceId = cachedConfig.serviceIdMap[pairKey] || cachedConfig.serviceIdMap["default"] || "ai4bharat/indictrans-v2-all-gpu--t4";
+    return {
+      serviceId,
+      callbackUrl: cachedConfig.callbackUrl || DEFAULT_INFERENCE_URL,
+      inferenceApiKeyName: cachedConfig.inferenceApiKeyName || "Authorization",
+      inferenceApiKeyValue: cachedConfig.inferenceApiKeyValue || creds.inferenceKey,
+    };
+  }
+
+  // Attempt real Pipeline Config Call
+  let serviceId = "ai4bharat/indictrans-v2-all-gpu--t4";
+  let callbackUrl = DEFAULT_INFERENCE_URL;
+  let inferenceApiKeyName = "Authorization";
+  let inferenceApiKeyValue = creds.inferenceKey;
+
+  if (creds.udyatKey) {
+    try {
+      const configPayload = {
+        pipelineTasks: [
+          {
+            taskType: "translation",
+            config: {
+              language: {
+                sourceLanguage: sourceLang,
+                targetLanguage: targetLang,
+              },
             },
           },
+        ],
+        pipelineRequestConfig: {
+          pipelineId: creds.pipelineId,
         },
-      ],
-      pipelineRequestConfig: {
-        pipelineId: config.pipelineId,
-      },
-    };
+      };
 
-    const configResponse = await fetch(ULCA_CONFIG_URL, {
-      method: "POST",
-      headers: {
+      const headers: Record<string, string> = {
         "Content-Type": "application/json",
-        "userID": config.userID,
-        "ulcaApiKey": config.ulcaApiKey,
-      },
-      body: JSON.stringify(configPayload),
-    });
+        "ulcaApiKey": creds.udyatKey,
+      };
+      if (creds.userId) {
+        headers["userID"] = creds.userId;
+      }
 
-    if (!configResponse.ok) {
-      throw new Error(`Bhashini Config Failed: ${configResponse.status} ${configResponse.statusText}`);
+      const configRes = await fetch(ULCA_CONFIG_URL, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(configPayload),
+      });
+
+      if (configRes.ok) {
+        const configData = await configRes.json();
+        const translationTask = configData.pipelineResponseConfig?.find(
+          (t: any) => t.taskType === "translation"
+        ) || configData.pipelineResponseConfig?.[0];
+
+        const resolvedServiceId = translationTask?.config?.[0]?.serviceId;
+        if (resolvedServiceId) {
+          serviceId = resolvedServiceId;
+        }
+
+        if (configData.pipelineInferenceAPIEndPoint?.callbackUrl) {
+          callbackUrl = configData.pipelineInferenceAPIEndPoint.callbackUrl;
+        }
+
+        if (configData.pipelineInferenceAPIEndPoint?.inferenceApiKey?.name) {
+          inferenceApiKeyName = configData.pipelineInferenceAPIEndPoint.inferenceApiKey.name;
+        }
+        if (configData.pipelineInferenceAPIEndPoint?.inferenceApiKey?.value) {
+          inferenceApiKeyValue = configData.pipelineInferenceAPIEndPoint.inferenceApiKey.value;
+        }
+
+        // Cache the successful pipeline configuration
+        cachedConfig = {
+          serviceIdMap: {
+            [pairKey]: serviceId,
+            default: serviceId,
+          },
+          callbackUrl,
+          inferenceApiKeyName,
+          inferenceApiKeyValue: inferenceApiKeyValue || creds.inferenceKey,
+          expiresAt: Date.now() + CONFIG_CACHE_TTL_MS,
+        };
+      }
+    } catch (err) {
+      console.warn("Bhashini Pipeline Config call fallback:", err);
     }
+  }
 
-    const configData = await configResponse.json();
+  return {
+    serviceId,
+    callbackUrl,
+    inferenceApiKeyName,
+    inferenceApiKeyValue: inferenceApiKeyValue || creds.inferenceKey,
+  };
+}
 
-    // Find the translation service ID
-    const translationTask = configData.pipelineResponseConfig?.[0];
-    if (!translationTask || translationTask.taskType !== "translation") {
-      throw new Error("Bhashini returned invalid translation config");
-    }
+/**
+ * Translates text using the official Bhashini Pipeline Compute Call.
+ */
+export async function translateViaBhashini(
+  text: string,
+  sourceLang: string,
+  targetLang: string
+): Promise<TranslationResponse> {
+  if (!text || text.trim() === "") {
+    return {
+      success: true,
+      text: "",
+      sourceLanguage: sourceLang,
+      targetLanguage: targetLang,
+      cached: false,
+    };
+  }
 
-    const serviceId = translationTask.config?.[0]?.serviceId;
-    if (!serviceId) {
-      throw new Error(`Bhashini does not support ${sourceLang} to ${targetLang}`);
-    }
+  try {
+    const creds = getCredentials();
+    const config = await getPipelineConfig(sourceLang, targetLang);
 
-    const inferenceApiKey = configData.pipelineInferenceAPIEndPoint?.inferenceApiKey?.value;
-    const inferenceUrl = configData.pipelineInferenceAPIEndPoint?.callbackUrl;
-
-    if (!inferenceApiKey || !inferenceUrl) {
-      throw new Error("Missing Bhashini inference API details");
-    }
-
-    // 2. Pipeline Compute Call
     const computePayload = {
       pipelineTasks: [
         {
@@ -86,7 +171,7 @@ export async function translateViaBhashini(text: string, sourceLang: string, tar
               sourceLanguage: sourceLang,
               targetLanguage: targetLang,
             },
-            serviceId: serviceId,
+            serviceId: config.serviceId,
           },
         },
       ],
@@ -99,17 +184,19 @@ export async function translateViaBhashini(text: string, sourceLang: string, tar
       },
     };
 
-    const computeResponse = await fetch(inferenceUrl, {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    headers[config.inferenceApiKeyName] = config.inferenceApiKeyValue || creds.inferenceKey;
+
+    const computeResponse = await fetch(config.callbackUrl, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": inferenceApiKey,
-      },
+      headers,
       body: JSON.stringify(computePayload),
     });
 
     if (!computeResponse.ok) {
-      throw new Error(`Bhashini Compute Failed: ${computeResponse.status} ${computeResponse.statusText}`);
+      throw new Error(`Bhashini Compute Failed with status ${computeResponse.status} ${computeResponse.statusText}`);
     }
 
     const computeData = await computeResponse.json();
@@ -129,11 +216,11 @@ export async function translateViaBhashini(text: string, sourceLang: string, tar
   } catch (error: any) {
     return {
       success: false,
-      text: text, // Fallback to original text on error
+      text: text, // Graceful fallback to original text
       sourceLanguage: sourceLang,
       targetLanguage: targetLang,
       cached: false,
-      error: error.message,
+      error: error?.message || "Translation error",
     };
   }
 }

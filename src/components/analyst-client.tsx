@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect } from "react";
 import {
   Sparkles,
   Send,
@@ -36,6 +36,7 @@ import {
   KeyFinding,
   AnalysisTable,
 } from "@/lib/ai/contracts";
+import { useTranslation } from "@/components/language/language-provider";
 
 type PipelineStage =
   | "idle"
@@ -57,10 +58,8 @@ const SUGGESTED_QUERIES = [
   { text: "Compare CPI and WPI inflation trends.", tag: "CPI vs WPI" },
 ];
 
-import { useLanguage } from "@/components/language/language-provider";
-
 export function AnalystClient() {
-  const { currentLanguage } = useLanguage();
+  const { t, currentLanguage, translateDynamic } = useTranslation();
   const [question, setQuestion] = useState("What are the latest consumer price index (CPI) inflation rates across rural and urban groups?");
   const [stage, setStage] = useState<PipelineStage>("idle");
   const [stageMessage, setStageMessage] = useState<string>("");
@@ -78,7 +77,6 @@ export function AnalystClient() {
     setResult(null);
 
     try {
-      // Progressive Pipeline Simulation during network call
       setStage("planning");
       setStageMessage("UNDERSTANDING QUESTION & CREATING ANALYSIS PLAN");
 
@@ -125,13 +123,27 @@ export function AnalystClient() {
         return;
       }
 
-      // Read canonical result property
-      const res: AnalysisResult = json.data?.result ?? json.result ?? json.data ?? json;
+      let res: AnalysisResult = json.data?.result ?? json.result ?? json.data ?? json;
 
       if (!res || !res.dataset) {
         setStage("error");
         setError("Invalid response format received from statistical engine.");
         return;
+      }
+
+      // If user is in a regional language, dynamically translate the answer via Bhashini
+      if (currentLanguage.code !== "en" && res.answer) {
+        try {
+          const translatedAnswer = await translateDynamic(res.answer, currentLanguage.code);
+          const translatedTitle = await translateDynamic(res.title, currentLanguage.code);
+          res = {
+            ...res,
+            title: translatedTitle || res.title,
+            answer: translatedAnswer || res.answer,
+          };
+        } catch (e) {
+          // Keep original answer if translation fails
+        }
       }
 
       setResult(res);
@@ -185,14 +197,14 @@ SOURCE & EVIDENCE:
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="font-display text-base font-bold text-on-surface">
-                  Statistical Query Console
+                  {t("analyst.title", "Statistical Query Console")}
                 </h3>
                 <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-label-caps uppercase font-bold">
                   Groq + StatIQ Engine
                 </span>
               </div>
               <p className="text-xs text-on-surface-variant">
-                Official Indian Government Statistical Intelligence Grounded in MoSPI & NSO Databases
+                {t("analyst.subtitle", "Official Indian Government Statistical Intelligence Grounded in MoSPI & NSO Databases")}
               </p>
             </div>
           </div>
@@ -219,7 +231,7 @@ SOURCE & EVIDENCE:
               rows={3}
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
-              placeholder="Ask any question regarding CPI, WPI, PLFS, IIP, ASI, or National Accounts (e.g. 'What are the latest CPI inflation rates across rural and urban groups?')..."
+              placeholder={t("analyst.placeholder", "Ask any question regarding CPI, WPI, PLFS, IIP, ASI, or National Accounts...")}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
                   e.preventDefault();
@@ -276,7 +288,7 @@ SOURCE & EVIDENCE:
               ) : (
                 <>
                   <Send className="w-4 h-4" />
-                  ANALYZE OFFICIAL DATA
+                  {t("analyst.askAi", "ANALYZE OFFICIAL DATA")}
                 </>
               )}
             </button>
@@ -327,7 +339,7 @@ SOURCE & EVIDENCE:
             onClick={() => ask()}
             className="px-4 py-2 rounded-xl bg-surface-container-high border border-outline-variant/40 text-on-surface hover:border-primary text-xs font-semibold"
           >
-            Retry Query
+            {t("common.retry", "Retry Query")}
           </button>
         </div>
       )}
@@ -361,10 +373,6 @@ SOURCE & EVIDENCE:
   );
 }
 
-/**
- * Generic Statistical Result Renderer Component
- * Renders any validated AnalysisResult contract without dataset-specific hardcoding.
- */
 function StatisticalResultRenderer({
   result,
   copied,
@@ -378,6 +386,7 @@ function StatisticalResultRenderer({
   showTable: boolean;
   onToggleTable: () => void;
 }) {
+  const { t } = useTranslation();
   const [overrideChartType, setOverrideChartType] = useState<string | null>(null);
 
   useEffect(() => {
@@ -431,7 +440,7 @@ function StatisticalResultRenderer({
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-xs font-label-caps uppercase tracking-wider font-bold text-primary">
             <BookOpen className="w-4 h-4" />
-            STATISTICAL INSIGHT
+            {t("analyst.keyInsights", "STATISTICAL INSIGHT")}
           </div>
           <div className="p-5 rounded-2xl bg-surface-container-low/60 border border-outline-variant/30 text-sm text-on-surface leading-relaxed whitespace-pre-wrap font-sans">
             {result.answer}
@@ -490,7 +499,7 @@ function StatisticalResultRenderer({
             <div className="flex items-center justify-between">
               <div className="text-xs font-label-caps uppercase tracking-wider text-on-surface font-bold flex items-center gap-1.5">
                 <BarChart3 className="w-3.5 h-3.5 text-primary" />
-                VISUALIZATION: {result.chart.title}
+                {t("analyst.generatedChart", "VISUALIZATION")}: {result.chart.title}
               </div>
               {result.chart.unit && (
                 <span className="text-[10px] font-mono bg-surface-container-high px-2 py-0.5 rounded text-on-surface-variant">
@@ -499,7 +508,7 @@ function StatisticalResultRenderer({
               )}
             </div>
 
-            <div className="rounded-2xl bg-surface-container-low/40 border border-outline-variant/20 overflow-hidden">
+            <div className="rounded-2xl bg-surface-container-low/40 border border-outline-variant/20 overflow-hidden" dir="ltr">
               <ChartToolbar 
                 spec={{ ...result.chart, type: currentChartType } as any}
                 onTypeChange={(type) => setOverrideChartType(type)}
@@ -520,20 +529,20 @@ function StatisticalResultRenderer({
             <div className="flex items-center justify-between">
               <div className="text-xs font-label-caps uppercase tracking-wider text-on-surface font-bold flex items-center gap-1.5">
                 <FileSpreadsheet className="w-3.5 h-3.5 text-primary" />
-                DATA TABLE ({result.table.rows.length} records)
+                {t("analyst.tableData", "DATA TABLE")} ({result.table.rows.length} records)
               </div>
               <button
                 type="button"
                 onClick={onToggleTable}
                 className="text-xs text-on-surface-variant hover:text-on-surface flex items-center gap-1"
               >
-                {showTable ? "Hide Table" : "Show Table"}
+                {showTable ? t("common.close", "Hide Table") : t("common.viewAll", "Show Table")}
                 {showTable ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
               </button>
             </div>
 
             {showTable && (
-              <div className="rounded-2xl border border-outline-variant/30 overflow-x-auto">
+              <div className="rounded-2xl border border-outline-variant/30 overflow-x-auto" dir="ltr">
                 <table className="w-full text-left text-xs min-w-[550px]">
                   <thead className="bg-surface-container-high/80 border-b border-outline-variant/30 text-on-surface font-label-caps uppercase text-[10px]">
                     <tr>
@@ -588,7 +597,7 @@ function StatisticalResultRenderer({
             </dl>
 
             {result.methodology.formula && (
-              <div className="p-3 rounded-xl bg-surface-container-lowest border border-outline-variant/20 text-xs font-mono text-on-surface">
+              <div className="p-3 rounded-xl bg-surface-container-lowest border border-outline-variant/20 text-xs font-mono text-on-surface" dir="ltr">
                 <span className="text-on-surface-variant block text-[10px] font-label-caps uppercase mb-1">Formula:</span>
                 <code>{result.methodology.formula}</code>
               </div>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Send, Book, Sparkles, MessageSquare, Plus, Trash2, Check, Copy } from "lucide-react";
+import { useTranslation } from "@/components/language/language-provider";
 
 type Message = {
   id: string;
@@ -25,7 +26,7 @@ const renderMarkdown = (content: string) => {
     if (part.startsWith('```')) {
       const code = part.replace(/^```[\w]*\n/, '').replace(/```$/, '');
       return (
-        <pre key={index} className="bg-surface-container-highest p-4 rounded-xl overflow-x-auto text-sm my-4 text-on-surface font-mono border border-outline-variant/30 shadow-inner">
+        <pre key={index} className="bg-surface-container-highest p-4 rounded-xl overflow-x-auto text-sm my-4 text-on-surface font-mono border border-outline-variant/30 shadow-inner" dir="ltr">
           {code}
         </pre>
       );
@@ -36,7 +37,6 @@ const renderMarkdown = (content: string) => {
       <div key={index} className="space-y-3">
         {paragraphs.map((p, i) => {
           const lines = p.split('\n');
-          // simple list detection
           if (lines.every(l => l.trim().startsWith('-') || l.trim().startsWith('*'))) {
             return (
               <ul key={i} className="list-disc pl-5 space-y-1 my-2">
@@ -65,6 +65,7 @@ const renderInline = (text: string) => {
 };
 
 export function TutorChat() {
+  const { t, currentLanguage, translateDynamic } = useTranslation();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConvId, setActiveConvId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -137,7 +138,6 @@ export function TutorChat() {
     let currentConvId = activeConvId;
 
     try {
-      // Create conv if it doesn't exist
       if (!currentConvId) {
         try {
           const cRes = await fetch("/api/ai/tutor/conversations", { method: "POST" });
@@ -164,12 +164,19 @@ export function TutorChat() {
         body: JSON.stringify({ conversationId: currentConvId, message: q }),
       });
       const data = await res.json();
+      
       if (data.message) {
-        setMessages((prev) => [...prev.filter(m => m.id !== "temp-user"), tempMsg, data.message]);
+        let aiContent = data.message.content;
+        // If current language is not English, dynamically translate the AI response
+        if (currentLanguage.code !== "en") {
+          aiContent = await translateDynamic(aiContent, currentLanguage.code);
+        }
+        
+        const translatedMsg = { ...data.message, content: aiContent };
+        setMessages((prev) => [...prev.filter(m => m.id !== "temp-user"), tempMsg, translatedMsg]);
       } else if (data.error) {
         setMessages((prev) => [...prev.filter(m => m.id !== "temp-user"), tempMsg, { id: "err", role: "assistant", content: `**Error:** ${data.error}` }]);
       }
-      // Refresh titles in sidebar
       fetchConversations();
     } catch (err) {
       setMessages((prev) => [...prev.filter(m => m.id !== "temp-user"), tempMsg, { id: "err", role: "assistant", content: "**Error:** The AI Tutor is temporarily unavailable." }]);
@@ -202,13 +209,15 @@ export function TutorChat() {
             className="w-full py-2.5 px-4 rounded-xl bg-primary/10 hover:bg-primary/20 border border-primary/20 text-primary flex items-center justify-center gap-2 font-bold font-label-caps text-xs transition-colors shadow-sm"
           >
             <Plus className="w-4 h-4" />
-            New Chat
+            {t("tutor.clearChat", "New Chat")}
           </button>
         </div>
         <div className="flex-1 overflow-y-auto p-3 space-y-1">
-          <p className="text-xs font-label-caps text-on-surface-variant/50 px-2 py-2">Recent Conversations</p>
+          <p className="text-xs font-label-caps text-on-surface-variant/50 px-2 py-2">
+            {t("learner.recentActivity", "Recent Conversations")}
+          </p>
           {conversations.length === 0 ? (
-            <p className="text-sm text-on-surface-variant px-2 italic">No previous chats.</p>
+            <p className="text-sm text-on-surface-variant px-2 italic">{t("common.noData", "No previous chats.")}</p>
           ) : (
             conversations.map(conv => (
               <div
@@ -245,9 +254,11 @@ export function TutorChat() {
               <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 border border-primary/20">
                 <Sparkles className="w-8 h-8 text-primary" />
               </div>
-              <h2 className="text-2xl font-display font-bold text-on-surface mb-2">StatIQ AI Tutor</h2>
+              <h2 className="text-2xl font-display font-bold text-on-surface mb-2">
+                {t("tutor.title", "StatIQ AI Statistical Tutor")}
+              </h2>
               <p className="text-on-surface-variant mb-8 leading-relaxed">
-                Your personalized learning assistant. Ask me about official statistics, your competencies, skill gaps, or learning paths.
+                {t("tutor.subtitle", "Grounded in official MoSPI methodologies, National Accounts, Sampling Theory, and Price Statistics.")}
               </p>
               
               <div className="w-full grid gap-3 sm:grid-cols-2">
@@ -276,7 +287,7 @@ export function TutorChat() {
                 {msg.role === "assistant" && (
                   <div className="flex items-center justify-between mb-3 border-b border-outline-variant/20 pb-3">
                     <span className="text-xs font-label-caps text-primary flex items-center gap-1.5 font-bold">
-                      <Sparkles className="w-3.5 h-3.5" /> STATIQ AI TUTOR
+                      <Sparkles className="w-3.5 h-3.5" /> {t("tutor.title", "STATIQ AI TUTOR")}
                     </span>
                     <button 
                       onClick={() => copyText(msg.content, msg.id)}
@@ -319,7 +330,9 @@ export function TutorChat() {
                     <span className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "150ms" }}></span>
                     <span className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "300ms" }}></span>
                  </div>
-                 <span className="text-sm font-medium text-on-surface-variant">Thinking...</span>
+                 <span className="text-sm font-medium text-on-surface-variant">
+                   {t("tutor.typing", "AI Tutor is formulating your response...")}
+                 </span>
               </div>
             </div>
           )}
@@ -334,7 +347,7 @@ export function TutorChat() {
               value={input}
               rows={input.split('\n').length > 1 ? Math.min(input.split('\n').length, 6) : 1}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Message StatIQ AI Tutor..."
+              placeholder={t("tutor.placeholder", "Ask anything about statistical surveys, CPI, GDP calculation, or sampling methodology...")}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();
@@ -352,7 +365,7 @@ export function TutorChat() {
           </form>
           <div className="text-center mt-3">
             <span className="text-[10px] text-on-surface-variant/70 font-label-caps">
-              AI explanations are generated from available verified context.
+              {t("tutor.aiDisclaimer", "StatIQ AI provides guidance grounded in official Indian statistical standards.")}
             </span>
           </div>
         </div>

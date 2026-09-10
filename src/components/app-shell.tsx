@@ -1,7 +1,11 @@
+"use client";
+
 import { ThemeToggle } from "@/components/theme-toggle";
 import Link from "next/link";
 import { OfflineIndicator } from "@/components/offline-indicator";
 import { SignOutButton } from "@/components/sign-out-button";
+import { LanguageSelector } from "@/components/language/language-selector";
+import { useTranslation } from "@/components/language/language-provider";
 import type { SessionUser } from "@/types/domain";
 
 export function AppShell({
@@ -13,45 +17,48 @@ export function AppShell({
   area: "learner" | "trainer" | "admin";
   children: React.ReactNode;
 }) {
-  const nav =
-    area === "learner"
-      ? [
-          ["/learner", "Dashboard"],
-          ["/learner/profile", "Profile"],
-          ["/learner/competencies", "Passport"],
-          ["/learner/gaps", "Skill gaps"],
-          ["/learner/skills", "Gap analysis"],
-          ["/learner/path", "Learning path"],
-          ["/learner/courses", "Courses"],
-          ["/learner/assessments", "Assessments"],
-          ["/learner/achievements", "Achievements"],
-          ["/learner/notes", "Notes"],
-          ["/learner/bookmarks", "Bookmarks"],
-          ["/learner/community", "Community"],
-          ["/learner/notifications", "Notifications"],
-          ["/learner/tutor", "AI tutor"],
-          ["/learner/microdata", "Microdata"],
-        ]
-      : area === "trainer"
-        ? [
-            ["/trainer", "Dashboard"],
-            ["/trainer/courses", "Courses"],
-            ["/trainer/quiz", "Quiz studio"],
-            ["/trainer/learners", "Learners"],
-            ["/trainer/microdata", "Microdata"],
-          ]
-        : [
-            ["/admin", "Command center"],
-            ["/admin/data", "Data"],
-            ["/admin/data-sources", "Data sources"],
-            ["/admin/heatmap", "Heatmap"],
-            ["/admin/risk", "Skill risk"],
-            ["/admin/assistant", "Analytics assistant"],
-          ];
+  const { t } = useTranslation();
+
+  const learnerNav = [
+    ["/learner", t("nav.dashboard", "Dashboard")],
+    ["/learner/profile", t("nav.profile", "Profile")],
+    ["/learner/competencies", t("nav.passport", "Passport")],
+    ["/learner/gaps", t("nav.skillGaps", "Skill Gaps")],
+    ["/learner/skills", t("nav.gapAnalysis", "Gap Analysis")],
+    ["/learner/path", t("nav.learningPath", "Learning Path")],
+    ["/learner/courses", t("nav.courses", "Courses")],
+    ["/learner/assessments", t("nav.assessments", "Assessments")],
+    ["/learner/achievements", t("nav.achievements", "Achievements")],
+    ["/learner/notes", t("nav.notes", "Notes")],
+    ["/learner/bookmarks", t("nav.bookmarks", "Bookmarks")],
+    ["/learner/community", t("nav.community", "Community")],
+    ["/learner/notifications", t("nav.notifications", "Notifications")],
+    ["/learner/tutor", t("nav.aiTutor", "AI Tutor")],
+    ["/learner/microdata", t("nav.microdata", "Microdata")],
+  ];
+
+  const trainerNav = [
+    ["/trainer", t("nav.dashboard", "Dashboard")],
+    ["/trainer/courses", t("nav.courses", "Courses")],
+    ["/trainer/quiz", t("nav.quizStudio", "Quiz Studio")],
+    ["/trainer/learners", t("nav.learners", "Learners")],
+    ["/trainer/microdata", t("nav.microdata", "Microdata")],
+  ];
+
+  const adminNav = [
+    ["/admin", t("nav.commandCenter", "Command Center")],
+    ["/admin/data", t("nav.data", "Data")],
+    ["/admin/data-sources", t("nav.dataSources", "Data Sources")],
+    ["/admin/heatmap", t("nav.heatmap", "Heatmap")],
+    ["/admin/risk", t("nav.skillRisk", "Skill Risk")],
+    ["/admin/assistant", t("nav.analyticsAssistant", "Analytics Assistant")],
+  ];
+
+  const nav = area === "learner" ? learnerNav : area === "trainer" ? trainerNav : adminNav;
 
   return (
     <div className="min-h-screen bg-background text-on-surface md:grid md:grid-cols-[260px_1fr] relative transition-colors duration-300">
-      {/* Background mesh (optional, keeps it consistent) */}
+      {/* Background mesh */}
       <div className="mesh-bg opacity-50 z-0 pointer-events-none" />
 
       {/* Sidebar */}
@@ -65,7 +72,9 @@ export function AppShell({
           </Link>
           <div className="mt-2 inline-flex items-center gap-2 px-2.5 py-1 rounded-full border border-primary-container/20 bg-primary-container/10">
             <span className="w-1.5 h-1.5 rounded-full bg-primary-container animate-pulse" />
-            <span className="text-[10px] font-label-caps text-primary-container uppercase">{area} workspace</span>
+            <span className="text-[10px] font-label-caps text-primary-container uppercase">
+              {area} {t("common.workspace", "Workspace")}
+            </span>
           </div>
         </div>
         
@@ -77,7 +86,7 @@ export function AppShell({
               className="whitespace-nowrap rounded-lg px-4 py-2.5 text-sm text-on-surface-variant font-medium transition-all hover:bg-black/5 dark:hover:bg-white/5 hover:text-on-surface active:scale-95 flex items-center justify-between"
             >
               <span>{label}</span>
-              {label === "Notifications" && (
+              {label === t("nav.notifications", "Notifications") && (
                 <span className="w-2 h-2 rounded-full bg-secondary-container" />
               )}
             </Link>
@@ -104,7 +113,8 @@ export function AppShell({
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <LanguageSelector variant="dropdown" />
             <ThemeToggle />
             <SignOutButton />
           </div>
@@ -140,11 +150,11 @@ export function Stat({ label, value, hint }: { label: string; value: string; hin
 }
 
 export function Notice() {
+  const { t } = useTranslation();
   return (
     <div className="mb-8 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-container-low border border-white/5 text-sm text-on-surface-variant">
       <span className="w-2 h-2 rounded-full bg-secondary-container animate-pulse shrink-0" />
-      Connected to Official MoSPI Data Platform via eSankhyiki MCP
+      {t("home.liveConnected", "Connected to Official MoSPI Data Platform via eSankhyiki MCP")}
     </div>
   );
 }
-

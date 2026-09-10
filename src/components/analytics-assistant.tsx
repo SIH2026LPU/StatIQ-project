@@ -11,6 +11,7 @@ import {
   RefreshCw,
   Layers,
 } from "lucide-react";
+import { useTranslation } from "@/components/language/language-provider";
 
 const SUGGESTED_QUERIES = [
   "Which department has the largest SQL and microdata competency gap?",
@@ -20,6 +21,7 @@ const SUGGESTED_QUERIES = [
 ];
 
 export function AnalyticsAssistant() {
+  const { t, currentLanguage, translateDynamic } = useTranslation();
   const [q, setQ] = useState("Which department has the largest SQL gap?");
   const [a, setA] = useState("");
   const [pending, setPending] = useState(false);
@@ -35,7 +37,13 @@ export function AnalyticsAssistant() {
         body: JSON.stringify({ question }),
       });
       const data = await response.json();
-      setA(data.answer ?? data.error ?? "No response received.");
+      let answerText = data.answer ?? data.error ?? "No response received.";
+
+      if (currentLanguage.code !== "en" && answerText) {
+        answerText = await translateDynamic(answerText, currentLanguage.code);
+      }
+
+      setA(answerText);
     } catch (e: any) {
       setA(e.message || "Failed to analyze query.");
     } finally {
@@ -55,7 +63,7 @@ export function AnalyticsAssistant() {
       >
         <div className="space-y-2">
           <label className="text-xs font-label-caps text-on-surface-variant uppercase tracking-wider block">
-            Natural Language Executive Query
+            {t("analyst.placeholder", "Natural Language Executive Query")}
           </label>
           <div className="relative">
             <input
@@ -73,12 +81,12 @@ export function AnalyticsAssistant() {
               {pending ? (
                 <>
                   <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                  Analyzing
+                  {t("common.loading", "Analyzing")}
                 </>
               ) : (
                 <>
                   <Sparkles className="w-3.5 h-3.5" />
-                  Analyze
+                  {t("common.search", "Analyze")}
                 </>
               )}
             </button>
@@ -117,7 +125,7 @@ export function AnalyticsAssistant() {
                 <Brain className="w-4 h-4" />
               </div>
               <h3 className="font-display text-sm font-bold text-on-surface">
-                Executive Intelligence Synthesis
+                {t("analyst.keyInsights", "Executive Intelligence Synthesis")}
               </h3>
             </div>
             <span className="inline-flex items-center gap-1 text-[10px] font-label-caps text-emerald-500 font-bold bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/30">

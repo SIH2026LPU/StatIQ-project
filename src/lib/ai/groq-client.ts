@@ -15,7 +15,7 @@ export function getConfiguredModel() {
 export async function createCompletion(messages: any[], options: any = {}) {
   const groq = getGroqClient();
   const model = getConfiguredModel();
-  
+
   try {
     const response = await groq.chat.completions.create({
       model,
@@ -23,11 +23,11 @@ export async function createCompletion(messages: any[], options: any = {}) {
       temperature: options.temperature ?? 0.2,
       ...options
     });
-    
+
     if (!response || !response.choices || response.choices.length === 0 || !response.choices[0].message) {
       throw new Error("Invalid response format from Groq API");
     }
-    
+
     return {
       content: response.choices[0].message.content,
       modelUsed: model

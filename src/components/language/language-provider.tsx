@@ -1,21 +1,34 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { LanguageInfo } from "@/lib/translation/types";
 import { getLanguageByCode, SUPPORTED_LANGUAGES } from "@/lib/translation/language-registry";
 
-// Map of imported locale JSONs
-const localeData: Record<string, any> = {
-  en: require("@/i18n/locales/en.json"),
-  hi: require("@/i18n/locales/hi.json"),
-  // We can lazy load these or bundle them. For now, we import statically.
-  // Real apps might use dynamic import() based on locale.
+// Locale dictionary imports
+const enLocale = require("@/i18n/locales/en.json");
+
+const localeLoaders: Record<string, () => any> = {
+  en: () => enLocale,
+  hi: () => { try { return require("@/i18n/locales/hi.json"); } catch { return enLocale; } },
+  pa: () => { try { return require("@/i18n/locales/pa.json"); } catch { return enLocale; } },
+  bn: () => { try { return require("@/i18n/locales/bn.json"); } catch { return enLocale; } },
+  mr: () => { try { return require("@/i18n/locales/mr.json"); } catch { return enLocale; } },
+  ta: () => { try { return require("@/i18n/locales/ta.json"); } catch { return enLocale; } },
+  te: () => { try { return require("@/i18n/locales/te.json"); } catch { return enLocale; } },
+  gu: () => { try { return require("@/i18n/locales/gu.json"); } catch { return enLocale; } },
+  kn: () => { try { return require("@/i18n/locales/kn.json"); } catch { return enLocale; } },
+  ml: () => { try { return require("@/i18n/locales/ml.json"); } catch { return enLocale; } },
+  or: () => { try { return require("@/i18n/locales/or.json"); } catch { return enLocale; } },
+  as: () => { try { return require("@/i18n/locales/as.json"); } catch { return enLocale; } },
+  ur: () => { try { return require("@/i18n/locales/ur.json"); } catch { return enLocale; } },
 };
 
 interface LanguageContextType {
   currentLanguage: LanguageInfo;
   setLanguage: (code: string) => void;
-  t: (key: string) => string;
+  t: (key: string, fallback?: string) => string;
+  translateDynamic: (text: string, targetLang?: string) => Promise<string>;
+  isTranslating: boolean;
 }
 
 const defaultLanguage = getLanguageByCode("en")!;
@@ -23,7 +36,9 @@ const defaultLanguage = getLanguageByCode("en")!;
 const LanguageContext = createContext<LanguageContextType>({
   currentLanguage: defaultLanguage,
   setLanguage: () => {},
-  t: (key) => key,
+  t: (key, fallback) => fallback || key,
+  translateDynamic: async (text) => text,
+  isTranslating: false,
 });
 
 export function LanguageProvider({
@@ -33,61 +48,122 @@ export function LanguageProvider({
   children: React.ReactNode;
   initialLocale?: string;
 }) {
-  const [currentLanguage, setCurrentLanguageState] = useState<LanguageInfo>(
-    getLanguageByCode(initialLocale) || defaultLanguage
-  );
+  const [currentLanguage, setCurrentLanguageState] = useState<LanguageInfo>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("statiq_locale");
+      if (saved && getLanguageByCode(saved)) {
+        return getLanguageByCode(saved)!;
+      }
+    }
+    return getLanguageByCode(initialLocale) || defaultLanguage;
+  });
 
-  const [dictionary, setDictionary] = useState<any>(localeData[initialLocale] || localeData["en"]);
+  const [dictionary, setDictionary] = useState<any>(() => {
+    const loader = localeLoaders[currentLanguage.code] || localeLoaders.en;
+    return loader();
+  });
 
-  // We need to update document element direction and lang
+  const [isTranslating, setIsTranslating] = useState(false);
+
+  // Sync dictionary, HTML lang and dir when language changes
   useEffect(() => {
-    document.documentElement.lang = currentLanguage.code;
-    document.documentElement.dir = currentLanguage.direction;
-    
-    // In a real app, this might fetch the JSON dynamically
-    if (localeData[currentLanguage.code]) {
-      setDictionary(localeData[currentLanguage.code]);
-    } else {
-      setDictionary(localeData["en"]); // fallback
+    const langCode = currentLanguage.code;
+    const loader = localeLoaders[langCode] || localeLoaders.en;
+    setDictionary(loader());
+
+    if (typeof document !== "undefined") {
+      document.documentElement.lang = langCode;
+      document.documentElement.dir = currentLanguage.direction || (langCode === "ur" ? "rtl" : "ltr");
     }
   }, [currentLanguage]);
 
-  const setLanguage = (code: string) => {
+  const setLanguage = useCallback((code: string) => {
     const lang = getLanguageByCode(code);
     if (lang) {
       setCurrentLanguageState(lang);
-      // Set cookie for persistence
-      document.cookie = `statiq_locale=${code}; path=/; max-age=31536000`;
-      
-      // Optionally trigger an API call to save to user profile
-      // fetch('/api/user/preference', { method: 'POST', body: JSON.stringify({ language: code }) });
-    }
-  };
-
-  const t = (key: string): string => {
-    const keys = key.split(".");
-    let value = dictionary;
-    for (const k of keys) {
-      if (value && typeof value === "object" && k in value) {
-        value = value[k];
-      } else {
-        // Fallback to english dictionary
-        let fallbackValue = localeData["en"];
-        for (const fk of keys) {
-          if (fallbackValue && typeof fallbackValue === "object" && fk in fallbackValue) {
-            fallbackValue = fallbackValue[fk];
-          } else {
-            return key; // completely missing
-          }
-        }
-        return typeof fallbackValue === "string" ? fallbackValue : key;
+      if (typeof window !== "undefined") {
+        localStorage.setItem("statiq_locale", code);
+        document.cookie = `statiq_locale=${code}; path=/; max-age=31536000; SameSite=Lax`;
       }
     }
-    return typeof value === "string" ? value : key;
-  };
+  }, []);
+
+  // Static key lookup with fallback
+  const t = useCallback(
+    (key: string, fallback?: string): string => {
+      const keys = key.split(".");
+      let value = dictionary;
+
+      for (const k of keys) {
+        if (value && typeof value === "object" && k in value) {
+          value = value[k];
+        } else {
+          // Fallback to English dictionary
+          let fallbackValue = enLocale;
+          for (const fk of keys) {
+            if (fallbackValue && typeof fallbackValue === "object" && fk in fallbackValue) {
+              fallbackValue = fallbackValue[fk];
+            } else {
+              return fallback || key;
+            }
+          }
+          return typeof fallbackValue === "string" ? fallbackValue : (fallback || key);
+        }
+      }
+
+      return typeof value === "string" ? value : (fallback || key);
+    },
+    [dictionary]
+  );
+
+  // Dynamic Bhashini translation helper for live AI content
+  const translateDynamic = useCallback(
+    async (text: string, targetLang?: string): Promise<string> => {
+      const target = targetLang || currentLanguage.code;
+      if (!text || target === "en") {
+        return text;
+      }
+
+      try {
+        setIsTranslating(true);
+        const res = await fetch("/api/translation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            text,
+            sourceLanguage: "en",
+            targetLanguage: target,
+            sourceType: "dynamic_ai",
+          }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.text) {
+            return data.text;
+          }
+        }
+      } catch (e) {
+        console.warn("Dynamic translation failed, falling back to original:", e);
+      } finally {
+        setIsTranslating(false);
+      }
+
+      return text;
+    },
+    [currentLanguage.code]
+  );
 
   return (
-    <LanguageContext.Provider value={{ currentLanguage, setLanguage, t }}>
+    <LanguageContext.Provider
+      value={{
+        currentLanguage,
+        setLanguage,
+        t,
+        translateDynamic,
+        isTranslating,
+      }}
+    >
       {children}
     </LanguageContext.Provider>
   );
@@ -102,6 +178,6 @@ export function useLanguage() {
 }
 
 export function useTranslation() {
-  const { t } = useLanguage();
-  return { t };
+  const { t, currentLanguage, translateDynamic, isTranslating, setLanguage } = useLanguage();
+  return { t, currentLanguage, translateDynamic, isTranslating, setLanguage };
 }

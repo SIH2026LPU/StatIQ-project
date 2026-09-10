@@ -10,96 +10,111 @@ function generateHash(text: string): string {
   return crypto.createHash("sha256").update(text).digest("hex");
 }
 
+// In-flight request deduplication map to prevent redundant concurrent API calls
+const inFlightRequests = new Map<string, Promise<TranslationResponse>>();
+
 export async function translateText(request: TranslationRequest): Promise<TranslationResponse> {
   const { text, sourceLanguage, targetLanguage, sourceType, bypassCache } = request;
-  const db = getDb();
 
   if (!text || text.trim() === "") {
     return { success: true, text: "", sourceLanguage, targetLanguage, cached: false };
   }
 
-  // If languages are the same, return as is
+  // If languages are the same, return original text
   if (sourceLanguage === targetLanguage) {
     return { success: true, text, sourceLanguage, targetLanguage, cached: false };
   }
 
   const hash = generateHash(text);
-  const providerVersion = "bhashini-v1"; // Could be dynamic if we query config often
+  const dedupKey = `${sourceLanguage}:${targetLanguage}:${hash}`;
 
-  // 1. Check PostgreSQL Cache
-  if (!bypassCache) {
-    try {
-      const cachedResult = await db.query.translationCache.findFirst({
-        where: and(
-          eq(translationCache.sourceTextHash, hash),
-          eq(translationCache.sourceLanguage, sourceLanguage),
-          eq(translationCache.targetLanguage, targetLanguage),
-          eq(translationCache.sourceType, sourceType),
-          eq(translationCache.providerVersion, providerVersion)
-        ),
-      });
-
-      if (cachedResult) {
-        return {
-          success: true,
-          text: cachedResult.translatedText,
-          sourceLanguage,
-          targetLanguage,
-          cached: true,
-        };
-      }
-    } catch (e) {
-      console.error("Translation cache lookup failed:", e);
-      // Continue to provider even if cache fails
-    }
+  // If there is already an in-flight request for the identical text and language pair, reuse its promise
+  if (inFlightRequests.has(dedupKey)) {
+    return inFlightRequests.get(dedupKey)!;
   }
 
-  // 2. Protect Tokens (Numbers, IDs, Markdown)
-  const protectedText = protectTranslationTokens(text);
+  const translationPromise = (async (): Promise<TranslationResponse> => {
+    const db = getDb();
+    const providerVersion = "bhashini-v2";
 
-  // 3. Call Provider (Bhashini)
-  const providerResponse = await translateViaBhashini(
-    protectedText.template,
-    sourceLanguage,
-    targetLanguage
-  );
+    // 1. Check Database Cache
+    if (!bypassCache) {
+      try {
+        const cachedResult = await db.query.translationCache.findFirst({
+          where: and(
+            eq(translationCache.sourceTextHash, hash),
+            eq(translationCache.sourceLanguage, sourceLanguage),
+            eq(translationCache.targetLanguage, targetLanguage)
+          ),
+        });
 
-  if (!providerResponse.success) {
-    console.error("Bhashini translation failed:", providerResponse.error);
+        if (cachedResult) {
+          return {
+            success: true,
+            text: cachedResult.translatedText,
+            sourceLanguage,
+            targetLanguage,
+            cached: true,
+          };
+        }
+      } catch (e) {
+        // Continue to Bhashini API even if DB cache lookup is unavailable
+      }
+    }
+
+    // 2. Protect Tokens (Numbers, Dataset IDs, Code blocks, URLs)
+    const protectedText = protectTranslationTokens(text);
+
+    // 3. Call Provider (Real Bhashini Pipeline)
+    const providerResponse = await translateViaBhashini(
+      protectedText.template,
+      sourceLanguage,
+      targetLanguage
+    );
+
+    if (!providerResponse.success) {
+      return {
+        success: false,
+        text: text, // Fallback safely to original text
+        sourceLanguage,
+        targetLanguage,
+        cached: false,
+        error: providerResponse.error,
+      };
+    }
+
+    // 4. Restore Protected Tokens
+    const finalText = restoreTranslationTokens(protectedText, providerResponse.text);
+
+    // 5. Save to Cache asynchronously
+    try {
+      await db.insert(translationCache).values({
+        sourceTextHash: hash,
+        sourceLanguage,
+        targetLanguage,
+        sourceType: sourceType || "general",
+        translatedText: finalText,
+        provider: "bhashini",
+        providerVersion: providerVersion,
+      });
+    } catch (e) {
+      // Non-fatal, return translated text
+    }
+
     return {
-      success: false,
-      text: text, // Fallback to original English text
+      success: true,
+      text: finalText,
       sourceLanguage,
       targetLanguage,
       cached: false,
-      error: providerResponse.error,
     };
-  }
+  })();
 
-  // 4. Restore Tokens
-  const finalText = restoreTranslationTokens(protectedText, providerResponse.text);
-
-  // 5. Save to Cache
+  inFlightRequests.set(dedupKey, translationPromise);
   try {
-    await db.insert(translationCache).values({
-      sourceTextHash: hash,
-      sourceLanguage,
-      targetLanguage,
-      sourceType,
-      translatedText: finalText,
-      provider: "bhashini",
-      providerVersion: providerVersion,
-    });
-  } catch (e) {
-    console.error("Translation cache save failed:", e);
-    // Non-fatal error, do not break the response
+    const result = await translationPromise;
+    return result;
+  } finally {
+    inFlightRequests.delete(dedupKey);
   }
-
-  return {
-    success: true,
-    text: finalText,
-    sourceLanguage,
-    targetLanguage,
-    cached: false,
-  };
 }

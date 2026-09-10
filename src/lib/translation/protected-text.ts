@@ -5,7 +5,7 @@ export interface ProtectedText {
 }
 
 /**
- * Protects numbers, dataset IDs, URLs, and {{placeholders}} from translation.
+ * Protects code blocks, numbers, dataset IDs, currencies, URLs, and {{placeholders}} from translation.
  */
 export function protectTranslationTokens(text: string): ProtectedText {
   const tokens: Record<string, string> = {};
@@ -18,25 +18,27 @@ export function protectTranslationTokens(text: string): ProtectedText {
     return token;
   };
 
-  // 1. URLs
+  // 1. Multi-line Code blocks
+  template = template.replace(/```[\s\S]*?```/g, replaceWithToken);
+
+  // 2. Inline code
+  template = template.replace(/`[^`]+`/g, replaceWithToken);
+
+  // 3. URLs
   template = template.replace(/https?:\/\/[^\s]+/g, replaceWithToken);
 
-  // 2. {{placeholders}}
+  // 4. {{placeholders}}
   template = template.replace(/\{\{[^}]+\}\}/g, replaceWithToken);
 
-  // 3. Dataset IDs (e.g. IND-CSO-ASI-1983-84)
-  template = template.replace(/[A-Z]+-[A-Z]+-[A-Z0-9-]+/g, replaceWithToken);
+  // 5. Official Dataset IDs (e.g. IND-CSO-ASI-1983-84, MOSPI-CPI-2024)
+  template = template.replace(/\b[A-Z]{2,}(?:-[A-Z0-9]+)+\b/g, replaceWithToken);
 
-  // 4. Numbers with optional decimals and percentages (e.g. 167.02, 5.42%, 2026)
-  // Be careful not to match inside words.
-  template = template.replace(/\b\d+(\.\d+)?%?\b/g, replaceWithToken);
+  // 6. Currency amounts and percentages (e.g. ₹50,000, $12.4M, 12.4%, 98.6%)
+  template = template.replace(/[₹$€£]\s?\d+(?:,\d+)*(?:\.\d+)?(?:\s?[kKmMbBtT]|%|cr|lakh)?/g, replaceWithToken);
 
-  // 5. Markdown structure like headers (###) or bullets (-) or bold (**)
-  // This is a simplified regex; a real AST parser is better for complex markdown,
-  // but this suffices for basic AI responses.
-  template = template.replace(/(^|\n)(#{1,6}\s|- |\* )/g, replaceWithToken);
-  template = template.replace(/\*\*[^*]+\*\*/g, replaceWithToken);
-  
+  // 7. Standalone percentages and numbers with decimal precision (e.g. 12.4%, 2026, 45.8)
+  template = template.replace(/\b\d+(?:,\d+)*(?:\.\d+)?%\b/g, replaceWithToken);
+
   return {
     original: text,
     template,
@@ -47,7 +49,6 @@ export function protectTranslationTokens(text: string): ProtectedText {
 export function restoreTranslationTokens(protectedText: ProtectedText, translatedTemplate: string): string {
   let restored = translatedTemplate;
   for (const [token, originalValue] of Object.entries(protectedText.tokens)) {
-    // Note: Use global replace in case translation duplicated the token (rare but possible)
     restored = restored.replace(new RegExp(token, 'g'), originalValue);
   }
   return restored;
