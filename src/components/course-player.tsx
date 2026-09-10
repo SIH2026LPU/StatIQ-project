@@ -71,29 +71,36 @@ export function CoursePlayer({ course }: { course: Course }) {
         {/* Main Video & Lesson Content */}
         <div className="lg:col-span-2 space-y-6 flex flex-col">
           
-          {/* Video Container */}
-          <div className="glass-panel rounded-3xl overflow-hidden border-t-[3px] border-t-primary-container shadow-2xl relative">
-            <div className="bg-black aspect-video relative flex items-center justify-center overflow-hidden">
-              
-              {/* Sunbird Content Provenance Header */}
-              <div className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/15">
-                <span className="w-2 h-2 rounded-full bg-primary-container animate-pulse" />
-                <span className="text-[11px] font-label-caps text-white font-medium">
+          {/* Video Container Panel */}
+          <div className="glass-panel rounded-3xl overflow-hidden border-t-[3px] border-t-primary-container shadow-2xl relative flex flex-col">
+            
+            {/* Dedicated Sunbird Stream Header Bar (Above Video, Zero Clutter/Collision) */}
+            <div className="px-6 py-3 bg-surface-container-high/90 border-b border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-2.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-primary-container animate-pulse" />
+                <span className="font-label-caps font-bold text-on-surface">
                   {course.provider.toUpperCase()} SUNBIRD STREAM
                 </span>
                 {activeModule.sunbirdContentId && (
-                  <span className="text-[9px] font-mono text-primary-container/80 pl-1 border-l border-white/20">
+                  <span className="text-[10px] font-mono text-primary-container bg-primary-container/10 px-2 py-0.5 rounded border border-primary-container/20">
                     {activeModule.sunbirdContentId}
                   </span>
                 )}
               </div>
 
-              {/* Quality & Resolution Tag */}
-              <div className="absolute top-4 right-4 z-20 flex items-center gap-2 bg-black/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/15">
-                <span className="text-[10px] font-label-caps text-primary-container font-bold">1080p HD</span>
-                <span className="text-[9px] font-label-caps text-on-surface-variant">AUTO</span>
+              <div className="flex items-center gap-3">
+                <span className="text-[11px] font-label-caps text-on-surface-variant flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  Live Official Feed
+                </span>
+                <span className="text-[10px] font-label-caps font-bold text-primary-container px-2 py-0.5 rounded bg-surface-container border border-white/10">
+                  1080p HD
+                </span>
               </div>
+            </div>
 
+            {/* Video Viewport */}
+            <div className="bg-black aspect-video relative flex items-center justify-center overflow-hidden w-full">
               {courseComplete ? (
                 <div className="relative z-10 flex flex-col items-center p-8 text-center animate-in zoom-in duration-500">
                   <div className="w-20 h-20 rounded-full bg-primary-container/20 border-2 border-primary-container flex items-center justify-center text-primary-container mb-4 shadow-[0_0_30px_rgba(57,255,20,0.3)]">
@@ -113,8 +120,9 @@ export function CoursePlayer({ course }: { course: Course }) {
                   </Link>
                 </div>
               ) : isPlaying ? (
-                <div className="w-full h-full relative z-10">
+                <div className="w-full h-full relative">
                   <iframe
+                    key={activeModule.id}
                     src={`${activeModule.videoUrl}${activeModule.videoUrl.includes("?") ? "&" : "?"}autoplay=1&rel=0&modestbranding=1&enablejsapi=1`}
                     title={activeModule.title}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -123,7 +131,10 @@ export function CoursePlayer({ course }: { course: Course }) {
                   />
                 </div>
               ) : (
-                <div className="relative w-full h-full flex items-center justify-center group cursor-pointer" onClick={() => setIsPlaying(true)}>
+                <div 
+                  className="relative w-full h-full flex items-center justify-center group cursor-pointer" 
+                  onClick={() => setIsPlaying(true)}
+                >
                   {/* Background Backdrop with Gradient */}
                   <div className="absolute inset-0 opacity-40 bg-[url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop')] bg-cover bg-center" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
