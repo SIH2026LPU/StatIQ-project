@@ -211,11 +211,38 @@ export const db = {
     return enrollment;
   },
   listAssessments: () => world.assessments,
-  getAssessment: (id: string) => world.assessments.find((item) => item.id === id),
-  listQuestions: (assessmentId?: string) =>
-    assessmentId
-      ? world.questions.filter((item) => item.assessmentId === assessmentId)
-      : world.questions,
+  getAssessment: (id: string) => {
+    const found = world.assessments.find(
+      (item) => item.id === id || item.courseId === id || `asm-${item.courseId}` === id
+    );
+    if (found) return found;
+    const courseId = id.replace(/^asm-/, "");
+    const course = world.courses.find((c) => c.id === courseId || c.id === id);
+    if (course) {
+      const dynamicAsm = {
+        id,
+        title: `${course.title} — Module Assessment`,
+        competencyId: "c-sql",
+        courseId: course.id,
+        questionCount: 5,
+        adaptive: true,
+      };
+      world.assessments.push(dynamicAsm);
+      return dynamicAsm;
+    }
+    return undefined;
+  },
+  listQuestions: (assessmentId?: string) => {
+    if (!assessmentId) return world.questions;
+    const direct = world.questions.filter((item) => item.assessmentId === assessmentId);
+    if (direct.length > 0) return direct;
+    const asm = world.assessments.find((a) => a.id === assessmentId);
+    if (asm?.courseId) {
+      const byCourse = world.questions.filter((item) => item.assessmentId && item.assessmentId.includes(asm.courseId!));
+      if (byCourse.length > 0) return byCourse;
+    }
+    return world.questions.slice(0, 5);
+  },
   addQuestions: (items: Question[]) => {
     world.questions.push(...items);
   },

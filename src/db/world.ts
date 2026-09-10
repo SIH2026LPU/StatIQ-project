@@ -495,17 +495,72 @@ export function generateWorld(scale: "demo" | "full" = "demo"): World {
 
   const assessments: Assessment[] = [
     { id: "asm-sql", title: "SQL for Official Statistics — Adaptive Check", competencyId: "c-sql", courseId: "crs-sql-os", questionCount: 5, adaptive: true },
-    { id: "asm-sampling", title: "Sampling Methods Check", competencyId: "c-sampling", courseId: "crs-sampling", questionCount: 5, adaptive: true },
+    { id: "asm-python-etl", title: "Python ETL for Statistical Pipelines — Assessment", competencyId: "c-python", courseId: "crs-python-etl", questionCount: 5, adaptive: true },
+    { id: "asm-sampling", title: "Sampling Methods for Household Surveys — Assessment", competencyId: "c-sampling", courseId: "crs-sampling", questionCount: 5, adaptive: true },
+    { id: "asm-plfs", title: "PLFS Concepts and Tabulation Check", competencyId: "c-labour", courseId: "crs-plfs", questionCount: 5, adaptive: true },
+    { id: "asm-viz", title: "Statistical Visualization for Policy Briefs Check", competencyId: "c-viz", courseId: "crs-viz", questionCount: 5, adaptive: true },
+    { id: "asm-aiml", title: "Responsible AI for Official Statistics Assessment", competencyId: "c-aiml", courseId: "crs-aiml", questionCount: 5, adaptive: true },
+    { id: "asm-gis", title: "GIS for Census and Survey Operations Check", competencyId: "c-gis", courseId: "crs-gis", questionCount: 5, adaptive: true },
+    { id: "asm-quality", title: "NQAF and Data Quality Reporting Assessment", competencyId: "c-quality", courseId: "crs-quality", questionCount: 5, adaptive: true },
+    { id: "asm-api", title: "Publishing Statistical APIs Assessment", competencyId: "c-api", courseId: "crs-api", questionCount: 5, adaptive: true },
+    { id: "asm-cloud", title: "Cloud Patterns for Statistical Systems Check", competencyId: "c-cloud", courseId: "crs-cloud", questionCount: 5, adaptive: true },
+    { id: "asm-lead", title: "Leading Statistical Production Teams Check", competencyId: "c-lead", courseId: "crs-lead", questionCount: 5, adaptive: true },
+    { id: "asm-sdmx", title: "SDMX & Metadata for Dissemination Check", competencyId: "c-meta", courseId: "crs-sdmx", questionCount: 5, adaptive: true },
+    { id: "asm-na", title: "National Accounts Compilation Workshop Assessment", competencyId: "c-na", courseId: "crs-na", questionCount: 5, adaptive: true },
+    { id: "asm-cyber", title: "Microdata Protection & Cyber Hygiene Check", competencyId: "c-cyber", courseId: "crs-cyber", questionCount: 5, adaptive: true },
   ];
 
   const questions: Question[] = [
+    // SQL for Official Statistics
     q("q-sql-1", "asm-sql", "c-sql", "easy", "In a household survey microdata table, which SQL clause filters rows before aggregation?", ["GROUP BY", "WHERE", "HAVING", "ORDER BY"], 1, "WHERE filters row-level records before grouping."),
     q("q-sql-2", "asm-sql", "c-sql", "medium", "A weighted employment rate should typically be computed using which approach?", ["Unweighted COUNT of employed / COUNT of persons", "SUM(employed_flag * weight) / SUM(weight) for persons in scope", "AVG of the weight column", "MAX(employed_flag)"], 1, "Official labour indicators use survey weights."),
     q("q-sql-3", "asm-sql", "c-sql", "medium", "Why is a LEFT JOIN often preferred when attaching a small codebook to survey records?", ["It drops unmatched survey records", "It keeps all survey records even if a code is missing", "It always runs faster than INNER JOIN", "It prevents duplicate keys"], 1, "LEFT JOIN preserves the survey universe."),
     q("q-sql-4", "asm-sql", "c-sql", "hard", "Which practice reduces disclosure risk when publishing SQL extracts from microdata?", ["Selecting SELECT * from the unit record table", "Publishing identifiable keys at the lowest geography", "Releasing only aggregated outputs and suppressing small cells", "Sharing unweighted unit records via email"], 2, "Safe dissemination uses aggregation and suppression."),
     q("q-sql-5", "asm-sql", "c-sql", "hard", "An IIP series join fails because month is stored as '04' in one table and 4 in another. What should a production pipeline do first?", ["Cast silently and proceed without a log", "Reject the job, log the type mismatch, and apply an explicit, tested cast", "Drop the month column", "Average the two encodings"], 1, "Type normalization must be explicit and auditable."),
+
+    // Python ETL
+    q("q-py-1", "asm-python-etl", "c-python", "easy", "Which pandas function is standard for loading large delimited MoSPI microdata files?", ["pd.read_csv()", "pd.parse_table()", "pd.open_data()", "pd.fetch_stream()"], 0, "pd.read_csv() is the standard tabular ingestion function."),
+    q("q-py-2", "asm-python-etl", "c-python", "medium", "When validating survey record ranges in an automated pipeline, which library provides declarative schema validation?", ["pydantic / pandera", "matplotlib", "sqlite3", "pickle"], 0, "Pandera and Pydantic provide schema and constraint checks."),
+    q("q-py-3", "asm-python-etl", "c-python", "medium", "In an ETL pipeline, how should missing categorical response codes (e.g., '99=Not Reported') be handled?", ["Convert silently to zero", "Map explicitly to NA / Sentinel categories with logging", "Drop the entire column", "Impute with column mean"], 1, "Survey sentinel codes require explicit missingness mapping."),
+    q("q-py-4", "asm-python-etl", "c-python", "hard", "To prevent memory exhaustion when processing a 10GB census raw extract, which Python paradigm is recommended?", ["Loading the entire file with df = pd.read_csv()", "Using chunksize iterator or Polars streaming engine", "Converting the file to string first", "Disabling garbage collection"], 1, "Chunked reading and streaming prevents out-of-memory errors."),
+    q("q-py-5", "asm-python-etl", "c-python", "hard", "What is the primary advantage of storing processed statistical series in Apache Parquet format vs CSV?", ["Parquet is human readable in plain text", "Columnar compression, schema preservation, and fast predicate pushdown", "Parquet removes all numerical precision", "CSV supports faster binary indexing"], 1, "Parquet provides compressed columnar storage and type safety."),
+
+    // Sampling Methods
     q("q-sam-1", "asm-sampling", "c-sampling", "easy", "In a stratified sample, primary purpose of stratification is to:", ["Increase interviewer travel", "Improve precision for key domains", "Eliminate the need for weights", "Guarantee a census"], 1, "Stratification groups similar units."),
     q("q-sam-2", "asm-sampling", "c-sampling", "medium", "Design weights typically start from:", ["Equal 1 for every unit", "Inverse of selection probability", "GDP of the state", "Interviewer preference"], 1, "Base weights are inverse inclusion probabilities."),
+    q("q-sam-3", "asm-sampling", "c-sampling", "medium", "In NSSO surveys, what is the role of First Stage Units (FSUs)?", ["They represent individual citizens", "They are Census villages or Urban Frame Survey (UFS) blocks selected in stage 1", "They are state capital statistical offices", "They are survey questionnaires"], 1, "FSUs are primary geographic sampling units."),
+    q("q-sam-4", "asm-sampling", "c-sampling", "hard", "When non-response occurs across strata, which adjustment is standardly applied to sampling weights?", ["Post-stratification or non-response calibration adjustment", "Dividing all weights by 2", "Ignoring the missing units", "Multiplying weights by zero"], 0, "Weight calibration corrects for non-response bias."),
+    q("q-sam-5", "asm-sampling", "c-sampling", "hard", "What formula expresses the design effect (Deff) of a cluster sample relative to simple random sampling?", ["Deff = 1 + (m - 1) * rho (where m is cluster size, rho is intra-cluster correlation)", "Deff = m / rho", "Deff = 1 / sqrt(N)", "Deff = Variance(SRS) / Variance(Cluster)"], 0, "Design effect accounts for clustering correlation."),
+
+    // PLFS
+    q("q-plfs-1", "asm-plfs", "c-labour", "easy", "Which measure in PLFS captures activity status over a 365-day reference period?", ["Current Daily Status (CDS)", "Usual Principal and Subsidiary Status (UPSS)", "Current Weekly Status (CWS)", "Monthly Activity Status (MAS)"], 1, "UPSS reflects 365-day long-term economic activity."),
+    q("q-plfs-2", "asm-plfs", "c-labour", "medium", "Worker Population Ratio (WPR) is calculated as:", ["(Employed Persons / Total Population) * 100", "(Employed Persons / Unemployed Persons) * 100", "(Unemployed Persons / Labour Force) * 100", "(Labour Force / Total Population) * 100"], 0, "WPR is the percentage of employed persons in total population."),
+    q("q-plfs-3", "asm-plfs", "c-labour", "hard", "How is Unemployment Rate (UR) defined in official NSSO reports?", ["(Unemployed / Total Population) * 100", "(Unemployed / Labour Force) * 100", "(Unemployed / Employed) * 100", "(Out of Labour Force / Total Population) * 100"], 1, "UR is the percentage of unemployed persons within the labour force."),
+
+    // Visualization
+    q("q-viz-1", "asm-viz", "c-viz", "easy", "Which chart type is most appropriate for displaying time-series price indices like monthly CPI?", ["Pie chart", "Line chart", "3D Donut chart", "Radar chart"], 1, "Line charts clearly convey continuous time trends."),
+    q("q-viz-2", "asm-viz", "c-viz", "medium", "Why should the y-axis on official bar charts comparison generally start at zero?", ["To save ink", "To prevent visual exaggeration of small differences", "Zero is required by SVG specifications", "Non-zero axes are illegal"], 1, "Truncated axes create misleading visual height ratios."),
+
+    // AI/ML
+    q("q-aiml-1", "asm-aiml", "c-aiml", "easy", "In official statistical production, what is the mandatory requirement before deploying an AI model for imputation?", ["Full audit trail, explainability, and methodology peer-review", "Zero human oversight", "Using proprietary closed models exclusively", "Running models without validation"], 0, "Official statistics require transparent, reproducible models."),
+    q("q-aiml-2", "asm-aiml", "c-aiml", "medium", "What risk arises when an ungrounded LLM generates economic statistics?", ["Hallucination / fabricating plausible numbers", "Overfitting to true Census tables", "Excessive precision", "Zero latency"], 0, "Generative models can hallucinate false numerical statistics without RAG."),
+
+    // GIS
+    q("q-gis-1", "asm-gis", "c-gis", "medium", "What coordinate reference system (CRS) standard is most commonly used for Indian geospatial survey mapping?", ["EPSG:4326 (WGS84)", "EPSG:3857 (Web Mercator) only", "Local planar projection without datum", "Cartesian pixels"], 0, "WGS84 (EPSG:4326) is the standard geographic reference system."),
+
+    // Quality
+    q("q-qual-1", "asm-quality", "c-quality", "easy", "What does NQAF stand for in UN and MoSPI statistical governance?", ["National Quality Assurance Framework", "National Quick Accounting Frame", "Networked Quantitative Analysis Format", "Numerical Quality Algorithm Framework"], 0, "NQAF is the UN National Quality Assurance Framework."),
+
+    // APIs
+    q("q-api-1", "asm-api", "c-api", "easy", "Which HTTP status code signifies that a statistical query requires authentication?", ["200 OK", "401 Unauthorized", "500 Internal Error", "301 Redirect"], 1, "401 indicates missing or invalid authentication credentials."),
+
+    // National Accounts
+    q("q-na-1", "asm-na", "c-na", "medium", "In SNA 2008, Gross Value Added (GVA) at basic prices is derived from GVA at factor cost by:", ["Adding production taxes and subtracting production subsidies", "Subtracting all product taxes", "Adding export duties", "Multiplying by deflator"], 0, "GVA basic = GVA factor cost + (Production taxes - Production subsidies)."),
+    q("q-na-2", "asm-na", "c-na", "hard", "How is GDP at market prices linked to GVA at basic prices?", ["GDP at market prices = GVA at basic prices + Product taxes - Product subsidies", "GDP at market prices = GVA at basic prices - Production taxes", "GDP at market prices = GVA at factor cost", "GDP = Gross National Income"], 0, "GDP = GVA basic + Net product taxes."),
+
+    // Microdata Protection
+    q("q-cyb-1", "asm-cyber", "c-cyber", "easy", "What is the core objective of Statistical Disclosure Control (SDC)?", ["To maximize file sizes", "To prevent re-identification of surveyed individuals or enterprises in released microdata", "To encrypt private internal emails", "To hide all statistical results from public"], 1, "SDC protects respondent privacy and confidentiality."),
+    q("q-cyb-2", "asm-cyber", "c-cyber", "medium", "k-anonymity (k >= 3) ensures that:", ["Every combination of quasi-identifiers matches at least k individuals in the dataset", "The dataset is deleted after 3 days", "Only 3 variables can be downloaded", "Data is encrypted with 3 keys"], 0, "k-anonymity guarantees at least k indistinct records per quasi-identifier."),
   ];
 
   const documents: DocumentRecord[] = [

@@ -23,7 +23,6 @@
     "db:mysql:seed": "mysql -u root < scripts/mysql_seed.sql"
   },
   "dependencies": {
-    "@chroma-core/default-embed": "^0.1.9",
     "@google/genai": "^2.21.0",
     "bcryptjs": "^3.0.2",
     "chromadb": "^3.5.0",
