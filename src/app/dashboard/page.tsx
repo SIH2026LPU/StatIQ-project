@@ -54,7 +54,10 @@ export default async function DashboardPage() {
               <li key={rec.courseId}>
                 <p className="font-medium">{rec.course?.title}</p>
                 <p className="text-sm text-ink-soft">{rec.explanation.why}</p>
-                <EnrollButton courseId={rec.courseId} />
+                <EnrollButton
+                  courseId={rec.courseId}
+                  isEnrolled={snap.enrollments.some((e) => e.courseId === rec.courseId)}
+                />
               </li>
             ))}
           </ul>

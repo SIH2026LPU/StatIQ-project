@@ -1,11 +1,16 @@
 import { db } from "@/db/store";
 import { Notice } from "@/components/app-shell";
 import { getIGOTProvider } from "@/lib/integrations/igot";
+import { getSession } from "@/lib/auth/session";
 import { BookOpen } from "lucide-react";
 import { CourseCatalogue } from "@/components/course-catalogue";
 
 export default async function CoursesPage() {
   const courses = db.listCourses();
+  const session = await getSession();
+  const employee = session ? db.resolveEmployeeForSession(session) : null;
+  const enrollments = employee ? db.listEnrollments(employee.id) : [];
+  const enrolledCourseIds = enrollments.map((e) => e.courseId);
 
   // Use listBatches — the Sunbird-shaped method (the new interface has no searchCourses).
   const igot = getIGOTProvider();
@@ -35,7 +40,7 @@ export default async function CoursesPage() {
         </p>
       </header>
 
-      <CourseCatalogue initialCourses={courses} />
+      <CourseCatalogue initialCourses={courses} enrolledCourseIds={enrolledCourseIds} />
     </div>
   );
 }

@@ -34,8 +34,9 @@ export default async function CourseDetailPage({
   
   // Check if enrolled if logged in
   let isEnrolled = false;
-  if (session?.employeeId) {
-    const enrollments = db.listEnrollments(session.employeeId);
+  if (session) {
+    const employee = db.resolveEmployeeForSession(session);
+    const enrollments = employee ? db.listEnrollments(employee.id) : [];
     isEnrolled = enrollments.some((e) => e.courseId === course.id);
   }
 

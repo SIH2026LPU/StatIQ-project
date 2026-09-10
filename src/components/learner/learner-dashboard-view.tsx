@@ -327,7 +327,10 @@ export function LearnerDashboardView({
                       <span className="text-[10px] font-label-caps font-bold text-on-surface-variant px-2 py-0.5 rounded-full bg-surface-container">
                         {rec.course?.provider.toUpperCase()}
                       </span>
-                      <EnrollButton courseId={rec.courseId} />
+                      <EnrollButton
+                        courseId={rec.courseId}
+                        isEnrolled={enrollments.some((e) => e.courseId === rec.courseId)}
+                      />
                     </div>
                   </div>
                 </li>

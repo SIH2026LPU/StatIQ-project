@@ -17,9 +17,9 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
   }
 
   const session = await getSession();
-  const employee = session?.employeeId ? db.getEmployee(session.employeeId) : null;
+  const employee = session ? db.resolveEmployeeForSession(session) : null;
   const enrollments = employee ? db.listEnrollments(employee.id) : [];
-  const isEnrolled = enrollments.some(e => e.courseId === course.id);
+  const isEnrolled = enrollments.some((e) => e.courseId === course.id);
 
   const curriculum = getCurriculumForCourse(course.title, course.provider);
 

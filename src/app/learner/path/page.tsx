@@ -19,6 +19,7 @@ export default async function PathPage() {
       careerGoal={employee.careerGoal}
       targetRoleName={snap.targetRole?.name}
       hours={hours}
+      enrolledCourseIds={snap.enrollments.map((e) => e.courseId)}
       recommendations={snap.recommendations.map((r) => ({
         courseId: r.courseId,
         course: r.course ? {

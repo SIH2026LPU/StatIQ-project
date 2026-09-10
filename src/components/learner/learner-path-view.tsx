@@ -34,6 +34,7 @@ interface LearnerPathViewProps {
   hours: number;
   recommendations: PathRec[];
   programmes: PathProgramme[];
+  enrolledCourseIds?: string[];
 }
 
 export function LearnerPathView({
@@ -42,6 +43,7 @@ export function LearnerPathView({
   hours,
   recommendations,
   programmes,
+  enrolledCourseIds = [],
 }: LearnerPathViewProps) {
   const { t, tEntity } = useTranslation();
 
@@ -102,7 +104,10 @@ export function LearnerPathView({
             </div>
             
             <div className="shrink-0 pt-2">
-              <EnrollButton courseId={rec.courseId} />
+              <EnrollButton
+                courseId={rec.courseId}
+                isEnrolled={enrolledCourseIds.includes(rec.courseId)}
+              />
             </div>
           </li>
         ))}

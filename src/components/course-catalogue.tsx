@@ -8,7 +8,13 @@ import { EnrollButton } from "@/components/enroll-button";
 import { useTranslation } from "@/components/language/language-provider";
 import type { Course } from "@/types/domain";
 
-export function CourseCatalogue({ initialCourses }: { initialCourses: Course[] }) {
+export function CourseCatalogue({
+  initialCourses,
+  enrolledCourseIds = [],
+}: {
+  initialCourses: Course[];
+  enrolledCourseIds?: string[];
+}) {
   const { t, tEntity } = useTranslation();
   const [search, setSearch] = useState("");
   const [difficultyFilter, setDifficultyFilter] = useState<string>("all");
@@ -99,7 +105,10 @@ export function CourseCatalogue({ initialCourses }: { initialCourses: Course[] }
                 </div>
                 
                 <div className="mt-auto">
-                  <EnrollButton courseId={course.id} />
+                  <EnrollButton
+                    courseId={course.id}
+                    isEnrolled={enrolledCourseIds.includes(course.id)}
+                  />
                 </div>
               </div>
             </article>
