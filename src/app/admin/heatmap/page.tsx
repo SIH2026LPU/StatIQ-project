@@ -6,16 +6,27 @@ import {
   Info,
   Layers,
   Sparkles,
+  Search,
 } from "lucide-react";
 
 function getCellColor(score: number) {
-  if (score >= 75)
-    return "bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 font-bold border border-emerald-500/30";
-  if (score >= 50)
-    return "bg-amber-500/25 text-amber-800 dark:text-amber-300 font-medium border border-amber-500/30";
-  if (score > 0)
-    return "bg-rose-500/25 text-rose-800 dark:text-rose-300 font-medium border border-rose-500/30";
-  return "bg-surface-container-high/40 text-on-surface-variant/40";
+  if (score >= 75) {
+    return "bg-emerald-100 text-emerald-950 dark:bg-emerald-950/80 dark:text-emerald-200 font-black border border-emerald-400 dark:border-emerald-600 shadow-sm";
+  }
+  if (score >= 50) {
+    return "bg-amber-100 text-amber-950 dark:bg-amber-950/80 dark:text-amber-200 font-black border border-amber-400 dark:border-amber-600 shadow-sm";
+  }
+  if (score > 0) {
+    return "bg-rose-100 text-rose-950 dark:bg-rose-950/80 dark:text-rose-200 font-black border border-rose-400 dark:border-rose-600 shadow-sm";
+  }
+  return "bg-surface-container-high/40 text-on-surface-variant/40 font-medium";
+}
+
+function getStatusLabel(score: number) {
+  if (score >= 75) return "Proficient (≥75)";
+  if (score >= 50) return "Developing (50–74)";
+  if (score > 0) return "Critical Deficit (<50)";
+  return "No Data Recorded";
 }
 
 export default function HeatmapPage() {
@@ -41,40 +52,51 @@ export default function HeatmapPage() {
           </p>
         </div>
 
-        {/* Legend */}
-        <div className="flex items-center gap-3 text-xs font-label-caps text-on-surface-variant bg-surface-container-high/40 p-2.5 rounded-xl border border-outline-variant/30">
-          <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded bg-emerald-500/40 border border-emerald-500/60 inline-block" />
-            75+ (Proficient)
+        {/* Legend with High Contrast Badges */}
+        <div className="flex flex-wrap items-center gap-3 text-xs font-label-caps text-on-surface-variant bg-surface-container-high/60 p-3 rounded-2xl border border-outline-variant/30">
+          <span className="flex items-center gap-1.5 font-bold">
+            <span className="w-3.5 h-3.5 rounded-md bg-emerald-100 border border-emerald-400 dark:bg-emerald-950 dark:border-emerald-600 inline-block shadow-sm" />
+            <span className="text-emerald-900 dark:text-emerald-300">75+ (Proficient)</span>
           </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded bg-amber-500/40 border border-amber-500/60 inline-block" />
-            50–74 (Developing)
+          <span className="flex items-center gap-1.5 font-bold">
+            <span className="w-3.5 h-3.5 rounded-md bg-amber-100 border border-amber-400 dark:bg-amber-950 dark:border-amber-600 inline-block shadow-sm" />
+            <span className="text-amber-900 dark:text-amber-300">50–74 (Developing)</span>
           </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded bg-rose-500/40 border border-rose-500/60 inline-block" />
-            &lt;50 (Critical Deficit)
+          <span className="flex items-center gap-1.5 font-bold">
+            <span className="w-3.5 h-3.5 rounded-md bg-rose-100 border border-rose-400 dark:bg-rose-950 dark:border-rose-600 inline-block shadow-sm" />
+            <span className="text-rose-900 dark:text-rose-300">&lt;50 (Critical Deficit)</span>
           </span>
         </div>
       </header>
 
       {/* Heatmap Table Container */}
       <section className="glass-panel rounded-3xl border border-outline-variant/30 p-6 overflow-hidden space-y-4">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[900px] border-collapse text-xs">
+        <div className="flex items-center justify-between pb-2">
+          <div>
+            <h2 className="font-display text-lg font-bold text-on-surface">
+              Departmental Competency Matrix
+            </h2>
+            <p className="text-xs text-on-surface-variant">
+              Hover over any cell to inspect division score, proficiency status, and benchmarks.
+            </p>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto custom-scrollbar pb-2">
+          <table className="w-full min-w-[1000px] border-collapse text-xs">
             <thead>
               <tr className="border-b border-outline-variant/30">
-                <th className="p-3 text-left font-display font-bold text-on-surface uppercase tracking-wider text-[11px] bg-surface-container-high/60 rounded-tl-xl">
+                <th className="p-3.5 text-left font-display font-bold text-on-surface uppercase tracking-wider text-[11px] bg-surface-container-high/80 rounded-tl-xl sticky left-0 z-10 min-w-[200px]">
                   Department
                 </th>
                 {names.map((name, idx) => (
                   <th
                     key={name}
-                    className={`p-3 text-left font-display font-bold text-on-surface text-[11px] uppercase tracking-wider bg-surface-container-high/60 ${
+                    className={`p-3 text-center font-display font-bold text-on-surface text-[11px] uppercase tracking-wider bg-surface-container-high/80 min-w-[120px] ${
                       idx === names.length - 1 ? "rounded-tr-xl" : ""
                     }`}
                   >
-                    <span className="line-clamp-1 max-w-[120px]" title={name}>
+                    <span className="block text-center font-semibold" title={name}>
                       {name}
                     </span>
                   </th>
@@ -84,23 +106,31 @@ export default function HeatmapPage() {
             <tbody className="divide-y divide-outline-variant/15">
               {snap.heatmap.map((row) => (
                 <tr key={row.department.id} className="hover:bg-white/5 transition-colors">
-                  <td className="p-3 font-semibold text-on-surface text-xs whitespace-nowrap">
-                    <div>{row.department.name}</div>
-                    <span className="font-mono text-[10px] text-on-surface-variant font-normal">
+                  <td className="p-3.5 font-semibold text-on-surface text-xs whitespace-nowrap sticky left-0 bg-surface/95 backdrop-blur-sm z-10 border-r border-outline-variant/20">
+                    <div className="font-bold text-on-surface">{row.department.name}</div>
+                    <span className="font-mono text-[10px] text-on-surface-variant font-normal uppercase tracking-wider">
                       {row.department.code}
                     </span>
                   </td>
-                  {row.competencies.map((c) => (
-                    <td key={c.competencyId} className="p-2 text-center">
-                      <div
-                        className={`py-2 px-2.5 rounded-xl font-mono text-xs transition-all ${getCellColor(
-                          c.score
-                        )}`}
-                      >
-                        {c.score ? Math.round(c.score) : "—"}
-                      </div>
-                    </td>
-                  ))}
+                  {row.competencies.map((c) => {
+                    const score = c.score ? Math.round(c.score) : 0;
+                    const tooltip = `${row.department.name} · ${c.name}: ${
+                      score ? `${score}/100 — ${getStatusLabel(score)}` : "No assessment data"
+                    }`;
+
+                    return (
+                      <td key={c.competencyId} className="p-2 text-center">
+                        <div
+                          title={tooltip}
+                          className={`py-2 px-3 rounded-xl font-mono text-xs cursor-default select-none transition-all duration-200 hover:scale-105 ${getCellColor(
+                            c.score
+                          )}`}
+                        >
+                          {score ? score : "—"}
+                        </div>
+                      </td>
+                    );
+                  })}
                 </tr>
               ))}
             </tbody>
