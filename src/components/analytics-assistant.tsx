@@ -3,28 +3,24 @@
 import { useState } from "react";
 import {
   Sparkles,
-  Send,
-  HelpCircle,
-  ShieldCheck,
   Brain,
   CheckCircle2,
   RefreshCw,
-  Layers,
 } from "lucide-react";
 import { useTranslation } from "@/components/language/language-provider";
 
-const SUGGESTED_QUERIES = [
-  "Which department has the largest SQL and microdata competency gap?",
-  "Summarize overall workforce readiness for Sample Survey Division.",
-  "What is the average completion rate for official iGOT courses?",
-  "Recommend priority training interventions for officers in Field Operations.",
-];
-
 export function AnalyticsAssistant() {
   const { t, currentLanguage, translateDynamic } = useTranslation();
-  const [q, setQ] = useState("Which department has the largest SQL gap?");
+  const [q, setQ] = useState(t("assistant.defaultQuery", "Which department has the largest SQL gap?"));
   const [a, setA] = useState("");
   const [pending, setPending] = useState(false);
+
+  const suggestedQueries = [
+    t("assistant.query1", "Which department has the largest SQL and microdata competency gap?"),
+    t("assistant.query2", "Summarize overall workforce readiness for Sample Survey Division."),
+    t("assistant.query3", "What is the average completion rate for official iGOT courses?"),
+    t("assistant.query4", "Recommend priority training interventions for officers in Field Operations."),
+  ];
 
   async function ask(queryToAsk?: string) {
     const question = queryToAsk || q;
@@ -63,14 +59,14 @@ export function AnalyticsAssistant() {
       >
         <div className="space-y-2">
           <label className="text-xs font-label-caps text-on-surface-variant uppercase tracking-wider block">
-            {t("analyst.placeholder", "Natural Language Executive Query")}
+            {t("assistant.queryLabel", "Natural Language Executive Query")}
           </label>
           <div className="relative">
             <input
               className="w-full rounded-2xl bg-surface-container-high/60 border border-outline-variant/40 p-4 pr-32 text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:border-primary transition-colors shadow-inner"
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Ask any aggregate workforce competency question..."
+              placeholder={t("assistant.inputPlaceholder", "Ask any aggregate workforce competency question...")}
               required
             />
             <button
@@ -86,7 +82,7 @@ export function AnalyticsAssistant() {
               ) : (
                 <>
                   <Sparkles className="w-3.5 h-3.5" />
-                  {t("common.search", "Analyze")}
+                  {t("assistant.analyzeBtn", "Analyze")}
                 </>
               )}
             </button>
@@ -96,12 +92,12 @@ export function AnalyticsAssistant() {
         {/* Suggested Prompts */}
         <div className="space-y-1.5 pt-2">
           <span className="text-[11px] font-label-caps text-on-surface-variant uppercase tracking-wider block">
-            Suggested Executive Queries:
+            {t("assistant.suggestedQueriesLabel", "Suggested Executive Queries:")}
           </span>
           <div className="flex flex-wrap gap-2">
-            {SUGGESTED_QUERIES.map((prompt) => (
+            {suggestedQueries.map((prompt, idx) => (
               <button
-                key={prompt}
+                key={idx}
                 type="button"
                 onClick={() => {
                   setQ(prompt);
@@ -125,12 +121,12 @@ export function AnalyticsAssistant() {
                 <Brain className="w-4 h-4" />
               </div>
               <h3 className="font-display text-sm font-bold text-on-surface">
-                {t("analyst.keyInsights", "Executive Intelligence Synthesis")}
+                {t("assistant.insightsTitle", "Executive Intelligence Synthesis")}
               </h3>
             </div>
             <span className="inline-flex items-center gap-1 text-[10px] font-label-caps text-emerald-500 font-bold bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
               <CheckCircle2 className="w-3 h-3" />
-              Privacy-Preserved Aggregation
+              {t("assistant.privacyPreserved", "Privacy-Preserved Aggregation")}
             </span>
           </div>
 
@@ -139,8 +135,8 @@ export function AnalyticsAssistant() {
           </div>
 
           <div className="pt-3 border-t border-outline-variant/20 flex items-center justify-between text-xs text-on-surface-variant font-label-caps">
-            <span>Aggregated across DoPT Competency Benchmark DB</span>
-            <span>Zero Individual Records Exposed</span>
+            <span>{t("assistant.aggregatedDb", "Aggregated across DoPT Competency Benchmark DB")}</span>
+            <span>{t("assistant.zeroExposed", "Zero Individual Records Exposed")}</span>
           </div>
         </div>
       )}

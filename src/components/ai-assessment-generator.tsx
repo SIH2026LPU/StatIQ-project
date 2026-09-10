@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Sparkles, BrainCircuit, Play, Loader2, CheckCircle2, RefreshCw } from "lucide-react";
+import { Sparkles, BrainCircuit, Loader2, RefreshCw } from "lucide-react";
 import { QuizRunner } from "./quiz-runner";
 import { useTranslation } from "@/components/language/language-provider";
 
@@ -10,7 +10,7 @@ export function AiAssessmentGenerator({
 }: {
   competencies: Array<{ id: string; name: string }>;
 }) {
-  const { t } = useTranslation();
+  const { t, tEntity } = useTranslation();
   const [topic, setTopic] = useState("National Accounts & Price Index Compilation");
   const [competencyId, setCompetencyId] = useState(competencies[0]?.id || "c-stat-methods");
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("medium");
@@ -53,7 +53,7 @@ export function AiAssessmentGenerator({
         <div className="flex items-center justify-between">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary-container/30 bg-primary-container/10 font-label-caps text-xs text-primary-container">
             <Sparkles className="w-3.5 h-3.5" />
-            LIVE AI GENERATED ASSESSMENT · {difficulty.toUpperCase()}
+            {t("assessments.liveGenerated", "LIVE AI GENERATED ASSESSMENT")} · {tEntity(difficulty).toUpperCase()}
           </div>
           <button
             onClick={() => { setActiveQuiz(false); setGeneratedQuestions(null); }}
@@ -76,7 +76,7 @@ export function AiAssessmentGenerator({
         <div className="space-y-1">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary-container/30 bg-primary-container/10 font-label-caps text-xs text-primary-container">
             <Sparkles className="w-3.5 h-3.5" />
-            AI EVALUATION ENGINE
+            {t("assessments.engineBadge", "AI EVALUATION ENGINE")}
           </div>
           <h2 className="font-display text-2xl font-bold text-on-surface">
             {t("assessments.generateQuestions", "Generate Custom AI Practice Test")}
@@ -89,7 +89,9 @@ export function AiAssessmentGenerator({
 
       {/* Preset Pills */}
       <div className="space-y-2">
-        <p className="text-xs font-label-caps text-on-surface-variant uppercase tracking-wider">Quick Topics</p>
+        <p className="text-xs font-label-caps text-on-surface-variant uppercase tracking-wider">
+          {t("assessments.quickTopics", "Quick Topics")}
+        </p>
         <div className="flex flex-wrap gap-2">
           {presetTopics.map((p, idx) => (
             <button
@@ -101,7 +103,7 @@ export function AiAssessmentGenerator({
                   : "bg-surface-container border-white/5 text-on-surface-variant hover:text-on-surface hover:border-white/20"
               }`}
             >
-              {p.title}
+              {tEntity(p.title)}
             </button>
           ))}
         </div>
@@ -110,18 +112,22 @@ export function AiAssessmentGenerator({
       {/* Configuration Grid */}
       <div className="grid sm:grid-cols-3 gap-4 pt-2">
         <div className="space-y-2 sm:col-span-1">
-          <label className="text-xs font-label-caps text-on-surface-variant">TOPIC / FOCUS AREA</label>
+          <label className="text-xs font-label-caps text-on-surface-variant uppercase">
+            {t("assessments.topicFocus", "TOPIC / FOCUS AREA")}
+          </label>
           <input
             type="text"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             className="w-full px-4 py-2.5 rounded-xl bg-surface-container-high border border-white/10 text-on-surface text-sm focus:outline-none focus:border-primary-container"
-            placeholder="e.g. Laspeyres Index Formulation"
+            placeholder={t("assessments.topicPlaceholder", "e.g. Laspeyres Index Formulation")}
           />
         </div>
 
         <div className="space-y-2">
-          <label className="text-xs font-label-caps text-on-surface-variant">DIFFICULTY</label>
+          <label className="text-xs font-label-caps text-on-surface-variant uppercase">
+            {t("assessments.difficulty", "DIFFICULTY")}
+          </label>
           <select
             value={difficulty}
             onChange={(e) => setDifficulty(e.target.value as any)}
@@ -134,15 +140,17 @@ export function AiAssessmentGenerator({
         </div>
 
         <div className="space-y-2">
-          <label className="text-xs font-label-caps text-on-surface-variant">QUESTION COUNT</label>
+          <label className="text-xs font-label-caps text-on-surface-variant uppercase">
+            {t("assessments.questionCount", "QUESTION COUNT")}
+          </label>
           <select
             value={count}
             onChange={(e) => setCount(Number(e.target.value))}
             className="w-full px-4 py-2.5 rounded-xl bg-surface-container-high border border-white/10 text-on-surface text-sm focus:outline-none focus:border-primary-container"
           >
-            <option value={3}>3 Questions (Quick Check)</option>
-            <option value={4}>4 Questions (Standard)</option>
-            <option value={5}>5 Questions (In-Depth)</option>
+            <option value={3}>3 {t("assessments.questionsQuick", "Questions (Quick Check)")}</option>
+            <option value={4}>4 {t("assessments.questionsStandard", "Questions (Standard)")}</option>
+            <option value={5}>5 {t("assessments.questionsInDepth", "Questions (In-Depth)")}</option>
           </select>
         </div>
       </div>
@@ -151,17 +159,17 @@ export function AiAssessmentGenerator({
         <button
           onClick={handleGenerate}
           disabled={loading || !topic.trim()}
-          className="glow-button px-8 py-3 rounded-xl font-label-caps text-xs font-bold tracking-widest flex items-center gap-2 disabled:opacity-50 text-black"
+          className="glow-button px-8 py-3 rounded-xl font-label-caps text-xs font-bold tracking-widest flex items-center gap-2 disabled:opacity-50 text-black uppercase"
         >
           {loading ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
-              {t("common.loading", "GENERATING MCQS WITH AI...")}
+              {t("assessments.generatingMcqs", "GENERATING MCQS WITH AI...")}
             </>
           ) : (
             <>
               <BrainCircuit className="w-4 h-4" />
-              {t("assessments.startQuiz", "START AI PRACTICE TEST")}
+              {t("assessments.startPracticeTest", "START AI PRACTICE TEST")}
             </>
           )}
         </button>
