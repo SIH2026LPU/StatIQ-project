@@ -532,8 +532,16 @@ export function TutorChat() {
           {messages.map((msg, idx) => (
             <div key={msg.id || idx} className={`flex w-full animate-fade-up ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
               {msg.role === "user" ? (
-                <div className="max-w-[85%] sm:max-w-[75%] md:max-w-[65%] bg-gradient-to-r from-primary to-primary-container text-black font-medium p-4 sm:p-5 rounded-3xl rounded-tr-sm shadow-md break-words">
-                  <p className="text-sm md:text-[15px] leading-relaxed whitespace-pre-wrap font-sans">
+                <div className="max-w-[85%] sm:max-w-[75%] md:max-w-[65%] bg-surface-container-high border border-primary-container/30 text-on-surface p-4 sm:p-5 rounded-3xl rounded-tr-sm shadow-sm break-words">
+                  <div className="flex items-center gap-1.5 mb-1.5 opacity-80">
+                    <span className="w-4 h-4 rounded-full bg-primary-container/20 text-primary-container flex items-center justify-center text-[9px] font-bold">
+                      U
+                    </span>
+                    <span className="text-[10px] font-label-caps uppercase font-bold text-primary-container tracking-wider">
+                      You
+                    </span>
+                  </div>
+                  <p className="text-sm md:text-[15px] text-on-surface leading-relaxed whitespace-pre-wrap font-sans">
                     {msg.content}
                   </p>
                 </div>
