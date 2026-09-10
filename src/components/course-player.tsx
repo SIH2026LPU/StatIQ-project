@@ -20,7 +20,7 @@ import { useTranslation } from "@/components/language/language-provider";
 
 export function CoursePlayer({ course }: { course: Course }) {
   const { t, tEntity } = useTranslation();
-  const modules = getCurriculumForCourse(course.title, course.provider);
+  const modules = getCurriculumForCourse(course.title, course.provider, course.id);
 
   const [activeModuleId, setActiveModuleId] = useState(modules[0]?.id || "mod-1");
   const [completedModules, setCompletedModules] = useState<string[]>([]);

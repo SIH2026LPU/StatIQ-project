@@ -21,7 +21,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
   const enrollments = employee ? db.listEnrollments(employee.id) : [];
   const isEnrolled = enrollments.some((e) => e.courseId === course.id);
 
-  const curriculum = getCurriculumForCourse(course.title, course.provider);
+  const curriculum = getCurriculumForCourse(course.title, course.provider, course.id);
 
   // Get competencies this course covers
   const courseComps = db.listCourseCompetencies().filter((c) => c.courseId === course.id);
