@@ -246,23 +246,41 @@ export function LMSPlayerClient({
               {/* Module content by type */}
               {activeModule.moduleType === "VIDEO" && (
                 <div className="space-y-6">
-                  <div className="aspect-video bg-surface-container-high rounded-2xl flex items-center justify-center border border-white/10 relative overflow-hidden group cursor-pointer">
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary-container/10 to-secondary-container/5" />
-                    <div className="text-center relative z-10">
-                      <div className="w-16 h-16 rounded-full bg-primary-container/20 border-2 border-primary-container/40 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-                        <Play className="w-7 h-7 text-primary-container" />
-                      </div>
-                      <p className="text-on-surface font-bold">{activeModule.title}</p>
-                      <p className="text-on-surface-variant text-sm mt-1">{activeModule.durationMinutes} minutes · {course.provider.toUpperCase()}</p>
+                  <div className="aspect-video bg-black rounded-2xl flex items-center justify-center border border-white/15 relative overflow-hidden group shadow-2xl">
+                    {/* Stream Provenance Tag */}
+                    <div className="absolute top-3.5 left-3.5 z-20 flex items-center gap-2 bg-black/80 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
+                      <span className="w-2 h-2 rounded-full bg-primary-container animate-pulse" />
+                      <span className="text-[10px] font-label-caps text-white font-bold tracking-wider">
+                        {course.provider.toUpperCase()} SUNBIRD STREAM
+                      </span>
                     </div>
-                    <div className="absolute bottom-4 right-4 text-xs font-label-caps text-on-surface-variant/60 bg-surface/60 px-2 py-1 rounded">
-                      Progress saves on pause/seek/end
+
+                    <iframe
+                      src="https://www.youtube.com/embed/LHBE6Q9XlzI?autoplay=0&rel=0&modestbranding=1"
+                      title={activeModule.title}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                      className="w-full h-full border-0"
+                    />
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-surface-container-low border border-white/5 space-y-2">
+                    <h3 className="font-display text-lg font-bold text-on-surface flex items-center gap-2">
+                      <Video className="w-4 h-4 text-primary-container" />
+                      {activeModule.title}
+                    </h3>
+                    <p className="text-sm text-on-surface-variant leading-relaxed">
+                      This official curriculum stream covers foundational statistical theory, practical implementation, and data pipelines as certified under <strong className="text-on-surface">{course.title}</strong>.
+                    </p>
+                    <div className="flex items-center gap-3 pt-2 text-xs font-label-caps text-on-surface-variant">
+                      <span className="px-2 py-0.5 rounded bg-surface-container border border-white/5">
+                        Duration: {activeModule.durationMinutes} Mins
+                      </span>
+                      <span className="px-2 py-0.5 rounded bg-primary-container/10 border border-primary-container/20 text-primary-container">
+                        Provider: {course.provider.toUpperCase()}
+                      </span>
                     </div>
                   </div>
-                  <p className="text-sm text-on-surface-variant leading-relaxed">
-                    This video module covers {activeModule.title.toLowerCase()} as part of <strong className="text-on-surface">{course.title}</strong>.
-                    Content is sourced from {course.provider.toUpperCase()} and plays within the StatIQ AI learning environment.
-                  </p>
                 </div>
               )}
 

@@ -111,13 +111,29 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ i
             
             <div className="space-y-3 pt-2">
               {curriculum.map((mod, mIdx) => (
-                <div key={mod.id} className="p-4 rounded-xl bg-surface-container border border-white/5 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-bold text-on-surface">{mod.title}</span>
-                    <span className="text-xs font-label-caps text-on-surface-variant">{mod.duration}</span>
+                <div key={mod.id} className="p-4 rounded-xl bg-surface-container border border-white/5 space-y-3 hover:border-primary-container/30 transition-colors">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-full bg-primary-container/10 border border-primary-container/30 flex items-center justify-center text-primary-container text-xs font-bold shrink-0">
+                        {mIdx + 1}
+                      </div>
+                      <span className="text-sm font-bold text-on-surface">{mod.title}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-label-caps text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded">
+                        {mod.duration}
+                      </span>
+                      <Link
+                        href={`/learner/courses/${course.id}/play`}
+                        className="glow-button-secondary text-[10px] font-label-caps font-bold px-3 py-1 rounded-lg inline-flex items-center gap-1.5"
+                      >
+                        <PlayCircle className="w-3.5 h-3.5 text-primary-container" />
+                        WATCH VIDEO
+                      </Link>
+                    </div>
                   </div>
                   <p className="text-xs text-on-surface-variant leading-relaxed">{mod.overview}</p>
-                  <div className="pt-2 flex flex-wrap gap-1.5">
+                  <div className="pt-1 flex flex-wrap gap-1.5">
                     {mod.statements.map((st, stIdx) => (
                       <span key={stIdx} className="text-[11px] px-2.5 py-1 rounded-md bg-surface-container-high text-on-surface-variant border border-white/5">
                         ✓ {st.slice(0, 75)}...

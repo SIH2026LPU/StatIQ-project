@@ -73,17 +73,25 @@ export function CoursePlayer({ course }: { course: Course }) {
           
           {/* Video Container */}
           <div className="glass-panel rounded-3xl overflow-hidden border-t-[3px] border-t-primary-container shadow-2xl relative">
-            <div className="bg-black aspect-video relative flex items-center justify-center group overflow-hidden">
-              {/* Background Backdrop */}
-              <div className="absolute inset-0 opacity-40 bg-[url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop')] bg-cover bg-center" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
+            <div className="bg-black aspect-video relative flex items-center justify-center overflow-hidden">
               
-              {/* Video Overlay Info */}
-              <div className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
+              {/* Sunbird Content Provenance Header */}
+              <div className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/15">
                 <span className="w-2 h-2 rounded-full bg-primary-container animate-pulse" />
                 <span className="text-[11px] font-label-caps text-white font-medium">
-                  {course.provider.toUpperCase()} {t("courses.officialStream", "OFFICIAL CURRICULUM STREAM")}
+                  {course.provider.toUpperCase()} SUNBIRD STREAM
                 </span>
+                {activeModule.sunbirdContentId && (
+                  <span className="text-[9px] font-mono text-primary-container/80 pl-1 border-l border-white/20">
+                    {activeModule.sunbirdContentId}
+                  </span>
+                )}
+              </div>
+
+              {/* Quality & Resolution Tag */}
+              <div className="absolute top-4 right-4 z-20 flex items-center gap-2 bg-black/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/15">
+                <span className="text-[10px] font-label-caps text-primary-container font-bold">1080p HD</span>
+                <span className="text-[9px] font-label-caps text-on-surface-variant">AUTO</span>
               </div>
 
               {courseComplete ? (
@@ -99,28 +107,51 @@ export function CoursePlayer({ course }: { course: Course }) {
                   </p>
                   <Link 
                     href="/learner/achievements" 
-                    className="mt-6 glow-button px-8 py-3 rounded-full font-label-caps tracking-widest text-xs font-bold"
+                    className="mt-6 glow-button px-8 py-3 rounded-full font-label-caps tracking-widest text-xs font-bold text-black"
                   >
                     {t("courses.viewCertificate", "VIEW VERIFIED CERTIFICATE")}
                   </Link>
                 </div>
+              ) : isPlaying ? (
+                <div className="w-full h-full relative z-10">
+                  <iframe
+                    src={`${activeModule.videoUrl}${activeModule.videoUrl.includes("?") ? "&" : "?"}autoplay=1&rel=0&modestbranding=1&enablejsapi=1`}
+                    title={activeModule.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    className="w-full h-full border-0"
+                  />
+                </div>
               ) : (
-                <button 
-                  onClick={() => setIsPlaying(!isPlaying)}
-                  className={`relative z-10 w-20 h-20 rounded-full bg-primary-container/20 border-2 border-primary-container flex items-center justify-center text-primary-container backdrop-blur-sm transition-all hover:scale-110 hover:bg-primary-container hover:text-black shadow-[0_0_30px_rgba(57,255,20,0.3)] ${isPlaying ? 'opacity-0 hover:opacity-100' : 'opacity-100'}`}
-                >
-                  {isPlaying ? (
-                    <Pause className="w-8 h-8" fill="currentColor" />
-                  ) : (
-                    <Play className="w-8 h-8 ml-1" fill="currentColor" />
-                  )}
-                </button>
-              )}
+                <div className="relative w-full h-full flex items-center justify-center group cursor-pointer" onClick={() => setIsPlaying(true)}>
+                  {/* Background Backdrop with Gradient */}
+                  <div className="absolute inset-0 opacity-40 bg-[url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop')] bg-cover bg-center" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+                  
+                  {/* Center Play Button */}
+                  <div className="relative z-10 flex flex-col items-center gap-3">
+                    <button 
+                      type="button"
+                      className="w-20 h-20 rounded-full bg-primary-container/20 border-2 border-primary-container flex items-center justify-center text-primary-container backdrop-blur-sm transition-all group-hover:scale-110 group-hover:bg-primary-container group-hover:text-black shadow-[0_0_35px_rgba(57,255,20,0.35)]"
+                    >
+                      <Play className="w-8 h-8 ml-1" fill="currentColor" />
+                    </button>
+                    <div className="text-center">
+                      <p className="text-xs font-label-caps tracking-widest text-primary-container font-bold">
+                        CLICK TO STREAM SUNBIRD LESSON
+                      </p>
+                      <p className="text-[11px] text-white/70 mt-0.5">
+                        {activeModule.duration} · High Bitrate Official Audio/Video
+                      </p>
+                    </div>
+                  </div>
 
-              {/* Progress bar */}
-              <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-white/20">
-                <div className={`h-full bg-primary-container ${isPlaying ? 'w-full transition-all duration-[60000ms] ease-linear' : isComplete ? 'w-full' : 'w-0'}`} />
-              </div>
+                  {/* Progress bar */}
+                  <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-white/20">
+                    <div className={`h-full bg-primary-container ${isComplete ? 'w-full' : 'w-0'}`} />
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Lesson Bar Details */}
@@ -138,17 +169,27 @@ export function CoursePlayer({ course }: { course: Course }) {
                   </h2>
                 </div>
 
-                <button 
-                  onClick={toggleComplete}
-                  className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-label-caps tracking-widest text-xs font-bold transition-all border shrink-0 ${
-                    isComplete 
-                    ? 'bg-primary-container/10 border-primary-container/40 text-primary-container shadow-[0_0_15px_rgba(57,255,20,0.1)]' 
-                    : 'glow-button-secondary'
-                  }`}
-                >
-                  <CheckCircle2 className={`w-4 h-4 ${isComplete ? 'fill-primary-container/20' : ''}`} />
-                  {isComplete ? t("courses.completed", "COMPLETED") : t("courses.markComplete", "MARK LESSON COMPLETE")}
-                </button>
+                <div className="flex items-center gap-3">
+                  <button 
+                    onClick={() => setIsPlaying(!isPlaying)}
+                    className="glow-button-secondary flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-label-caps tracking-widest text-xs font-bold"
+                  >
+                    {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                    {isPlaying ? "STOP STREAM" : "START STREAM"}
+                  </button>
+
+                  <button 
+                    onClick={toggleComplete}
+                    className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-label-caps tracking-widest text-xs font-bold transition-all border shrink-0 ${
+                      isComplete 
+                      ? 'bg-primary-container/10 border-primary-container/40 text-primary-container shadow-[0_0_15px_rgba(57,255,20,0.1)]' 
+                      : 'glow-button text-black'
+                    }`}
+                  >
+                    <CheckCircle2 className={`w-4 h-4 ${isComplete ? 'fill-primary-container/20' : ''}`} />
+                    {isComplete ? t("courses.completed", "COMPLETED") : t("courses.markComplete", "MARK LESSON COMPLETE")}
+                  </button>
+                </div>
               </div>
 
               <p className="text-on-surface-variant text-sm leading-relaxed border-t border-white/5 pt-4">
