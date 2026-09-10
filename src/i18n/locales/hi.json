@@ -1,0 +1,22 @@
+{
+  "nav": {
+    "features": "विशेषताएँ",
+    "catalogue": "सूचीपत्र",
+    "statistics": "आंकड़े",
+    "aiAnalyst": "एआई विश्लेषक",
+    "courses": "पाठ्यक्रम",
+    "dataSources": "डेटा स्रोत"
+  },
+  "actions": {
+    "signIn": "साइन इन",
+    "signUp": "साइन अप",
+    "continue": "जारी रखें"
+  },
+  "common": {
+    "loading": "लोड हो रहा है...",
+    "retry": "पुनः प्रयास करें",
+    "cancel": "रद्द करें",
+    "chooseLanguage": "अपनी पसंदीदा भाषा चुनें",
+    "chooseLanguageDesc": "StatIQ AI का उपयोग अपनी पसंदीदा भारतीय भाषा में करें।"
+  }
+}

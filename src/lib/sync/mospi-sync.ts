@@ -1,0 +1,1 @@
+export { syncMospi } from "./index";

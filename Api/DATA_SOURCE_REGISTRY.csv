@@ -1,0 +1,7 @@
+source,official_url,purpose,access,integration,notes
+MoSPI API Platform,https://api.mospi.gov.in/,Official statistics APIs,Token/API account,Server-side integration,WPI and other authorized products
+eSankhyiki,https://esankhyiki.mospi.gov.in/,Official statistics catalogue and macro indicators,Public/API where available,Server-side adapter,"Catalogue, indicators, metadata"
+MoSPI UnitData,https://microdata.gov.in/,Official microdata,API key/authorized access,Server-side adapter,"PLFS, NSS, ASI and other datasets"
+NSSTA,https://nssta.gov.in/,Training programmes and TPAC information,Public official material / authorized access,Adapter + ingestion,Training catalogue and recommendations
+iGOT Karmayogi,https://www.igotkarmayogi.gov.in/,"Learning catalogue, enrollment and progress",Authorized credentials,Provider adapter,Use mock provider until access is granted
+data.gov.in,https://www.data.gov.in/,Government open-data discovery and APIs,Public resources/API keys where required,Adapter,Supplementary datasets

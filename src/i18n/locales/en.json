@@ -1,0 +1,22 @@
+{
+  "nav": {
+    "features": "Features",
+    "catalogue": "Catalogue",
+    "statistics": "Statistics",
+    "aiAnalyst": "AI Analyst",
+    "courses": "Courses",
+    "dataSources": "Data Sources"
+  },
+  "actions": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "continue": "Continue"
+  },
+  "common": {
+    "loading": "Loading...",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "chooseLanguage": "Choose your preferred language",
+    "chooseLanguageDesc": "Use StatIQ AI in your preferred Indian language."
+  }
+}
