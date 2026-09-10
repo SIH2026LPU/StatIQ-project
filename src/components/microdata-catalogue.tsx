@@ -12,22 +12,16 @@ import {
 import {
   Search,
   Database,
-  Layers,
   ArrowUpRight,
   AlertCircle,
   RefreshCw,
   CheckCircle2,
   FileText,
   ShieldCheck,
-  Filter,
-  Calendar,
-  Building2,
-  Sparkles,
-  ExternalLink,
   ChevronLeft,
   ChevronRight,
-  BookOpen,
 } from "lucide-react";
+import { useTranslation } from "@/components/language/language-provider";
 
 const PRESET_QUERIES = [
   { label: "All Surveys", query: "", count: "187" },
@@ -49,6 +43,7 @@ export function MicrodataCatalogue({
   detailsBase?: string;
   allowAssign?: boolean;
 }) {
+  const { t, tEntity } = useTranslation();
   const [q, setQ] = useState(initialQuery);
   const [page, setPage] = useState(1);
   const [data, setData] = useState<DatasetsResponse | null>(initialData);
@@ -88,7 +83,6 @@ export function MicrodataCatalogue({
   const pageSize = data && data.mode === "LIVE" ? data.pageSize ?? 15 : 15;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
-  // Client-side collection filter if applied
   const datasets = useMemo(() => {
     if (selectedRepo === "ALL") return rawDatasets;
     return rawDatasets.filter((d) => {
@@ -107,7 +101,7 @@ export function MicrodataCatalogue({
             LIVE MoSPI Microdata
           </span>
           <span className="text-on-surface-variant font-medium">
-            <strong className="text-on-surface">{total}</strong> Official Surveys Available
+            <strong className="text-on-surface">{total}</strong> {t("microdata.surveysAvailable", "Official Surveys Available")}
           </span>
           <span className="hidden sm:inline-block text-outline-variant">•</span>
           <span className="hidden sm:inline-flex items-center gap-1 text-on-surface-variant">
@@ -139,7 +133,7 @@ export function MicrodataCatalogue({
             <input
               value={inputVal}
               onChange={(e) => setInputVal(e.target.value)}
-              placeholder="Search official surveys (e.g. PLFS, ASI, HCES, ASUSE, NSS, Employment, Consumption)..."
+              placeholder={t("microdata.search", "Search official surveys (e.g. PLFS, ASI, HCES, ASUSE, NSS, Employment, Consumption)...")}
               className="w-full pl-11 pr-4 py-3 rounded-2xl bg-surface-container-high/60 border border-outline-variant/40 text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-sans"
             />
             {inputVal && (
@@ -152,7 +146,7 @@ export function MicrodataCatalogue({
                 }}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-on-surface-variant hover:text-on-surface px-2 py-0.5 rounded-md hover:bg-surface-container-high"
               >
-                Clear
+                {t("common.cancel", "Clear")}
               </button>
             )}
           </div>
@@ -162,7 +156,7 @@ export function MicrodataCatalogue({
             className="glow-button px-6 py-3 rounded-2xl font-label-caps uppercase text-xs tracking-wider font-bold text-black flex items-center justify-center gap-2 shadow-md transition-transform active:scale-95"
           >
             <Search className="w-3.5 h-3.5" />
-            Search Microdata
+            {t("microdata.searchBtn", "Search Microdata")}
           </button>
         </form>
 
@@ -170,12 +164,12 @@ export function MicrodataCatalogue({
         <div className="space-y-2 pt-2 border-t border-outline-variant/15">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-label-caps uppercase tracking-wider text-on-surface-variant font-semibold">
-              Research Presets:
+              {t("microdata.presets", "Research Presets:")}
             </span>
             {loading && (
               <span className="text-primary text-[11px] flex items-center gap-1.5 animate-pulse font-medium">
                 <RefreshCw className="w-3 h-3 animate-spin" />
-                Querying official gateway…
+                {t("common.loading", "Querying official gateway…")}
               </span>
             )}
           </div>
@@ -216,11 +210,6 @@ export function MicrodataCatalogue({
           <p className="text-on-surface-variant leading-relaxed">
             <strong>{data.mode}:</strong> {data.error}
           </p>
-          {data.mode === "RATE_LIMITED" ? (
-            <p className="text-[11px] text-amber-500/80">
-              The MoSPI Microdata portal rate limit is active. Cached surveys remain accessible.
-            </p>
-          ) : null}
         </div>
       ) : null}
 
@@ -243,9 +232,11 @@ export function MicrodataCatalogue({
             <Database className="w-6 h-6 opacity-70" />
           </div>
           <div className="space-y-1">
-            <h3 className="font-semibold text-on-surface text-base">No Matching Surveys Found</h3>
+            <h3 className="font-semibold text-on-surface text-base">
+              {t("microdata.noSurveys", "No Matching Surveys Found")}
+            </h3>
             <p className="text-xs text-on-surface-variant max-w-md mx-auto">
-              No official datasets matched &ldquo;{q}&rdquo; on the MoSPI Microdata Portal. Try searching for PLFS, ASI, HCES, ASUSE, or NSS.
+              No official datasets matched &ldquo;{q}&rdquo; on the MoSPI Microdata Portal.
             </p>
           </div>
           <button
@@ -257,7 +248,7 @@ export function MicrodataCatalogue({
             }}
             className="px-4 py-2 rounded-xl bg-surface-container-high border border-outline-variant/40 text-xs font-semibold text-on-surface hover:border-primary/40 transition-colors"
           >
-            Reset All Filters
+            {t("courses.clearFilters", "Reset All Filters")}
           </button>
         </div>
       ) : null}
@@ -271,13 +262,13 @@ export function MicrodataCatalogue({
               <table className="w-full min-w-[1000px] text-left text-xs">
                 <thead className="bg-surface-container-high/80 border-b border-outline-variant/30 text-on-surface font-label-caps uppercase text-[11px] tracking-wider">
                   <tr>
-                    <th className="py-4 px-5 font-semibold">Survey Title & Scope</th>
-                    <th className="py-4 px-4 font-semibold">Official IDNO</th>
-                    <th className="py-4 px-4 font-semibold">Collection</th>
-                    <th className="py-4 px-4 font-semibold">Year / Period</th>
-                    <th className="py-4 px-4 font-semibold">Producer</th>
-                    <th className="py-4 px-4 font-semibold">Status</th>
-                    <th className="py-4 px-5 font-semibold text-right">Action</th>
+                    <th className="py-4 px-5 font-semibold">{t("microdata.titleCol", "Survey Title & Scope")}</th>
+                    <th className="py-4 px-4 font-semibold">{t("microdata.idnoCol", "Official IDNO")}</th>
+                    <th className="py-4 px-4 font-semibold">{t("microdata.collectionCol", "Collection")}</th>
+                    <th className="py-4 px-4 font-semibold">{t("microdata.yearCol", "Year / Period")}</th>
+                    <th className="py-4 px-4 font-semibold">{t("microdata.producerCol", "Producer")}</th>
+                    <th className="py-4 px-4 font-semibold">{t("microdata.statusCol", "Status")}</th>
+                    <th className="py-4 px-5 font-semibold text-right">{t("microdata.actionCol", "Action")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-outline-variant/15 text-on-surface-variant">
@@ -296,11 +287,11 @@ export function MicrodataCatalogue({
                             href={`${detailsBase}/${encodeURIComponent(key)}`}
                             className="font-semibold text-sm text-on-surface group-hover:text-primary transition-colors flex items-center gap-1.5"
                           >
-                            <span className="line-clamp-1">{title}</span>
+                            <span className="line-clamp-1">{tEntity(title)}</span>
                             <ArrowUpRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-primary shrink-0" />
                           </Link>
                           <p className="text-[11px] text-on-surface-variant/80 line-clamp-1 mt-0.5">
-                            {fieldOrMissing(d.abstract ?? d.description ?? "Official Government Microdata Archive")}
+                            {tEntity(fieldOrMissing(d.abstract ?? d.description ?? "Official Government Microdata Archive"))}
                           </p>
                         </td>
 
@@ -321,7 +312,7 @@ export function MicrodataCatalogue({
                         </td>
 
                         <td className="py-4 px-4 max-w-[140px] truncate text-on-surface-variant text-[11px]">
-                          {producer}
+                          {tEntity(producer)}
                         </td>
 
                         <td className="py-4 px-4">
@@ -336,7 +327,7 @@ export function MicrodataCatalogue({
                             href={`${detailsBase}/${encodeURIComponent(key)}`}
                             className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-xl border border-outline-variant/40 bg-surface-container-high/60 hover:bg-primary hover:text-black hover:border-primary text-[11px] font-label-caps uppercase tracking-wider font-semibold text-on-surface transition-all shadow-sm"
                           >
-                            Explore →
+                            {t("microdata.explore", "Explore →")}
                           </Link>
                         </td>
                       </tr>
@@ -374,7 +365,7 @@ export function MicrodataCatalogue({
                     href={`${detailsBase}/${encodeURIComponent(key)}`}
                     className="block font-semibold text-sm text-on-surface hover:text-primary transition-colors leading-snug"
                   >
-                    {title}
+                    {tEntity(title)}
                   </Link>
 
                   <div className="text-xs space-y-1">
@@ -390,13 +381,13 @@ export function MicrodataCatalogue({
                       className="text-xs text-on-surface-variant hover:text-on-surface flex items-center gap-1"
                     >
                       <FileText className="w-3 h-3" />
-                      View Files
+                      {t("microdata.files", "View Files")}
                     </Link>
                     <Link
                       href={`${detailsBase}/${encodeURIComponent(key)}`}
                       className="px-3 py-1 rounded-lg bg-primary text-black text-xs font-bold font-label-caps uppercase tracking-wider"
                     >
-                      Explore →
+                      {t("microdata.explore", "Explore →")}
                     </Link>
                   </div>
                 </div>
@@ -407,9 +398,9 @@ export function MicrodataCatalogue({
           {/* Research Pagination Controls */}
           <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-surface-container-low/60 border border-outline-variant/20 text-xs">
             <div className="text-on-surface-variant">
-              Showing Page <strong className="text-on-surface">{page}</strong> of{" "}
+              {t("courses.showing", "Showing Page")} <strong className="text-on-surface">{page}</strong> {t("common.of", "of")}{" "}
               <strong className="text-on-surface">{totalPages}</strong> (
-              <span className="font-mono">{total}</span> total records)
+              <span className="font-mono">{total}</span> {t("microdata.records", "total records")})
             </div>
 
             <div className="flex items-center gap-2">
@@ -420,29 +411,8 @@ export function MicrodataCatalogue({
                 className="px-3.5 py-1.5 rounded-xl border border-outline-variant/40 bg-surface-container-high text-on-surface disabled:opacity-40 disabled:pointer-events-none hover:border-primary transition-colors flex items-center gap-1 font-medium text-xs"
               >
                 <ChevronLeft className="w-3.5 h-3.5" />
-                Previous
+                {t("common.back", "Previous")}
               </button>
-
-              <div className="hidden sm:flex items-center gap-1 font-mono text-xs">
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  const pNum = i + 1;
-                  return (
-                    <button
-                      key={pNum}
-                      type="button"
-                      onClick={() => setPage(pNum)}
-                      className={`w-7 h-7 rounded-lg font-semibold transition-all ${
-                        page === pNum
-                          ? "bg-primary text-black shadow-sm"
-                          : "bg-surface-container-high/60 text-on-surface-variant hover:text-on-surface"
-                      }`}
-                    >
-                      {pNum}
-                    </button>
-                  );
-                })}
-                {totalPages > 5 && <span className="px-1 text-on-surface-variant">…</span>}
-              </div>
 
               <button
                 type="button"
@@ -450,24 +420,13 @@ export function MicrodataCatalogue({
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 className="px-3.5 py-1.5 rounded-xl border border-outline-variant/40 bg-surface-container-high text-on-surface disabled:opacity-40 disabled:pointer-events-none hover:border-primary transition-colors flex items-center gap-1 font-medium text-xs"
               >
-                Next
+                {t("common.next", "Next")}
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
         </div>
       )}
-
-      {/* Institutional Provenance & Verification Footer Banner */}
-      <div className="p-5 rounded-2xl bg-surface-container-lowest/60 border border-outline-variant/20 text-xs text-on-surface-variant space-y-1.5">
-        <div className="flex items-center gap-2 font-semibold text-on-surface text-[11px] font-label-caps uppercase tracking-wider">
-          <ShieldCheck className="w-4 h-4 text-emerald-500" />
-          Official MoSPI Data Governance & Provenance Notice
-        </div>
-        <p className="leading-relaxed text-[11px]">
-          All microdata catalogues, questionnaire schedules, and variable documentation originate from the National Data Archive (NADA) at <code>microdata.gov.in</code>. All requests flow through StatIQ AI&apos;s encrypted server proxy to guarantee that client applications never handle or expose upstream API credentials.
-        </p>
-      </div>
     </section>
   );
 }

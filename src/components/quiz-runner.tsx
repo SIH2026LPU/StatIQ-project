@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "@/components/language/language-provider";
 
 type Q = { id: string; prompt: string; options: string[]; difficulty: string };
 
@@ -13,6 +14,7 @@ export function QuizRunner({
   questions: Q[];
 }) {
   const router = useRouter();
+  const { t, tEntity } = useTranslation();
   const ordered = useMemo(() => {
     const rank = { easy: 0, medium: 1, hard: 2 } as Record<string, number>;
     return [...questions].sort(
@@ -62,21 +64,23 @@ export function QuizRunner({
         <div className="rounded-2xl p-6 bg-secondary-container/10 border border-secondary-container/30 text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-secondary-container/30 bg-secondary-container/20 font-label-caps text-label-caps text-secondary-fixed-dim mb-4">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-            ASSESSMENT COMPLETE
+            {t("assessments.complete", "ASSESSMENT COMPLETE")}
           </div>
           <h2 className="font-display text-3xl font-bold text-on-surface mb-2">
-            Assessment Score: <span className="text-primary-container">{result.assessmentScore.toFixed(0)}%</span>
+            {t("assessments.score", "Assessment Score")}: <span className="text-primary-container">{result.assessmentScore.toFixed(0)}%</span>
           </h2>
           <p className="text-on-surface-variant text-lg">
-            Competency improved: {result.oldScore.toFixed(0)} → <strong className="text-on-surface">{result.newScore.toFixed(0)}</strong>
+            {t("assessments.improved", "Competency improved")}: {result.oldScore.toFixed(0)} → <strong className="text-on-surface">{result.newScore.toFixed(0)}</strong>
           </p>
           <div className="mt-4 pt-4 border-t border-white/10 text-sm text-on-surface-variant">
-            Target role readiness updated to <strong className="text-on-surface">{result.readiness.toFixed(0)}%</strong>
+            {t("assessments.readinessUpdated", "Target role readiness updated to")} <strong className="text-on-surface">{result.readiness.toFixed(0)}%</strong>
           </div>
         </div>
 
         <div className="space-y-4">
-          <h3 className="font-display text-xl font-bold text-on-surface px-2">Detailed Review</h3>
+          <h3 className="font-display text-xl font-bold text-on-surface px-2">
+            {t("assessments.review", "Detailed Review")}
+          </h3>
           {result.review.map((item, i) => (
             <article key={i} className={`rounded-xl p-5 border ${item.isCorrect ? 'bg-primary-container/5 border-primary-container/20' : 'bg-error/5 border-error/20'}`}>
               <div className="flex gap-4">
@@ -90,7 +94,9 @@ export function QuizRunner({
                 <div>
                   <p className="font-medium text-on-surface leading-relaxed">{item.prompt}</p>
                   <p className="mt-3 text-sm text-on-surface-variant leading-relaxed p-3 bg-surface-container rounded-lg border border-white/5">
-                    <strong className="text-on-surface block mb-1">Explanation:</strong>
+                    <strong className="text-on-surface block mb-1">
+                      {t("assessments.explanation", "Explanation")}:
+                    </strong>
                     {item.explanation}
                   </p>
                 </div>
@@ -101,14 +107,14 @@ export function QuizRunner({
         
         <div className="pt-6 flex justify-center">
           <button onClick={() => router.push('/learner')} className="glow-button-secondary px-8 py-3 rounded-full font-label-caps font-bold tracking-widest text-sm inline-flex items-center gap-2">
-            RETURN TO DASHBOARD
+            {t("assessments.returnDashboard", "RETURN TO DASHBOARD")}
           </button>
         </div>
       </div>
     );
   }
 
-  if (!current) return <p className="mt-6">No published questions.</p>;
+  if (!current) return <p className="mt-6">{t("assessments.noQuestions", "No published questions.")}</p>;
 
   return (
     <div className="max-w-3xl mx-auto animate-fade-up">
@@ -119,7 +125,7 @@ export function QuizRunner({
           ))}
         </div>
         <p className="text-xs font-label-caps tracking-widest text-on-surface-variant">
-          QUESTION {index + 1} OF {ordered.length} · <span className="text-primary-container">{current.difficulty.toUpperCase()}</span>
+          {t("assessments.question", "QUESTION")} {index + 1} {t("common.of", "OF")} {ordered.length} · <span className="text-primary-container">{tEntity(current.difficulty).toUpperCase()}</span>
         </p>
       </div>
 
@@ -163,7 +169,7 @@ export function QuizRunner({
           disabled={index === 0}
           onClick={() => setIndex((v) => Math.max(0, v - 1))}
         >
-          PREVIOUS
+          {t("common.back", "PREVIOUS")}
         </button>
 
         {index < ordered.length - 1 ? (
@@ -172,7 +178,7 @@ export function QuizRunner({
             disabled={answers[current.id] === undefined}
             onClick={() => setIndex((v) => v + 1)}
           >
-            NEXT QUESTION
+            {t("common.next", "NEXT QUESTION")}
           </button>
         ) : (
           <button
@@ -186,7 +192,7 @@ export function QuizRunner({
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
             )}
-            {pending ? "SCORING..." : "SUBMIT ASSESSMENT"}
+            {pending ? t("common.loading", "SCORING...") : t("assessments.submitAnswers", "SUBMIT ASSESSMENT")}
           </button>
         )}
       </div>

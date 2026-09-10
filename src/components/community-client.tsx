@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { MessageSquare, Send, ChevronDown, ChevronRight } from "lucide-react";
+import { MessageSquare, Send } from "lucide-react";
+import { useTranslation } from "@/components/language/language-provider";
 
 interface CourseInfo { courseId: string; title: string; enrolledCount: number; }
 interface Discussion { id: string; courseId: string; employeeId: string; employeeName: string; parentId?: string; content: string; createdAt: string; }
@@ -17,6 +18,7 @@ export function CommunityClient({
   employeeId: string;
   employeeName: string;
 }) {
+  const { t, tEntity } = useTranslation();
   const [selectedCourse, setSelectedCourse] = useState(enrolledCourseIds[0] ?? null);
   const [discussions, setDiscussions] = useState<Discussion[]>([]);
   const [newPost, setNewPost] = useState("");
@@ -54,7 +56,9 @@ export function CommunityClient({
     return (
       <div className="glass-panel rounded-2xl p-8 text-center border border-dashed border-white/10">
         <MessageSquare className="w-10 h-10 text-on-surface-variant/30 mx-auto mb-3" />
-        <p className="text-on-surface-variant text-sm">Enroll in a course to join its discussion.</p>
+        <p className="text-on-surface-variant text-sm">
+          {t("community.enrollToDiscuss", "Enroll in a course to join its discussion.")}
+        </p>
       </div>
     );
   }
@@ -65,19 +69,22 @@ export function CommunityClient({
     <div className="space-y-4">
       {/* Course selector */}
       <div className="flex gap-2 flex-wrap">
-        {enrolledCourseInfos.map((c) => (
-          <button
-            key={c.courseId}
-            onClick={() => setSelectedCourse(c.courseId)}
-            className={`px-4 py-2 rounded-full text-xs font-label-caps border transition-all ${
-              selectedCourse === c.courseId
-                ? "bg-secondary-container/20 border-secondary-container/40 text-secondary-container"
-                : "bg-surface-container-low border-white/10 text-on-surface-variant hover:border-white/20"
-            }`}
-          >
-            {c.title.length > 30 ? c.title.slice(0, 30) + "…" : c.title}
-          </button>
-        ))}
+        {enrolledCourseInfos.map((c) => {
+          const translatedTitle = tEntity(c.title);
+          return (
+            <button
+              key={c.courseId}
+              onClick={() => setSelectedCourse(c.courseId)}
+              className={`px-4 py-2 rounded-full text-xs font-label-caps border transition-all ${
+                selectedCourse === c.courseId
+                  ? "bg-secondary-container/20 border-secondary-container/40 text-secondary-container"
+                  : "bg-surface-container-low border-white/10 text-on-surface-variant hover:border-white/20"
+              }`}
+            >
+              {translatedTitle.length > 30 ? translatedTitle.slice(0, 30) + "…" : translatedTitle}
+            </button>
+          );
+        })}
       </div>
 
       {/* Post input */}
@@ -91,7 +98,7 @@ export function CommunityClient({
               <textarea
                 rows={2}
                 className="w-full bg-surface-container-low border border-white/10 rounded-xl px-3 py-2 text-on-surface text-sm focus:outline-none focus:border-primary-container/50 resize-none"
-                placeholder="Ask a question or share an insight with your cohort..."
+                placeholder={t("community.placeholder", "Ask a question or share an insight with your cohort...")}
                 value={newPost}
                 onChange={(e) => setNewPost(e.target.value)}
               />
@@ -102,7 +109,7 @@ export function CommunityClient({
                   className="flex items-center gap-2 glow-button-secondary px-4 py-2 rounded-full font-label-caps text-xs disabled:opacity-50"
                 >
                   <Send className="w-3.5 h-3.5" />
-                  {posting ? "Posting..." : "Post"}
+                  {posting ? t("community.posting", "Posting...") : t("community.post", "Post")}
                 </button>
               </div>
             </div>
@@ -112,10 +119,14 @@ export function CommunityClient({
 
       {/* Discussion feed */}
       {loading ? (
-        <div className="text-center text-on-surface-variant py-8 text-sm">Loading discussions...</div>
+        <div className="text-center text-on-surface-variant py-8 text-sm">
+          {t("common.loading", "Loading discussions...")}
+        </div>
       ) : topLevelPosts.length === 0 ? (
         <div className="glass-panel rounded-2xl p-8 text-center border border-dashed border-white/10">
-          <p className="text-on-surface-variant text-sm">No questions yet — be the first to start the conversation.</p>
+          <p className="text-on-surface-variant text-sm">
+            {t("community.noDiscussions", "No questions yet — be the first to start the conversation.")}
+          </p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -130,7 +141,7 @@ export function CommunityClient({
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="font-bold text-sm text-on-surface">
-                        {d.employeeId === employeeId ? "You" : d.employeeName.split(" ")[0]}
+                        {d.employeeId === employeeId ? t("community.you", "You") : d.employeeName.split(" ")[0]}
                       </span>
                       <span className="text-[10px] text-on-surface-variant/50">
                         {new Date(d.createdAt).toLocaleDateString()}
@@ -146,7 +157,7 @@ export function CommunityClient({
                             </div>
                             <div>
                               <span className="text-xs font-bold text-on-surface">
-                                {r.employeeId === employeeId ? "You" : r.employeeName.split(" ")[0]}
+                                {r.employeeId === employeeId ? t("community.you", "You") : r.employeeName.split(" ")[0]}
                               </span>
                               <p className="text-xs text-on-surface-variant mt-0.5">{r.content}</p>
                             </div>

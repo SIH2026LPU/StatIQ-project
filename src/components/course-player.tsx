@@ -12,13 +12,14 @@ import {
   FileText, 
   CheckCircle, 
   BookOpen, 
-  Sparkles,
-  Volume2
+  Sparkles
 } from "lucide-react";
 import type { Course } from "@/types/domain";
 import { getCurriculumForCourse } from "@/lib/course-curriculum";
+import { useTranslation } from "@/components/language/language-provider";
 
 export function CoursePlayer({ course }: { course: Course }) {
+  const { t, tEntity } = useTranslation();
   const modules = getCurriculumForCourse(course.title, course.provider);
 
   const [activeModuleId, setActiveModuleId] = useState(modules[0]?.id || "mod-1");
@@ -53,10 +54,12 @@ export function CoursePlayer({ course }: { course: Course }) {
           className="inline-flex items-center gap-2 text-xs font-label-caps text-on-surface-variant hover:text-primary-container transition-colors"
         >
           <ChevronLeft className="w-4 h-4" />
-          BACK TO COURSE OVERVIEW
+          {t("courses.backToOverview", "BACK TO COURSE OVERVIEW")}
         </Link>
         <div className="flex items-center gap-2">
-          <span className="text-xs font-label-caps text-on-surface-variant">COURSE COMPLETION</span>
+          <span className="text-xs font-label-caps text-on-surface-variant">
+            {t("courses.completion", "COURSE COMPLETION")}
+          </span>
           <span className="text-sm font-bold text-primary-container">
             {Math.round((completedModules.length / modules.length) * 100)}%
           </span>
@@ -79,7 +82,7 @@ export function CoursePlayer({ course }: { course: Course }) {
               <div className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
                 <span className="w-2 h-2 rounded-full bg-primary-container animate-pulse" />
                 <span className="text-[11px] font-label-caps text-white font-medium">
-                  {course.provider.toUpperCase()} OFFICIAL CURRICULUM STREAM
+                  {course.provider.toUpperCase()} {t("courses.officialStream", "OFFICIAL CURRICULUM STREAM")}
                 </span>
               </div>
 
@@ -88,15 +91,17 @@ export function CoursePlayer({ course }: { course: Course }) {
                   <div className="w-20 h-20 rounded-full bg-primary-container/20 border-2 border-primary-container flex items-center justify-center text-primary-container mb-4 shadow-[0_0_30px_rgba(57,255,20,0.3)]">
                     <Award className="w-10 h-10" />
                   </div>
-                  <h2 className="font-display text-3xl font-bold text-white mb-2">Curriculum Complete!</h2>
+                  <h2 className="font-display text-3xl font-bold text-white mb-2">
+                    {t("courses.curriculumComplete", "Curriculum Complete!")}
+                  </h2>
                   <p className="text-on-surface-variant max-w-md text-sm">
-                    You have successfully completed all verified lessons for {course.title}.
+                    {t("courses.curriculumCompleteDesc", "You have successfully completed all verified lessons for")} {tEntity(course.title)}.
                   </p>
                   <Link 
                     href="/learner/achievements" 
                     className="mt-6 glow-button px-8 py-3 rounded-full font-label-caps tracking-widest text-xs font-bold"
                   >
-                    VIEW VERIFIED CERTIFICATE
+                    {t("courses.viewCertificate", "VIEW VERIFIED CERTIFICATE")}
                   </Link>
                 </div>
               ) : (
@@ -124,12 +129,12 @@ export function CoursePlayer({ course }: { course: Course }) {
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <span className="px-2.5 py-1 rounded bg-surface-container border border-white/5 text-[10px] font-label-caps text-primary-container tracking-wider font-bold">
-                      LESSON {activeIndex + 1} OF {modules.length}
+                      {t("courses.lesson", "LESSON")} {activeIndex + 1} {t("common.of", "OF")} {modules.length}
                     </span>
                     <span className="text-xs text-on-surface-variant font-label-caps">{activeModule.duration}</span>
                   </div>
                   <h2 className="font-display text-2xl md:text-3xl font-bold text-on-surface">
-                    {activeModule.title}
+                    {tEntity(activeModule.title)}
                   </h2>
                 </div>
 
@@ -142,12 +147,12 @@ export function CoursePlayer({ course }: { course: Course }) {
                   }`}
                 >
                   <CheckCircle2 className={`w-4 h-4 ${isComplete ? 'fill-primary-container/20' : ''}`} />
-                  {isComplete ? 'COMPLETED' : 'MARK LESSON COMPLETE'}
+                  {isComplete ? t("courses.completed", "COMPLETED") : t("courses.markComplete", "MARK LESSON COMPLETE")}
                 </button>
               </div>
 
               <p className="text-on-surface-variant text-sm leading-relaxed border-t border-white/5 pt-4">
-                {activeModule.overview}
+                {tEntity(activeModule.overview)}
               </p>
             </div>
           </div>
@@ -164,7 +169,7 @@ export function CoursePlayer({ course }: { course: Course }) {
                 }`}
               >
                 <FileText className="w-4 h-4" />
-                CURRICULUM STATEMENTS ({activeModule.statements.length})
+                {t("courses.curriculumStatements", "CURRICULUM STATEMENTS")} ({activeModule.statements.length})
               </button>
 
               <button
@@ -176,7 +181,7 @@ export function CoursePlayer({ course }: { course: Course }) {
                 }`}
               >
                 <BookOpen className="w-4 h-4" />
-                KEY TAKEAWAYS
+                {t("courses.keyTakeaways", "KEY TAKEAWAYS")}
               </button>
 
               <button
@@ -188,7 +193,7 @@ export function CoursePlayer({ course }: { course: Course }) {
                 }`}
               >
                 <Sparkles className="w-4 h-4" />
-                MY NOTES
+                {t("notes.title", "MY NOTES")}
               </button>
             </div>
 
@@ -196,13 +201,13 @@ export function CoursePlayer({ course }: { course: Course }) {
             {activeTab === "statements" && (
               <div className="space-y-3">
                 <p className="text-xs text-on-surface-variant mb-4">
-                  Official statements and learning benchmarks covered in this video module:
+                  {t("courses.statementsDesc", "Official statements and learning benchmarks covered in this video module:")}
                 </p>
                 {activeModule.statements.map((stmt, sIdx) => (
                   <div key={sIdx} className="p-4 rounded-xl bg-surface-container border border-white/5 flex items-start gap-3">
                     <CheckCircle className="w-4 h-4 text-primary-container shrink-0 mt-0.5" />
                     <p className="text-sm text-on-surface leading-relaxed">
-                      {stmt}
+                      {tEntity(stmt)}
                     </p>
                   </div>
                 ))}
@@ -218,7 +223,7 @@ export function CoursePlayer({ course }: { course: Course }) {
                       {tIdx + 1}
                     </span>
                     <p className="text-sm text-on-surface leading-relaxed">
-                      {takeaway}
+                      {tEntity(takeaway)}
                     </p>
                   </div>
                 ))}
@@ -231,11 +236,13 @@ export function CoursePlayer({ course }: { course: Course }) {
                 <textarea
                   value={userNotes}
                   onChange={(e) => setUserNotes(e.target.value)}
-                  placeholder="Record your observations, formula notes, or survey questions for this lesson..."
+                  placeholder={t("notes.writeNote", "Record your observations, formula notes, or survey questions for this lesson...")}
                   rows={5}
                   className="w-full p-4 rounded-xl bg-surface-container-high border border-white/10 text-on-surface text-sm focus:outline-none focus:border-primary-container"
                 />
-                <p className="text-[11px] text-on-surface-variant">Notes are automatically preserved for this session.</p>
+                <p className="text-[11px] text-on-surface-variant">
+                  {t("notes.autoPreserved", "Notes are automatically preserved for this session.")}
+                </p>
               </div>
             )}
           </div>
@@ -245,9 +252,11 @@ export function CoursePlayer({ course }: { course: Course }) {
         <div className="space-y-6">
           <div className="glass-panel p-6 rounded-3xl flex flex-col border border-white/5 space-y-6 sticky top-24">
             <div>
-              <span className="text-[10px] font-label-caps text-on-surface-variant">COURSE SYLLABUS</span>
+              <span className="text-[10px] font-label-caps text-on-surface-variant">
+                {t("courses.syllabus", "COURSE SYLLABUS")}
+              </span>
               <h3 className="font-display text-xl font-bold text-on-surface line-clamp-2 mt-1">
-                {course.title}
+                {tEntity(course.title)}
               </h3>
               
               <div className="mt-4 flex items-center gap-3">
@@ -290,7 +299,7 @@ export function CoursePlayer({ course }: { course: Course }) {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className={`font-medium text-xs leading-snug line-clamp-2 mb-1 ${isActive ? 'text-on-surface font-bold' : 'text-on-surface-variant'}`}>
-                        {i + 1}. {mod.title}
+                        {i + 1}. {tEntity(mod.title)}
                       </p>
                       <p className="text-[10px] font-label-caps text-on-surface-variant/70">{mod.duration}</p>
                     </div>
@@ -305,7 +314,7 @@ export function CoursePlayer({ course }: { course: Course }) {
                 href="/learner/assessments"
                 className="w-full glow-button-secondary py-3 rounded-xl font-label-caps text-xs font-bold text-center block"
               >
-                TEST SKILLS ON THIS COURSE
+                {t("courses.testSkills", "TEST SKILLS ON THIS COURSE")}
               </Link>
             </div>
           </div>

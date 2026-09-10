@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCheck, Bell, BookOpen, TrendingUp, MessageSquare, Award, Info } from "lucide-react";
+import { CheckCheck, Bell, BookOpen, TrendingUp, Award, Info } from "lucide-react";
+import { useTranslation } from "@/components/language/language-provider";
 
 interface Notification {
   id: string;
@@ -33,6 +34,7 @@ const typeColor = (type: string) => {
 };
 
 export function NotificationsClient({ initialNotifications }: { initialNotifications: Notification[] }) {
+  const { t, tEntity } = useTranslation();
   const [notifications, setNotifications] = useState(initialNotifications);
 
   const markRead = async (id: string) => {
@@ -50,10 +52,11 @@ export function NotificationsClient({ initialNotifications }: { initialNotificat
     return (
       <div className="glass-panel rounded-2xl p-12 text-center border border-dashed border-white/10">
         <Bell className="w-12 h-12 text-on-surface-variant/30 mx-auto mb-4" />
-        <h3 className="font-display text-xl font-bold text-on-surface mb-2">No notifications yet</h3>
-        <p className="text-on-surface-variant text-sm">
-          Notifications appear here when you complete assessments, earn new recommendations, or finish modules.
-          Every notification traces to a real system event.
+        <h3 className="font-display text-xl font-bold text-on-surface mb-2">
+          {t("notifications.noNotifications", "No notifications yet")}
+        </h3>
+        <p className="text-on-surface-variant text-sm max-w-md mx-auto">
+          {t("notifications.noNotificationsDesc", "Notifications appear here when you complete assessments, earn new recommendations, or finish modules.")}
         </p>
       </div>
     );
@@ -69,7 +72,8 @@ export function NotificationsClient({ initialNotifications }: { initialNotificat
             onClick={markAllRead}
             className="flex items-center gap-2 text-xs text-primary-container hover:underline font-label-caps"
           >
-            <CheckCheck className="w-3.5 h-3.5" /> Mark all read
+            <CheckCheck className="w-3.5 h-3.5" />
+            {t("notifications.markAllRead", "Mark all read")}
           </button>
         </div>
       )}
@@ -90,18 +94,18 @@ export function NotificationsClient({ initialNotifications }: { initialNotificat
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-2">
                   <p className={`font-bold text-sm ${n.read ? "text-on-surface-variant" : "text-on-surface"}`}>
-                    {n.title}
+                    {tEntity(n.title)}
                   </p>
                   {!n.read && (
                     <button
                       onClick={() => markRead(n.id)}
                       className="text-xs text-primary-container hover:underline font-label-caps shrink-0"
                     >
-                      Mark read
+                      {t("notifications.markRead", "Mark read")}
                     </button>
                   )}
                 </div>
-                <p className="text-sm text-on-surface-variant mt-1 leading-relaxed">{n.body}</p>
+                <p className="text-sm text-on-surface-variant mt-1 leading-relaxed">{tEntity(n.body)}</p>
                 <p className="text-[10px] text-on-surface-variant/50 mt-2 font-label-caps">
                   {new Date(n.createdAt).toLocaleString()}
                 </p>

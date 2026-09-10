@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslation } from "@/components/language/language-provider";
 import { Trash2, Bookmark, Clock, Video, BookOpen, HelpCircle, Link as LinkIcon } from "lucide-react";
 import Link from "next/link";
 
@@ -32,6 +33,7 @@ const typeColor = {
 const formatTs = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
 export function BookmarksClient({ initialBookmarks }: { initialBookmarks: BookmarkItem[] }) {
+  const { t, tEntity } = useTranslation();
   const [bookmarks, setBookmarks] = useState(initialBookmarks);
 
   const remove = async (id: string) => {
@@ -43,8 +45,8 @@ export function BookmarksClient({ initialBookmarks }: { initialBookmarks: Bookma
     return (
       <div className="glass-panel rounded-2xl p-12 text-center border border-dashed border-white/10">
         <Bookmark className="w-12 h-12 text-on-surface-variant/30 mx-auto mb-4" />
-        <h3 className="font-display text-xl font-bold text-on-surface mb-2">No bookmarks yet</h3>
-        <p className="text-on-surface-variant text-sm">While studying a course, use the bookmark button to save your spot.</p>
+        <h3 className="font-display text-xl font-bold text-on-surface mb-2">{t("bookmarks.noBookmarks", "No bookmarks yet")}</h3>
+        <p className="text-on-surface-variant text-sm">{t("bookmarks.noBookmarksDesc", "While studying a course, use the bookmark button to save your spot.")}</p>
       </div>
     );
   }
@@ -60,10 +62,10 @@ export function BookmarksClient({ initialBookmarks }: { initialBookmarks: Bookma
         return (
           <section key={cId}>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="font-display text-lg font-bold text-on-surface">{courseName}</h2>
+              <h2 className="font-display text-lg font-bold text-on-surface">{tEntity(courseName)}</h2>
               {cId !== "none" && (
                 <Link href={`/courses/${cId}/learn`} className="text-xs text-primary-container hover:underline font-label-caps">
-                  CONTINUE →
+                  {t("bookmarks.continue", "CONTINUE")} →
                 </Link>
               )}
             </div>

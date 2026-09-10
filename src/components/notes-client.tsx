@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslation } from "@/components/language/language-provider";
 import { Trash2, Edit3, Check, X, Plus, BookMarked, Clock } from "lucide-react";
 
 interface Note {
@@ -17,6 +18,7 @@ interface Note {
 interface Course { id: string; title: string; }
 
 export function NotesClient({ initialNotes, courses }: { initialNotes: Note[]; courses: Course[] }) {
+  const { t, tEntity } = useTranslation();
   const [notes, setNotes] = useState(initialNotes);
   const [editing, setEditing] = useState<string | null>(null);
   const [editContent, setEditContent] = useState("");
@@ -81,7 +83,7 @@ export function NotesClient({ initialNotes, courses }: { initialNotes: Note[]; c
             onClick={() => setAdding(true)}
             className="flex items-center gap-2 text-sm text-on-surface-variant hover:text-primary-container transition-colors"
           >
-            <Plus className="w-4 h-4" /> Add a note
+            <Plus className="w-4 h-4" /> {t("notes.addNote", "Add a note")}
           </button>
         ) : (
           <div className="space-y-4">
@@ -90,19 +92,21 @@ export function NotesClient({ initialNotes, courses }: { initialNotes: Note[]; c
               value={newNote.courseId}
               onChange={(e) => setNewNote((p) => ({ ...p, courseId: e.target.value }))}
             >
-              {courses.map((c) => <option key={c.id} value={c.id}>{c.title}</option>)}
+              {courses.map((c) => <option key={c.id} value={c.id}>{tEntity(c.title)}</option>)}
             </select>
             <textarea
               rows={3}
               className="w-full bg-surface-container-low border border-white/10 rounded-xl px-4 py-3 text-on-surface text-sm focus:outline-none focus:border-primary-container/50 resize-none"
-              placeholder="Write your note..."
+              placeholder={t("notes.writeNote", "Write your note...")}
               value={newNote.content}
               onChange={(e) => setNewNote((p) => ({ ...p, content: e.target.value }))}
             />
             <div className="flex gap-2 justify-end">
-              <button onClick={() => setAdding(false)} className="px-4 py-2 rounded-full text-sm text-on-surface-variant hover:text-on-surface transition-colors">Cancel</button>
+              <button onClick={() => setAdding(false)} className="px-4 py-2 rounded-full text-sm text-on-surface-variant hover:text-on-surface transition-colors">
+                {t("notes.cancel", "Cancel")}
+              </button>
               <button onClick={createNote} disabled={saving || !newNote.content.trim()} className="glow-button px-5 py-2 rounded-full font-label-caps text-xs text-black disabled:opacity-50">
-                {saving ? "Saving..." : "Save Note"}
+                {saving ? t("common.loading", "Saving...") : t("notes.save", "Save Note")}
               </button>
             </div>
           </div>
@@ -112,14 +116,14 @@ export function NotesClient({ initialNotes, courses }: { initialNotes: Note[]; c
       {grouped.length === 0 && (
         <div className="glass-panel rounded-2xl p-12 text-center border border-dashed border-white/10">
           <BookMarked className="w-12 h-12 text-on-surface-variant/30 mx-auto mb-4" />
-          <h3 className="font-display text-xl font-bold text-on-surface mb-2">No notes yet</h3>
-          <p className="text-on-surface-variant text-sm">Add notes while studying — they'll appear here grouped by course.</p>
+          <h3 className="font-display text-xl font-bold text-on-surface mb-2">{t("notes.noNotes", "No notes yet")}</h3>
+          <p className="text-on-surface-variant text-sm">{t("notes.noNotesDesc", "Add notes while studying — they'll appear here grouped by course.")}</p>
         </div>
       )}
 
       {grouped.map(({ course, notes: courseNotes }) => (
         <section key={course.id}>
-          <h2 className="font-display text-lg font-bold text-on-surface mb-3">{course.title}</h2>
+          <h2 className="font-display text-lg font-bold text-on-surface mb-3">{tEntity(course.title)}</h2>
           <div className="space-y-3">
             {courseNotes.map((note) => (
               <div key={note.id} className="glass-panel rounded-xl p-5 border border-white/5 group">

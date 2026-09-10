@@ -5,9 +5,11 @@ import Link from "next/link";
 import { Search, Filter, BookOpen } from "lucide-react";
 import { getCourseThumbnail } from "@/lib/course-images";
 import { EnrollButton } from "@/components/enroll-button";
+import { useTranslation } from "@/components/language/language-provider";
 import type { Course } from "@/types/domain";
 
 export function CourseCatalogue({ initialCourses }: { initialCourses: Course[] }) {
+  const { t, tEntity } = useTranslation();
   const [search, setSearch] = useState("");
   const [difficultyFilter, setDifficultyFilter] = useState<string>("all");
 
@@ -28,7 +30,7 @@ export function CourseCatalogue({ initialCourses }: { initialCourses: Course[] }
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-on-surface-variant/50" />
           <input
             type="text"
-            placeholder="Search courses by title or description..."
+            placeholder={t("courses.searchPlaceholder", "Search courses by title or description...")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="auth-input w-full pl-12 pr-4 py-3 rounded-xl text-sm"
@@ -42,17 +44,19 @@ export function CourseCatalogue({ initialCourses }: { initialCourses: Course[] }
             onChange={(e) => setDifficultyFilter(e.target.value)}
             className="auth-input rounded-xl px-4 py-3 text-sm appearance-none cursor-pointer w-full sm:w-auto min-w-[150px]"
           >
-            <option value="all">All Difficulties</option>
-            <option value="beginner">Beginner</option>
-            <option value="intermediate">Intermediate</option>
-            <option value="advanced">Advanced</option>
+            <option value="all">{t("courses.allDifficulties", "All Difficulties")}</option>
+            <option value="beginner">{t("passport.level1", "Beginner")}</option>
+            <option value="intermediate">{t("passport.level2", "Intermediate")}</option>
+            <option value="advanced">{t("passport.level3", "Advanced")}</option>
           </select>
         </div>
       </div>
 
       {/* Results Meta */}
       <div className="flex items-center justify-between px-2 text-sm text-on-surface-variant">
-        <p>Showing <strong className="text-on-surface">{filteredCourses.length}</strong> courses</p>
+        <p>
+          {t("courses.showing", "Showing")} <strong className="text-on-surface">{filteredCourses.length}</strong> {t("nav.courses", "courses")}
+        </p>
       </div>
 
       {/* Course Grid */}
@@ -75,22 +79,22 @@ export function CourseCatalogue({ initialCourses }: { initialCourses: Course[] }
               <div className="p-6 flex flex-col flex-1">
                 <Link href={`/learner/courses/${course.id}`}>
                   <h2 className="font-display text-xl text-on-surface font-bold leading-tight mb-3 group-hover:text-primary-container transition-colors line-clamp-2">
-                    {course.title}
+                    {tEntity(course.title)}
                   </h2>
                 </Link>
                 <p className="text-sm text-on-surface-variant leading-relaxed mb-6 flex-1 line-clamp-3">
-                  {course.description}
+                  {tEntity(course.description)}
                 </p>
                 
                 <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-white/5 mb-6">
                    <span className="text-[10px] font-label-caps uppercase text-on-surface-variant bg-surface-container px-2 py-1 rounded border border-white/5">
-                     {course.durationHours} HRS
+                     {course.durationHours} {t("common.hrsTotal", "HRS")}
                    </span>
                    <span className="text-[10px] font-label-caps uppercase text-on-surface-variant bg-surface-container px-2 py-1 rounded border border-white/5">
-                     {course.difficulty}
+                     {tEntity(course.difficulty)}
                    </span>
                    <span className="text-[10px] font-label-caps uppercase text-on-surface-variant bg-surface-container px-2 py-1 rounded border border-white/5">
-                     {course.language}
+                     {tEntity(course.language)}
                    </span>
                 </div>
                 
@@ -104,15 +108,17 @@ export function CourseCatalogue({ initialCourses }: { initialCourses: Course[] }
       ) : (
         <div className="glass-panel rounded-2xl p-12 text-center flex flex-col items-center justify-center border-dashed border-white/10">
           <BookOpen className="w-12 h-12 text-on-surface-variant/30 mb-4" />
-          <h3 className="font-display text-xl font-bold text-on-surface mb-2">No courses found</h3>
+          <h3 className="font-display text-xl font-bold text-on-surface mb-2">
+            {t("courses.noCourses", "No courses found")}
+          </h3>
           <p className="text-on-surface-variant max-w-md mx-auto">
-            We couldn't find any courses matching "{search}" with the selected difficulty. Try adjusting your filters.
+            {t("courses.noCoursesDesc", "We couldn't find any courses matching your filter criteria. Try adjusting your search query.")}
           </p>
           <button 
             onClick={() => { setSearch(""); setDifficultyFilter("all"); }}
             className="mt-6 text-primary-container hover:text-primary-container/80 text-sm font-label-caps tracking-widest font-bold underline underline-offset-4"
           >
-            CLEAR FILTERS
+            {t("courses.clearFilters", "CLEAR FILTERS")}
           </button>
         </div>
       )}
