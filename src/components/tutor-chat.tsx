@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Send, Book, Sparkles, MessageSquare, Plus, Trash2, Check, Copy, Table as TableIcon } from "lucide-react";
+import { Send, Book, Sparkles, MessageSquare, Plus, Trash2, Check, Copy } from "lucide-react";
 import { useTranslation } from "@/components/language/language-provider";
+import katex from "katex";
 
 type Message = {
   id: string;
@@ -17,45 +18,100 @@ type Conversation = {
   updatedAt: string;
 };
 
-// Inline markdown formatter (bold, code, links, italics)
-const renderInline = (text: string): React.ReactNode => {
-  // First split by code blocks `...`
-  const codeParts = text.split(/(`[^`]+`)/g);
+// KaTeX Math Renderer for formulas
+const renderMathFormula = (math: string, displayMode: boolean = false, key?: string | number) => {
+  try {
+    // Clean up surrounding delimiters if present
+    let cleanMath = math.trim();
+    if (cleanMath.startsWith('\\[') && cleanMath.endsWith('\\]')) {
+      cleanMath = cleanMath.slice(2, -2).trim();
+    } else if (cleanMath.startsWith('$$') && cleanMath.endsWith('$$')) {
+      cleanMath = cleanMath.slice(2, -2).trim();
+    } else if (cleanMath.startsWith('\\(') && cleanMath.endsWith('\\)')) {
+      cleanMath = cleanMath.slice(2, -2).trim();
+    } else if (cleanMath.startsWith('$') && cleanMath.endsWith('$') && cleanMath.length > 2) {
+      cleanMath = cleanMath.slice(1, -1).trim();
+    }
 
-  return codeParts.map((part, i) => {
-    if (part.startsWith('`') && part.endsWith('`')) {
+    const html = katex.renderToString(cleanMath, {
+      displayMode,
+      throwOnError: false,
+      output: "htmlAndMathml",
+    });
+
+    if (displayMode) {
       return (
-        <code
-          key={i}
-          className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary-container/15 text-primary border border-primary-container/30 font-semibold"
-        >
-          {part.slice(1, -1)}
-        </code>
+        <div
+          key={key}
+          className="my-4 overflow-x-auto py-4 px-6 rounded-2xl bg-surface-container-high/60 border border-primary-container/30 text-center shadow-md backdrop-blur-sm"
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
       );
     }
 
-    // Now handle bold **...**
-    const boldParts = part.split(/(\*\*[^*]+\*\*)/g);
-    return boldParts.map((bPart, j) => {
-      if (bPart.startsWith('**') && bPart.endsWith('**')) {
+    return (
+      <span
+        key={key}
+        className="inline-block px-1 text-on-surface align-middle"
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
+    );
+  } catch {
+    return <code key={key} className="font-mono text-xs text-primary">{math}</code>;
+  }
+};
+
+// Inline markdown formatter (math, bold, code, links, italics)
+const renderInline = (text: string): React.ReactNode => {
+  // Split by inline math \( ... \) or $...$ first
+  const mathParts = text.split(/(\\\([\s\S]*?\\\)|(?<!\$)\$(?!\$)[\s\S]+?(?<!\$)\$(?!\$))/g);
+
+  return mathParts.map((mPart, mIdx) => {
+    if (
+      (mPart.startsWith('\\(') && mPart.endsWith('\\)')) ||
+      (mPart.startsWith('$') && mPart.endsWith('$') && mPart.length > 2)
+    ) {
+      return renderMathFormula(mPart, false, `math-${mIdx}`);
+    }
+
+    // Split by code blocks `...`
+    const codeParts = mPart.split(/(`[^`]+`)/g);
+
+    return codeParts.map((part, i) => {
+      if (part.startsWith('`') && part.endsWith('`')) {
         return (
-          <strong key={`${i}-${j}`} className="font-bold text-on-surface">
-            {bPart.slice(2, -2)}
-          </strong>
+          <code
+            key={`${mIdx}-${i}`}
+            className="font-mono text-xs px-1.5 py-0.5 rounded-md bg-primary-container/15 text-primary border border-primary-container/30 font-semibold"
+          >
+            {part.slice(1, -1)}
+          </code>
         );
       }
 
-      // Handle italics *...*
-      const italicParts = bPart.split(/(\*[^*]+\*)/g);
-      return italicParts.map((iPart, k) => {
-        if (iPart.startsWith('*') && iPart.endsWith('*') && iPart.length > 2) {
+      // Handle bold **...**
+      const boldParts = part.split(/(\*\*[^*]+\*\*)/g);
+      return boldParts.map((bPart, j) => {
+        if (bPart.startsWith('**') && bPart.endsWith('**')) {
           return (
-            <em key={`${i}-${j}-${k}`} className="italic text-on-surface-variant">
-              {iPart.slice(1, -1)}
-            </em>
+            <strong key={`${mIdx}-${i}-${j}`} className="font-bold text-on-surface">
+              {bPart.slice(2, -2)}
+            </strong>
           );
         }
-        return <span key={`${i}-${j}-${k}`}>{iPart}</span>;
+
+        // Handle italics *...*
+        const italicParts = bPart.split(/(\*[^*]+\*)/g);
+        return italicParts.map((iPart, k) => {
+          if (iPart.startsWith('*') && iPart.endsWith('*') && iPart.length > 2) {
+            return (
+              <em key={`${mIdx}-${i}-${j}-${k}`} className="italic text-on-surface-variant">
+                {iPart.slice(1, -1)}
+              </em>
+            );
+          }
+          return <span key={`${mIdx}-${i}-${j}-${k}`}>{iPart}</span>;
+        });
       });
     });
   });
@@ -75,7 +131,6 @@ const parseTable = (lines: string[], keyPrefix: string | number) => {
 
   if (tableRows.length < 2) return null;
 
-  // Filter out divider row (e.g. |---|---|)
   const isDivider = (row: string[]) => row.every((c) => /^:?-+:?$/.test(c));
   const header = tableRows[0];
   const rows = tableRows.slice(1).filter((row) => !isDivider(row));
@@ -110,146 +165,163 @@ const parseTable = (lines: string[], keyPrefix: string | number) => {
   );
 };
 
-// Full Rich Markdown Parser
+// Full Rich Markdown & Math Parser
 const renderMarkdown = (content: string) => {
-  const codeBlockRegex = /(```[\s\S]*?```)/g;
-  const parts = content.split(codeBlockRegex);
+  // First extract display block math \[ ... \] and $$ ... $$
+  const blockMathRegex = /(\\\[[\s\S]*?\\\]|\$\$[\s\S]*?\$\$)/g;
+  const mathBlockParts = content.split(blockMathRegex);
 
-  return parts.map((part, index) => {
-    // 1. Code Block
-    if (part.startsWith('```')) {
-      const firstLineEnd = part.indexOf('\n');
-      const lang = part.slice(3, firstLineEnd).trim();
-      const code = part.slice(firstLineEnd + 1, -3).trim();
-
-      return (
-        <div key={index} className="my-4 rounded-2xl overflow-hidden border border-outline-variant/30 bg-[#12141a] text-slate-200 shadow-md" dir="ltr">
-          {lang && (
-            <div className="flex items-center justify-between px-4 py-2 border-b border-white/10 bg-white/5 text-[10px] font-mono uppercase tracking-wider text-slate-400">
-              <span>{lang}</span>
-            </div>
-          )}
-          <pre className="p-4 overflow-x-auto text-xs font-mono leading-relaxed selection:bg-primary/30">
-            <code>{code}</code>
-          </pre>
-        </div>
-      );
+  return mathBlockParts.map((section, sIdx) => {
+    // If it's a block math formula
+    if (
+      (section.startsWith('\\[') && section.endsWith('\\]')) ||
+      (section.startsWith('$$') && section.endsWith('$$'))
+    ) {
+      return renderMathFormula(section, true, `block-math-${sIdx}`);
     }
 
-    // 2. Process non-code block text by paragraphs and tables
-    const blocks = part.split(/\n\n+/);
+    // Code blocks regex
+    const codeBlockRegex = /(```[\s\S]*?```)/g;
+    const parts = section.split(codeBlockRegex);
 
-    return (
-      <div key={index} className="space-y-3.5">
-        {blocks.map((block, bIdx) => {
-          const rawLines = block.split('\n').map((l) => l.trimEnd());
-          const trimmedBlock = block.trim();
+    return parts.map((part, index) => {
+      // Code Block
+      if (part.startsWith('```')) {
+        const firstLineEnd = part.indexOf('\n');
+        const lang = part.slice(3, firstLineEnd).trim();
+        const code = part.slice(firstLineEnd + 1, -3).trim();
 
-          // Check if block is a Markdown Table
-          const isTable = rawLines.length >= 2 && rawLines.every((l) => l.trim().startsWith('|') && l.trim().endsWith('|'));
-          if (isTable) {
-            const parsed = parseTable(rawLines, `${index}-${bIdx}`);
-            if (parsed) return parsed;
-          }
-
-          // Check for Horizontal Rule
-          if (/^(\*\*\*|---|___|• ---)$/.test(trimmedBlock)) {
-            return <hr key={bIdx} className="my-4 border-t border-outline-variant/30" />;
-          }
-
-          // Check for Headings
-          if (trimmedBlock.startsWith('#### ')) {
-            return (
-              <h4 key={bIdx} className="font-display font-bold text-sm text-on-surface mt-3 mb-1 text-primary-container">
-                {renderInline(trimmedBlock.replace(/^####\s+/, ''))}
-              </h4>
-            );
-          }
-          if (trimmedBlock.startsWith('### ')) {
-            return (
-              <h3 key={bIdx} className="font-display font-bold text-base md:text-lg text-on-surface mt-4 mb-1.5 flex items-center gap-2">
-                <span className="w-1.5 h-4 bg-primary-container rounded-full" />
-                {renderInline(trimmedBlock.replace(/^###\s+/, ''))}
-              </h3>
-            );
-          }
-          if (trimmedBlock.startsWith('## ')) {
-            return (
-              <div key={bIdx} className="mt-5 mb-2 pb-1.5 border-b border-outline-variant/30">
-                <h2 className="font-display font-bold text-lg md:text-xl text-on-surface flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-primary-container" />
-                  {renderInline(trimmedBlock.replace(/^##\s+/, ''))}
-                </h2>
+        return (
+          <div key={`code-${sIdx}-${index}`} className="my-4 rounded-2xl overflow-hidden border border-outline-variant/30 bg-[#12141a] text-slate-200 shadow-md" dir="ltr">
+            {lang && (
+              <div className="flex items-center justify-between px-4 py-2 border-b border-white/10 bg-white/5 text-[10px] font-mono uppercase tracking-wider text-slate-400">
+                <span>{lang}</span>
               </div>
-            );
-          }
-          if (trimmedBlock.startsWith('# ')) {
+            )}
+            <pre className="p-4 overflow-x-auto text-xs font-mono leading-relaxed selection:bg-primary/30">
+              <code>{code}</code>
+            </pre>
+          </div>
+        );
+      }
+
+      // Process non-code block text by paragraphs and tables
+      const blocks = part.split(/\n\n+/);
+
+      return (
+        <div key={`text-${sIdx}-${index}`} className="space-y-3.5">
+          {blocks.map((block, bIdx) => {
+            const rawLines = block.split('\n').map((l) => l.trimEnd());
+            const trimmedBlock = block.trim();
+
+            if (!trimmedBlock) return null;
+
+            // Check if block is a Markdown Table
+            const isTable = rawLines.length >= 2 && rawLines.every((l) => l.trim().startsWith('|') && l.trim().endsWith('|'));
+            if (isTable) {
+              const parsed = parseTable(rawLines, `${sIdx}-${index}-${bIdx}`);
+              if (parsed) return parsed;
+            }
+
+            // Check for Horizontal Rule
+            if (/^(\*\*\*|---|___|• ---)$/.test(trimmedBlock)) {
+              return <hr key={bIdx} className="my-4 border-t border-outline-variant/30" />;
+            }
+
+            // Check for Headings
+            if (trimmedBlock.startsWith('#### ')) {
+              return (
+                <h4 key={bIdx} className="font-display font-bold text-sm text-on-surface mt-3 mb-1 text-primary-container">
+                  {renderInline(trimmedBlock.replace(/^####\s+/, ''))}
+                </h4>
+              );
+            }
+            if (trimmedBlock.startsWith('### ')) {
+              return (
+                <h3 key={bIdx} className="font-display font-bold text-base md:text-lg text-on-surface mt-4 mb-1.5 flex items-center gap-2">
+                  <span className="w-1.5 h-4 bg-primary-container rounded-full" />
+                  {renderInline(trimmedBlock.replace(/^###\s+/, ''))}
+                </h3>
+              );
+            }
+            if (trimmedBlock.startsWith('## ')) {
+              return (
+                <div key={bIdx} className="mt-5 mb-2 pb-1.5 border-b border-outline-variant/30">
+                  <h2 className="font-display font-bold text-lg md:text-xl text-on-surface flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-primary-container" />
+                    {renderInline(trimmedBlock.replace(/^##\s+/, ''))}
+                  </h2>
+                </div>
+              );
+            }
+            if (trimmedBlock.startsWith('# ')) {
+              return (
+                <h1 key={bIdx} className="font-display font-bold text-xl md:text-2xl text-on-surface mt-5 mb-2 pb-2 border-b border-primary/20">
+                  {renderInline(trimmedBlock.replace(/^#\s+/, ''))}
+                </h1>
+              );
+            }
+
+            // Check for Blockquote
+            if (rawLines.every((l) => l.trim().startsWith('>'))) {
+              return (
+                <blockquote key={bIdx} className="border-l-4 border-primary-container/80 pl-4 py-2 my-2 bg-primary-container/5 rounded-r-xl text-sm italic text-on-surface-variant">
+                  {rawLines.map((l, lIdx) => (
+                    <p key={lIdx}>{renderInline(l.replace(/^>\s*/, ''))}</p>
+                  ))}
+                </blockquote>
+              );
+            }
+
+            // Check for Numbered List
+            if (rawLines.every((l) => /^\d+\.\s+/.test(l.trim()))) {
+              return (
+                <ol key={bIdx} className="space-y-2.5 my-3 pl-1">
+                  {rawLines.map((l, lIdx) => {
+                    const match = l.trim().match(/^(\d+)\.\s+(.*)$/);
+                    const num = match ? match[1] : String(lIdx + 1);
+                    const itemText = match ? match[2] : l;
+
+                    return (
+                      <li key={lIdx} className="flex items-start gap-3 text-sm text-on-surface-variant leading-relaxed">
+                        <span className="w-5 h-5 rounded-full bg-primary-container/20 text-primary-container text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 border border-primary-container/30">
+                          {num}
+                        </span>
+                        <div className="flex-1">{renderInline(itemText)}</div>
+                      </li>
+                    );
+                  })}
+                </ol>
+              );
+            }
+
+            // Check for Bulleted List
+            if (rawLines.every((l) => /^[-*•]\s+/.test(l.trim()))) {
+              return (
+                <ul key={bIdx} className="space-y-2 my-3 pl-1">
+                  {rawLines.map((l, lIdx) => {
+                    const itemText = l.trim().replace(/^[-*•]\s+/, '');
+                    return (
+                      <li key={lIdx} className="flex items-start gap-2.5 text-sm text-on-surface-variant leading-relaxed">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary-container shrink-0 mt-2 shadow-[0_0_8px_rgba(57,255,20,0.4)]" />
+                        <div className="flex-1">{renderInline(itemText)}</div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              );
+            }
+
+            // Standard paragraph
             return (
-              <h1 key={bIdx} className="font-display font-bold text-xl md:text-2xl text-on-surface mt-5 mb-2 pb-2 border-b border-primary/20">
-                {renderInline(trimmedBlock.replace(/^#\s+/, ''))}
-              </h1>
+              <p key={bIdx} className="text-sm md:text-[15px] leading-relaxed text-on-surface-variant">
+                {renderInline(trimmedBlock)}
+              </p>
             );
-          }
-
-          // Check for Blockquote
-          if (rawLines.every((l) => l.trim().startsWith('>'))) {
-            return (
-              <blockquote key={bIdx} className="border-l-4 border-primary-container/80 pl-4 py-2 my-2 bg-primary-container/5 rounded-r-xl text-sm italic text-on-surface-variant">
-                {rawLines.map((l, lIdx) => (
-                  <p key={lIdx}>{renderInline(l.replace(/^>\s*/, ''))}</p>
-                ))}
-              </blockquote>
-            );
-          }
-
-          // Check for Numbered List
-          if (rawLines.every((l) => /^\d+\.\s+/.test(l.trim()))) {
-            return (
-              <ol key={bIdx} className="space-y-2.5 my-3 pl-1">
-                {rawLines.map((l, lIdx) => {
-                  const match = l.trim().match(/^(\d+)\.\s+(.*)$/);
-                  const num = match ? match[1] : String(lIdx + 1);
-                  const itemText = match ? match[2] : l;
-
-                  return (
-                    <li key={lIdx} className="flex items-start gap-3 text-sm text-on-surface-variant leading-relaxed">
-                      <span className="w-5 h-5 rounded-full bg-primary-container/20 text-primary-container text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 border border-primary-container/30">
-                        {num}
-                      </span>
-                      <div className="flex-1">{renderInline(itemText)}</div>
-                    </li>
-                  );
-                })}
-              </ol>
-            );
-          }
-
-          // Check for Bulleted List
-          if (rawLines.every((l) => /^[-*•]\s+/.test(l.trim()))) {
-            return (
-              <ul key={bIdx} className="space-y-2 my-3 pl-1">
-                {rawLines.map((l, lIdx) => {
-                  const itemText = l.trim().replace(/^[-*•]\s+/, '');
-                  return (
-                    <li key={lIdx} className="flex items-start gap-2.5 text-sm text-on-surface-variant leading-relaxed">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary-container shrink-0 mt-2 shadow-[0_0_8px_rgba(57,255,20,0.4)]" />
-                      <div className="flex-1">{renderInline(itemText)}</div>
-                    </li>
-                  );
-                })}
-              </ul>
-            );
-          }
-
-          // Standard paragraph
-          return (
-            <p key={bIdx} className="text-sm md:text-[15px] leading-relaxed text-on-surface-variant">
-              {renderInline(trimmedBlock)}
-            </p>
-          );
-        })}
-      </div>
-    );
+          })}
+        </div>
+      );
+    });
   });
 };
 
@@ -480,7 +552,7 @@ export function TutorChat() {
                 className={`rounded-3xl shadow-sm transition-all ${
                   msg.role === "user"
                     ? "max-w-[85%] md:max-w-[70%] bg-gradient-to-r from-primary to-primary-container text-black font-medium p-5 rounded-tr-sm shadow-md"
-                    : "max-w-[95%] md:max-w-[85%] bg-surface-container-low/90 border border-outline-variant/40 p-6 md:p-7 rounded-tl-sm text-on-surface shadow-md"
+                    : "max-w-[95%] md:max-w-[88%] bg-surface-container-low/90 border border-outline-variant/40 p-6 md:p-7 rounded-tl-sm text-on-surface shadow-md"
                 }`}
               >
                 {msg.role === "assistant" && (
