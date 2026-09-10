@@ -37,7 +37,7 @@ interface PassportViewProps {
 }
 
 export function CompetencyPassportView({ employee, snap }: PassportViewProps) {
-  const { t } = useTranslation();
+  const { t, tEntity } = useTranslation();
   const passport = snap.passport;
 
   const totalComps = passport.length;
@@ -92,9 +92,9 @@ export function CompetencyPassportView({ employee, snap }: PassportViewProps) {
               </div>
               <h2 className="font-display text-3xl font-bold text-on-surface">{employee.name}</h2>
               <p className="text-sm text-on-surface-variant flex items-center gap-2">
-                <span>{employee.designation}</span>
+                <span>{tEntity(employee.designation)}</span>
                 <span>•</span>
-                <span className="text-on-surface">{snap.department?.name || "Statistical Division"}</span>
+                <span className="text-on-surface">{tEntity(snap.department?.name) || "Statistical Division"}</span>
               </p>
             </div>
           </div>
@@ -108,7 +108,7 @@ export function CompetencyPassportView({ employee, snap }: PassportViewProps) {
               <p className="font-display text-3xl font-bold text-primary-container mt-1">
                 {Math.round(snap.readiness)}%
               </p>
-              <p className="text-xs text-on-surface-variant mt-0.5">{snap.targetRole?.name || "Lead Statistical Officer"}</p>
+              <p className="text-xs text-on-surface-variant mt-0.5">{tEntity(snap.targetRole?.name) || "Lead Statistical Officer"}</p>
             </div>
             <div className="w-14 h-14 rounded-full bg-primary-container/10 border-2 border-primary-container flex items-center justify-center text-primary-container font-bold text-sm">
               <CheckCircle2 className="w-7 h-7" />
@@ -123,28 +123,28 @@ export function CompetencyPassportView({ employee, snap }: PassportViewProps) {
               {t("passport.verifiedSkills", "TOTAL VERIFIED")}
             </p>
             <p className="font-display text-2xl font-bold text-on-surface mt-1">{totalComps}</p>
-            <p className="text-xs text-on-surface-variant mt-0.5">Competencies</p>
+            <p className="text-xs text-on-surface-variant mt-0.5">{t("passport.verifiedSkills", "Competencies")}</p>
           </div>
           <div className="p-4 rounded-xl bg-surface-container border border-primary-container/20">
             <p className="text-[10px] font-label-caps text-primary-container">
               {t("passport.level3", "ADVANCED MASTERY")}
             </p>
             <p className="font-display text-2xl font-bold text-primary-container mt-1">{advancedCount}</p>
-            <p className="text-xs text-on-surface-variant mt-0.5">Score 75+</p>
+            <p className="text-xs text-on-surface-variant mt-0.5">{t("common.score", "Score")} 75+</p>
           </div>
           <div className="p-4 rounded-xl bg-surface-container border border-secondary-container/20">
             <p className="text-[10px] font-label-caps text-secondary-container">
               {t("passport.level2", "INTERMEDIATE")}
             </p>
             <p className="font-display text-2xl font-bold text-secondary-container mt-1">{intermediateCount}</p>
-            <p className="text-xs text-on-surface-variant mt-0.5">Score 50 - 74</p>
+            <p className="text-xs text-on-surface-variant mt-0.5">{t("common.score", "Score")} 50 - 74</p>
           </div>
           <div className="p-4 rounded-xl bg-surface-container border border-amber-500/20">
             <p className="text-[10px] font-label-caps text-amber-400">
               {t("passport.level1", "FOUNDATIONAL")}
             </p>
             <p className="font-display text-2xl font-bold text-amber-400 mt-1">{foundationalCount}</p>
-            <p className="text-xs text-on-surface-variant mt-0.5">Score &lt; 50</p>
+            <p className="text-xs text-on-surface-variant mt-0.5">{t("common.score", "Score")} &lt; 50</p>
           </div>
         </div>
       </div>
@@ -158,7 +158,7 @@ export function CompetencyPassportView({ employee, snap }: PassportViewProps) {
           {snap.categoryScores.map(cat => (
             <div key={cat.categoryId} className="glass-panel p-5 rounded-2xl border border-white/5 space-y-3">
               <div className="flex justify-between items-center">
-                <span className="font-bold text-on-surface text-sm">{cat.name}</span>
+                <span className="font-bold text-on-surface text-sm">{tEntity(cat.name)}</span>
                 <span className="text-sm font-bold text-primary-container">{Math.round(cat.score)}/100</span>
               </div>
               <div className="h-2 rounded-full bg-surface-container-high overflow-hidden" dir="ltr">
@@ -190,10 +190,10 @@ export function CompetencyPassportView({ employee, snap }: PassportViewProps) {
           <table className="w-full min-w-[700px] text-left text-sm">
             <thead className="bg-surface-container-low border-b border-white/10">
               <tr>
-                <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant tracking-wider">COMPETENCY</th>
-                <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant tracking-wider">DOMAIN</th>
-                <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant tracking-wider text-center">PROFICIENCY</th>
-                <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant tracking-wider text-right">VERIFIED SCORE</th>
+                <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant tracking-wider">{t("common.domain", "COMPETENCY")}</th>
+                <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant tracking-wider">{t("common.domain", "DOMAIN")}</th>
+                <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant tracking-wider text-center">{t("common.level", "PROFICIENCY")}</th>
+                <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant tracking-wider text-right">{t("common.score", "VERIFIED SCORE")}</th>
                 <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant tracking-wider text-right">ACTION</th>
               </tr>
             </thead>
@@ -210,11 +210,11 @@ export function CompetencyPassportView({ employee, snap }: PassportViewProps) {
                 return (
                   <tr key={item.competencyId} className="hover:bg-white/5 transition-colors">
                     <td className="px-6 py-4">
-                      <div className="font-bold text-on-surface text-sm">{item.name}</div>
+                      <div className="font-bold text-on-surface text-sm">{tEntity(item.name)}</div>
                       <div className="text-[11px] text-on-surface-variant mt-0.5">{item.competencyId}</div>
                     </td>
                     <td className="px-6 py-4 text-on-surface-variant text-xs font-medium capitalize">
-                      {item.category}
+                      {tEntity(item.category)}
                     </td>
                     <td className="px-6 py-4 text-center">
                       <span className={`px-2.5 py-1 rounded-full text-[10px] font-label-caps border font-bold ${badgeColor}`}>

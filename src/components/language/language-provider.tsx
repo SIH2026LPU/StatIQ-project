@@ -27,6 +27,7 @@ interface LanguageContextType {
   currentLanguage: LanguageInfo;
   setLanguage: (code: string) => void;
   t: (key: string, fallback?: string) => string;
+  tEntity: (text: string | null | undefined, fallback?: string) => string;
   translateDynamic: (text: string, targetLang?: string) => Promise<string>;
   isTranslating: boolean;
 }
@@ -37,6 +38,7 @@ const LanguageContext = createContext<LanguageContextType>({
   currentLanguage: defaultLanguage,
   setLanguage: () => {},
   t: (key, fallback) => fallback || key,
+  tEntity: (text, fallback) => text || fallback || "",
   translateDynamic: async (text) => text,
   isTranslating: false,
 });
@@ -116,6 +118,47 @@ export function LanguageProvider({
     [dictionary]
   );
 
+  // Entity and term translator for competencies, roles, domains, departments
+  const tEntity = useCallback(
+    (text: string | null | undefined, fallback?: string): string => {
+      if (!text) return fallback || "";
+      const trimmed = String(text).trim();
+      if (!trimmed) return fallback || "";
+
+      // 1. Direct dictionary entity lookup
+      const entityLookup = dictionary?.entities?.[trimmed];
+      if (typeof entityLookup === "string" && entityLookup) {
+        return entityLookup;
+      }
+
+      // 2. Synthetic skill patterns: e.g. "Behavioural skill 63", "Digital skill 74"
+      const synthMatch = trimmed.match(/^(Statistical|Technical|Digital|Behavioural)\s+skill\s+(\d+)$/i);
+      if (synthMatch) {
+        const prefix = synthMatch[1];
+        const num = synthMatch[2];
+        const prefixKey = prefix.charAt(0).toUpperCase() + prefix.slice(1).toLowerCase();
+        const prefixTrans = dictionary?.entities?.[prefixKey] || prefix;
+        const skillTrans = dictionary?.entities?.["skill"] || (currentLanguage.code === "hi" ? "कौशल" : "skill");
+        return `${prefixTrans} ${skillTrans} ${num}`;
+      }
+
+      // 3. Check role dictionary
+      const roleLookup = dictionary?.role?.[trimmed.toLowerCase().replace(/[^a-z0-9]/g, "_")];
+      if (typeof roleLookup === "string" && roleLookup) {
+        return roleLookup;
+      }
+
+      // 4. Check direct key
+      const directTrans = t(trimmed);
+      if (directTrans !== trimmed) {
+        return directTrans;
+      }
+
+      return fallback || trimmed;
+    },
+    [dictionary, t, currentLanguage.code]
+  );
+
   // Dynamic Bhashini translation helper for live AI content
   const translateDynamic = useCallback(
     async (text: string, targetLang?: string): Promise<string> => {
@@ -160,6 +203,7 @@ export function LanguageProvider({
         currentLanguage,
         setLanguage,
         t,
+        tEntity,
         translateDynamic,
         isTranslating,
       }}
@@ -178,6 +222,6 @@ export function useLanguage() {
 }
 
 export function useTranslation() {
-  const { t, currentLanguage, translateDynamic, isTranslating, setLanguage } = useLanguage();
-  return { t, currentLanguage, translateDynamic, isTranslating, setLanguage };
+  const { t, tEntity, currentLanguage, translateDynamic, isTranslating, setLanguage } = useLanguage();
+  return { t, tEntity, currentLanguage, translateDynamic, isTranslating, setLanguage };
 }

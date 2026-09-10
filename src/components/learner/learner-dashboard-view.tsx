@@ -66,7 +66,7 @@ export function LearnerDashboardView({
   categoryScores = [],
   recommendations = [],
 }: LearnerDashboardViewProps) {
-  const { t } = useTranslation();
+  const { t, tEntity } = useTranslation();
   const critical = gaps.filter((g) => g.isCritical || g.severity === "critical" || g.gap >= 25);
 
   return (
@@ -87,7 +87,7 @@ export function LearnerDashboardView({
           </div>
         </div>
         <div className="text-right hidden sm:block">
-          <p className="text-lg font-display font-bold text-primary-container">3 {t("learner.days", "Day")}</p>
+          <p className="text-lg font-display font-bold text-primary-container">3 {t("common.day", "Day")}</p>
           <p className="text-[10px] font-label-caps text-on-surface-variant">{t("learner.learningStreak", "LEARNING STREAK")}</p>
         </div>
       </div>
@@ -112,14 +112,13 @@ export function LearnerDashboardView({
           )}
         </h1>
         <p className="max-w-2xl text-on-surface-variant text-lg">
-          {emp.designation} · {emp.department} <br />
+          {tEntity(emp.designation)} · {tEntity(emp.department)} <br />
           <span className="text-on-surface font-medium mt-1 inline-block">
-            {t("learner.targetRole", "Target Role")}: {emp.jobRole}
+            {t("learner.targetRole", "Target Role")}: {tEntity(emp.jobRole)}
           </span>
           <span className="block text-xs text-on-surface-variant mt-0.5">
-            {t("learner.progressSynthetic", "Progress against the selected target role (synthetic).")}
+            {emp.careerGoal ? tEntity(emp.careerGoal, emp.careerGoal) : t("learner.progressSynthetic", "Progress against the selected target role (synthetic).")}
           </span>
-          {emp.careerGoal && <span className="block text-sm mt-2 opacity-80">{emp.careerGoal}</span>}
         </p>
       </header>
 
@@ -128,7 +127,7 @@ export function LearnerDashboardView({
         <Stat
           label={t("learner.readinessScore", "Role readiness")}
           value={`${readiness.toFixed(0)}%`}
-          hint={emp.jobRole ?? ""}
+          hint={tEntity(emp.jobRole) || ""}
         />
         <Stat
           label={t("learner.activeGaps", "Skill gaps")}
@@ -227,7 +226,7 @@ export function LearnerDashboardView({
                 className="flex justify-between items-center border-b border-white/5 py-4 last:border-0 hover:bg-white/5 px-4 -mx-4 rounded-xl transition-colors group"
               >
                 <span className="text-sm font-medium text-on-surface group-hover:text-primary-container transition-colors">
-                  {gap.competencyName}
+                  {tEntity(gap.competencyName)}
                 </span>
                 <div className="flex flex-col items-end gap-1">
                   <span className="text-sm font-label-caps tracking-widest text-on-surface">
@@ -268,7 +267,7 @@ export function LearnerDashboardView({
                 <li key={cat.categoryId} className="group">
                   <div className="flex justify-between text-sm mb-2">
                     <span className="font-medium text-on-surface group-hover:text-primary-container transition-colors">
-                      {cat.name}
+                      {tEntity(cat.name)}
                     </span>
                     <span className="font-label-caps text-on-surface-variant">
                       {cat.score ? cat.score.toFixed(0) : "—"}
