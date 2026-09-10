@@ -91,44 +91,69 @@ function rebuildObject(pathsAndValues) {
 
 async function run() {
   const stringEntries = extractStrings(enData);
-  console.log(`Extracted ${stringEntries.length} strings to translate.`);
+  console.log(`Extracted ${stringEntries.length} strings from en.json.`);
 
   const batchSize = 25;
 
   for (const lang of languages) {
-    console.log(`\nTranslating into ${lang.name} (${lang.code}) via real Bhashini API...`);
-    const translatedEntries = [];
-
-    for (let i = 0; i < stringEntries.length; i += batchSize) {
-      const chunk = stringEntries.slice(i, i + batchSize);
-      const chunkTexts = chunk.map((item) => {
-        // Keep brand name as StatIQ AI
-        if (item.text === "StatIQ AI") return "StatIQ AI";
-        return item.text;
-      });
-
+    console.log(`\nProcessing ${lang.name} (${lang.code})...`);
+    const targetFile = path.join(localesDir, `${lang.code}.json`);
+    let existingObj = {};
+    if (fs.existsSync(targetFile)) {
       try {
-        const translatedTexts = await translateBatch(chunkTexts, lang.code);
-        chunk.forEach((item, idx) => {
-          let text = translatedTexts[idx] || item.text;
-          if (item.path === 'nav.brand') text = "StatIQ AI";
-          translatedEntries.push({ path: item.path, text });
-        });
-        console.log(`  Processed ${translatedEntries.length}/${stringEntries.length} strings`);
-      } catch (err) {
-        console.error(`  Error in chunk for ${lang.code}:`, err.message);
-        // fallback to original
-        chunk.forEach((item) => translatedEntries.push(item));
+        existingObj = JSON.parse(fs.readFileSync(targetFile, 'utf8'));
+      } catch (e) {
+        existingObj = {};
       }
     }
 
-    const localizedObj = rebuildObject(translatedEntries);
-    const targetFile = path.join(localesDir, `${lang.code}.json`);
+    // Find keys that are missing in existingObj
+    const existingEntries = extractStrings(existingObj);
+    const existingMap = new Map(existingEntries.map((e) => [e.path, e.text]));
+
+    const missingEntries = stringEntries.filter(
+      (item) => !existingMap.has(item.path) || !existingMap.get(item.path)
+    );
+
+    console.log(`  Found ${missingEntries.length} missing/new strings out of ${stringEntries.length}.`);
+
+    if (missingEntries.length > 0) {
+      for (let i = 0; i < missingEntries.length; i += batchSize) {
+        const chunk = missingEntries.slice(i, i + batchSize);
+        const chunkTexts = chunk.map((item) => {
+          if (item.text === "StatIQ AI") return "StatIQ AI";
+          return item.text;
+        });
+
+        try {
+          const translatedTexts = await translateBatch(chunkTexts, lang.code);
+          chunk.forEach((item, idx) => {
+            let text = translatedTexts[idx] || item.text;
+            if (item.path === 'nav.brand') text = "StatIQ AI";
+            existingMap.set(item.path, text);
+          });
+          console.log(`  Translated ${Math.min(i + batchSize, missingEntries.length)}/${missingEntries.length} missing strings for ${lang.code}`);
+        } catch (err) {
+          console.error(`  Error translating chunk for ${lang.code}:`, err.message);
+          chunk.forEach((item) => {
+            existingMap.set(item.path, item.text);
+          });
+        }
+      }
+    }
+
+    // Reconstruct full list for all enData keys
+    const finalEntries = stringEntries.map((item) => ({
+      path: item.path,
+      text: existingMap.get(item.path) || item.text,
+    }));
+
+    const localizedObj = rebuildObject(finalEntries);
     fs.writeFileSync(targetFile, JSON.stringify(localizedObj, null, 2), 'utf8');
     console.log(`  Saved -> ${targetFile}`);
   }
 
-  console.log("\nAll 12 Indic locales generated successfully!");
+  console.log("\nAll Indic locales synced successfully!");
 }
 
 run();

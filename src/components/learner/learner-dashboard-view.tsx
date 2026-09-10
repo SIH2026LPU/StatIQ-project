@@ -82,13 +82,13 @@ export function LearnerDashboardView({
               {t("learner.welcomeBack", "Your cohort is active!")}
             </p>
             <p className="text-xs text-on-surface-variant">
-              Your department completed 12 courses this week. Keep up the momentum.
+              {t("learner.cohortDesc", "Your department completed 12 courses this week. Keep up the momentum.")}
             </p>
           </div>
         </div>
         <div className="text-right hidden sm:block">
-          <p className="text-lg font-display font-bold text-primary-container">3 Day</p>
-          <p className="text-[10px] font-label-caps text-on-surface-variant">LEARNING STREAK</p>
+          <p className="text-lg font-display font-bold text-primary-container">3 {t("learner.days", "Day")}</p>
+          <p className="text-[10px] font-label-caps text-on-surface-variant">{t("learner.learningStreak", "LEARNING STREAK")}</p>
         </div>
       </div>
 
@@ -97,7 +97,7 @@ export function LearnerDashboardView({
       <header className="space-y-4">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary-container/30 bg-primary-container/10 font-label-caps text-label-caps text-primary-container">
           <span className="w-1.5 h-1.5 rounded-full bg-primary-container animate-pulse" />
-          {t("learner.title", "Learner Workspace")} · {emp.synthetic ? "DEMO DATA" : "LIVE"}
+          {t("learner.title", "Learner Workspace")} · {emp.synthetic ? t("common.demoData", "DEMO DATA") : t("common.live", "LIVE")}
         </div>
         <h1 className="font-display text-4xl md:text-5xl font-bold text-on-surface tracking-tight flex items-center gap-4">
           {emp.name}
@@ -115,6 +115,9 @@ export function LearnerDashboardView({
           {emp.designation} · {emp.department} <br />
           <span className="text-on-surface font-medium mt-1 inline-block">
             {t("learner.targetRole", "Target Role")}: {emp.jobRole}
+          </span>
+          <span className="block text-xs text-on-surface-variant mt-0.5">
+            {t("learner.progressSynthetic", "Progress against the selected target role (synthetic).")}
           </span>
           {emp.careerGoal && <span className="block text-sm mt-2 opacity-80">{emp.careerGoal}</span>}
         </p>
@@ -134,7 +137,7 @@ export function LearnerDashboardView({
         <Stat
           label={t("admin.criticalRisks", "Critical gaps")}
           value={String(critical.length)}
-          hint="Required minus current ≥ 25"
+          hint={t("learner.criticalGapsHint", "Required minus current ≥ 25")}
         />
         <Stat
           label={t("passport.verifiedSkills", "Competencies scored")}
@@ -185,7 +188,7 @@ export function LearnerDashboardView({
                     <div className="mt-auto pt-4 border-t border-white/5 space-y-2">
                       <div className="flex justify-between items-center text-xs">
                         <span className="text-on-surface-variant">{progress}% {t("common.completed", "Complete")}</span>
-                        <span className="text-on-surface-variant">{course.durationHours} hrs total</span>
+                        <span className="text-on-surface-variant">{course.durationHours} {t("common.hrsTotal", "hrs total")}</span>
                       </div>
                       <div className="h-1.5 rounded-full bg-surface-container-high overflow-hidden mb-4" dir="ltr">
                         <div
@@ -197,7 +200,7 @@ export function LearnerDashboardView({
                         href={`/learner/courses/${course.id}/play`}
                         className="glow-button w-full py-2 rounded-full font-label-caps tracking-widest text-[10px] font-bold block text-center mt-2 text-black"
                       >
-                        {t("learner.continueLearning", "RESUME COURSE")}
+                        {t("learner.resumeCourse", "RESUME COURSE")}
                       </Link>
                     </div>
                   </div>
@@ -214,7 +217,7 @@ export function LearnerDashboardView({
             {t("learner.activeGaps", "Gaps vs Target Role")}
           </h2>
           <p className="text-on-surface-variant text-sm mt-1 mb-6">
-            Competencies where you fall short of the required proficiency level.
+            {t("learner.gapsDesc", "Competencies where you fall short of the required proficiency level.")}
           </p>
 
           <ul className="space-y-1">
@@ -231,7 +234,7 @@ export function LearnerDashboardView({
                     {gap.currentScore} <span className="text-on-surface-variant/50">/</span> {gap.requiredLevel}
                   </span>
                   <span className="text-xs text-error bg-error/10 px-2 py-0.5 rounded font-label-caps">
-                    GAP: {gap.gap}
+                    {t("learner.gap", "GAP")}: {gap.gap}
                   </span>
                 </div>
               </li>
@@ -242,7 +245,7 @@ export function LearnerDashboardView({
               href="/learner/path"
               className="glow-button-secondary inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-label-caps font-bold tracking-widest"
             >
-              {t("learner.recommendedPaths", "VIEW LEARNING PATH")}
+              {t("learner.viewLearningPath", "VIEW LEARNING PATH")}
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>
@@ -257,7 +260,7 @@ export function LearnerDashboardView({
               {t("passport.filterDomain", "Domain Category Scores")}
             </h2>
             <p className="text-on-surface-variant text-sm mt-1 mb-6">
-              Your current proficiency aggregated by major domains.
+              {t("learner.categoryDesc", "Your current proficiency aggregated by major domains.")}
             </p>
 
             <ul className="space-y-5">
@@ -287,7 +290,7 @@ export function LearnerDashboardView({
               {t("learner.recommendedPaths", "Recommended Learning")}
             </h2>
             <p className="text-on-surface-variant text-sm mt-1 mb-6">
-              Courses dynamically selected to close your specific skill gaps.
+              {t("learner.recsDesc", "Courses dynamically selected to close your specific skill gaps.")}
             </p>
 
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1 mt-4">

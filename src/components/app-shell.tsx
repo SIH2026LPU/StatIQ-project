@@ -73,7 +73,7 @@ export function AppShell({
           <div className="mt-2 inline-flex items-center gap-2 px-2.5 py-1 rounded-full border border-primary-container/20 bg-primary-container/10">
             <span className="w-1.5 h-1.5 rounded-full bg-primary-container animate-pulse" />
             <span className="text-[10px] font-label-caps text-primary-container uppercase">
-              {area} {t("common.workspace", "Workspace")}
+              {t(`role.${area}`, area)} {t("common.workspace", "Workspace")}
             </span>
           </div>
         </div>
@@ -109,7 +109,7 @@ export function AppShell({
             <div>
               <p className="text-sm font-bold text-on-surface leading-none">{session.name}</p>
               <p className="text-xs text-on-surface-variant mt-1 uppercase font-label-caps tracking-wider">
-                {session.role.replace("_", " ")}
+                {t(`role.${session.role.toLowerCase()}`, session.role.replace("_", " "))}
               </p>
             </div>
           </div>
