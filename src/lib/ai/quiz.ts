@@ -59,7 +59,7 @@ Return ONLY a valid JSON object matching this schema:
         correctIndex: typeof q.correctIndex === "number" && q.correctIndex >= 0 && q.correctIndex < 4 ? q.correctIndex : 0,
         explanation: q.explanation || "Official MoSPI statistical standard.",
         sourceDocumentId: "mospi-official-handbook",
-        status: "published" as const,
+        status: "review" as const,
       }));
     }
   } catch (err) {
@@ -147,7 +147,7 @@ export function generateMcqs(input: {
       correctIndex: base.correctIndex,
       explanation: base.explanation,
       sourceDocumentId: "mospi-official-handbook",
-      status: "published" as const,
+      status: "review" as const,
     };
   });
 }
