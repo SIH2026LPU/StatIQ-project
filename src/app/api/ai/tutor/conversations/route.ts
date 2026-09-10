@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/session";
 import { 
   getConversationsForUser, 
-  createConversation 
+  createConversation,
+  clearAllConversations
 } from "@/lib/tutor-store";
 
 export async function GET() {
@@ -45,3 +46,16 @@ export async function POST(req: Request) {
     }
   });
 }
+
+export async function DELETE() {
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const userId = session.id || session.email || "default";
+  clearAllConversations(userId);
+
+  return NextResponse.json({ success: true, message: "All conversations cleared." });
+}
+

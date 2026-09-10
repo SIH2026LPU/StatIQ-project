@@ -414,6 +414,30 @@ export function TutorChat() {
     }
   }
 
+  async function clearAllChats() {
+    try {
+      await fetch("/api/ai/tutor/conversations", { method: "DELETE" });
+    } catch (e) {}
+
+    setConversations([]);
+    setMessages([]);
+    setActiveConvId(null);
+    setInput("");
+
+    try {
+      localStorage.removeItem(LS_CONV_KEY);
+      localStorage.removeItem(LS_ACTIVE_KEY);
+      const keysToRemove: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && (k.startsWith("statiq_msgs_") || k.startsWith("statiq_ai_tutor_"))) {
+          keysToRemove.push(k);
+        }
+      }
+      keysToRemove.forEach((k) => localStorage.removeItem(k));
+    } catch {}
+  }
+
   function startNewChat() {
     const newId = `conv-${Date.now()}`;
     setActiveConvId(newId);
@@ -531,7 +555,7 @@ export function TutorChat() {
       
       {/* Sidebar */}
       <div className="w-full md:w-64 lg:w-72 border-b md:border-b-0 md:border-r border-outline-variant/30 flex flex-col bg-surface-container-lowest/50 shrink-0">
-        <div className="p-4 border-b border-outline-variant/30">
+        <div className="p-4 border-b border-outline-variant/30 space-y-2">
           <button
             onClick={startNewChat}
             className="w-full py-3 px-4 rounded-2xl bg-primary-container/20 hover:bg-primary-container/30 border border-primary-container/50 text-primary-container flex items-center justify-center gap-2.5 font-bold font-label-caps text-xs tracking-wider transition-all shadow-[0_0_15px_rgba(57,255,20,0.12)] hover:shadow-[0_0_25px_rgba(57,255,20,0.22)] group"
@@ -541,9 +565,22 @@ export function TutorChat() {
           </button>
         </div>
         <div className="flex-1 overflow-y-auto p-3 space-y-1 custom-scrollbar">
-          <p className="text-xs font-label-caps text-on-surface-variant/50 px-2 py-2">
-            {t("learner.recentActivity", "Recent Conversations")}
-          </p>
+          <div className="flex items-center justify-between px-2 py-2">
+            <p className="text-xs font-label-caps text-on-surface-variant/50">
+              {t("learner.recentActivity", "Recent Conversations")}
+            </p>
+            {conversations.length > 0 && (
+              <button
+                onClick={clearAllChats}
+                className="text-[10px] font-label-caps text-on-surface-variant/70 hover:text-red-400 flex items-center gap-1 transition-colors px-1.5 py-0.5 rounded hover:bg-surface-container"
+                title="Clear all conversations"
+              >
+                <Trash2 className="w-3 h-3" />
+                Clear All
+              </button>
+            )}
+          </div>
+
           {conversations.length === 0 ? (
             <p className="text-sm text-on-surface-variant px-2 italic">{t("common.noData", "No previous chats.")}</p>
           ) : (
@@ -589,11 +626,7 @@ export function TutorChat() {
             </span>
           </div>
 
-          <div className="flex items-center gap-3 text-[10px] font-label-caps text-on-surface-variant">
-            <span className="hidden sm:flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-primary-container" />
-              ChromaDB Grounded (StatlQAi123)
-            </span>
+          <div className="flex items-center gap-2 text-[10px] font-label-caps text-on-surface-variant">
             <button
               onClick={startNewChat}
               className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface-container border border-outline-variant/30 text-primary-container hover:bg-primary-container/10 transition-colors font-bold"
@@ -601,6 +634,17 @@ export function TutorChat() {
               <Plus className="w-3 h-3" />
               {t("tutor.newChat", "New Chat")}
             </button>
+
+            {messages.length > 0 && (
+              <button
+                onClick={clearAllChats}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-surface-container border border-outline-variant/30 text-on-surface-variant hover:text-red-400 transition-colors"
+                title="Clear all conversations"
+              >
+                <Trash2 className="w-3 h-3" />
+                Clear All
+              </button>
+            )}
           </div>
         </div>
 

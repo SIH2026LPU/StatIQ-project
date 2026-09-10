@@ -87,3 +87,12 @@ export function addMessageToConversation(
 export function deleteConversationById(id: string): boolean {
   return tutorStore.delete(id);
 }
+
+export function clearAllConversations(userId: string = "default"): void {
+  for (const [id, conv] of tutorStore.entries()) {
+    if (!conv.userId || conv.userId === userId || userId === "default") {
+      tutorStore.delete(id);
+    }
+  }
+}
+
