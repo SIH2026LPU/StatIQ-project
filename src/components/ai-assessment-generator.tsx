@@ -3,12 +3,14 @@
 import { useState } from "react";
 import { Sparkles, BrainCircuit, Play, Loader2, CheckCircle2, RefreshCw } from "lucide-react";
 import { QuizRunner } from "./quiz-runner";
+import { useTranslation } from "@/components/language/language-provider";
 
 export function AiAssessmentGenerator({
   competencies,
 }: {
   competencies: Array<{ id: string; name: string }>;
 }) {
+  const { t } = useTranslation();
   const [topic, setTopic] = useState("National Accounts & Price Index Compilation");
   const [competencyId, setCompetencyId] = useState(competencies[0]?.id || "c-stat-methods");
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("medium");
@@ -58,7 +60,7 @@ export function AiAssessmentGenerator({
             className="text-xs font-label-caps text-on-surface-variant hover:text-white flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-container border border-white/5"
           >
             <RefreshCw className="w-3.5 h-3.5" />
-            CREATE NEW TEST
+            {t("assessments.newAssessment", "CREATE NEW TEST")}
           </button>
         </div>
         <div className="glass-panel rounded-3xl p-6 md:p-10 border-t-[3px] border-t-primary-container">
@@ -77,10 +79,10 @@ export function AiAssessmentGenerator({
             AI EVALUATION ENGINE
           </div>
           <h2 className="font-display text-2xl font-bold text-on-surface">
-            Generate Custom AI Practice Test
+            {t("assessments.generateQuestions", "Generate Custom AI Practice Test")}
           </h2>
           <p className="text-on-surface-variant text-sm max-w-xl">
-            Generate authentic MCQs tailored to specific MoSPI statistical methodologies, sample survey designs, or national accounting standards.
+            {t("assessments.subtitle", "Generate authentic MCQs tailored to specific MoSPI statistical methodologies, sample survey designs, or national accounting standards.")}
           </p>
         </div>
       </div>
@@ -125,9 +127,9 @@ export function AiAssessmentGenerator({
             onChange={(e) => setDifficulty(e.target.value as any)}
             className="w-full px-4 py-2.5 rounded-xl bg-surface-container-high border border-white/10 text-on-surface text-sm focus:outline-none focus:border-primary-container"
           >
-            <option value="easy">Beginner (Foundational)</option>
-            <option value="medium">Intermediate (Applied)</option>
-            <option value="hard">Advanced (Expert / ISS)</option>
+            <option value="easy">{t("passport.level1", "Beginner (Foundational)")}</option>
+            <option value="medium">{t("passport.level2", "Intermediate (Applied)")}</option>
+            <option value="hard">{t("passport.level3", "Advanced (Expert / ISS)")}</option>
           </select>
         </div>
 
@@ -149,17 +151,17 @@ export function AiAssessmentGenerator({
         <button
           onClick={handleGenerate}
           disabled={loading || !topic.trim()}
-          className="glow-button px-8 py-3 rounded-xl font-label-caps text-xs font-bold tracking-widest flex items-center gap-2 disabled:opacity-50"
+          className="glow-button px-8 py-3 rounded-xl font-label-caps text-xs font-bold tracking-widest flex items-center gap-2 disabled:opacity-50 text-black"
         >
           {loading ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
-              GENERATING MCQS WITH AI...
+              {t("common.loading", "GENERATING MCQS WITH AI...")}
             </>
           ) : (
             <>
               <BrainCircuit className="w-4 h-4" />
-              START AI PRACTICE TEST
+              {t("assessments.startQuiz", "START AI PRACTICE TEST")}
             </>
           )}
         </button>

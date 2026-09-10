@@ -34,119 +34,6 @@ interface HomeViewProps {
   backend?: BackendHealth;
 }
 
-const HOW_IT_WORKS = [
-  {
-    step: "01",
-    icon: Users,
-    title: "Build Your Profile",
-    desc: "Upload your role, department, and existing qualifications. The system builds a baseline competency passport.",
-    color: "from-primary-container to-primary-container/60",
-    accent: "#39ff14",
-  },
-  {
-    step: "02",
-    icon: Activity,
-    title: "AI Assessment",
-    desc: "Adaptive quizzes and scenario tests dynamically evaluate your knowledge across all mapped competency domains.",
-    color: "from-secondary-container to-secondary-container/60",
-    accent: "#d05bff",
-  },
-  {
-    step: "03",
-    icon: Target,
-    title: "Skill Gap Analysis",
-    desc: "A multi-dimensional gap matrix pinpoints exactly where you stand versus the target role readiness benchmark.",
-    color: "from-tertiary-container to-tertiary-container/60",
-    accent: "#55f2ff",
-  },
-  {
-    step: "04",
-    icon: Route,
-    title: "Personalised Recommendations",
-    desc: "Curated iGOT / NSSTA courses are ranked and served in priority order to close your specific gaps fastest.",
-    color: "from-primary-container to-secondary-container",
-    accent: "#39ff14",
-  },
-];
-
-const FEATURES = [
-  {
-    icon: Activity,
-    title: "Real-time Assessment",
-    desc: "Continuous cognitive evaluation with AI-generated quizzes that adapt to your response patterns in real time.",
-    tag: "ASSESSMENT",
-    accent: "border-t-primary-container",
-  },
-  {
-    icon: Route,
-    title: "Personalised Learning Paths",
-    desc: "Algorithmic generation of custom curricula optimised for rapid comprehension, recommending iGOT / NSSTA courses.",
-    tag: "LEARNING",
-    accent: "border-t-secondary-container",
-  },
-  {
-    icon: Radar,
-    title: "Competency Mapping",
-    desc: "Multi-dimensional skill matrix generation for precise talent alignment and role readiness scoring.",
-    tag: "MAPPING",
-    accent: "border-t-tertiary-container",
-  },
-  {
-    icon: Brain,
-    title: "AI Tutor Chat",
-    desc: "Conversational AI tutor guides you through complex statistical concepts with examples drawn from official Indian datasets.",
-    tag: "AI TUTOR",
-    accent: "border-t-primary-container",
-  },
-  {
-    icon: BarChart3,
-    title: "Analytics Dashboard",
-    desc: "Org-wide competency heatmaps and trend analytics for training officers to visualise workforce readiness at a glance.",
-    tag: "ANALYTICS",
-    accent: "border-t-secondary-container",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Role Readiness Score",
-    desc: "Instant readiness score for any target job role, benchmarked against the official NCS / DoPT competency framework.",
-    tag: "SCORING",
-    accent: "border-t-tertiary-container",
-  },
-];
-
-const USE_CASES = [
-  {
-    role: "Statistician / Officer",
-    icon: TrendingUp,
-    points: [
-      "Know exactly which competencies you lack for the next role",
-      "Get a prioritised reading list from official iGOT courses",
-      "Track learning progress on your personal dashboard",
-    ],
-    accent: "#39ff14",
-  },
-  {
-    role: "Training Officer / HoD",
-    icon: Users,
-    points: [
-      "View department-wide competency heatmaps",
-      "Schedule and assign targeted training batches",
-      "Generate compliance and readiness reports in one click",
-    ],
-    accent: "#d05bff",
-  },
-  {
-    role: "Ministry Administrator",
-    icon: ShieldCheck,
-    points: [
-      "Monitor all-India statistical workforce intelligence",
-      "Align NSSTA programmes to actual skill gaps",
-      "Export competency data for APCTT / World Bank reporting",
-    ],
-    accent: "#55f2ff",
-  },
-];
-
 const MINISTRY_LOGOS = [
   { short: "MoSPI", full: "Ministry of Statistics & PI" },
   { short: "iGOT", full: "Integrated Govt Online Training" },
@@ -158,6 +45,124 @@ const MINISTRY_LOGOS = [
 
 export function HomeView({ stats, backend }: HomeViewProps) {
   const { t } = useTranslation();
+
+  const howItWorks = [
+    {
+      step: "01",
+      icon: Users,
+      title: t("howItWorks.step1Title", "Build Your Profile"),
+      desc: t("howItWorks.step1Desc", "Upload your role, department, and existing qualifications. The system builds a baseline competency passport."),
+      accent: "#39ff14",
+    },
+    {
+      step: "02",
+      icon: Activity,
+      title: t("howItWorks.step2Title", "AI Assessment"),
+      desc: t("howItWorks.step2Desc", "Adaptive quizzes and scenario tests dynamically evaluate your knowledge across all mapped competency domains."),
+      accent: "#d05bff",
+    },
+    {
+      step: "03",
+      icon: Target,
+      title: t("howItWorks.step3Title", "Skill Gap Analysis"),
+      desc: t("howItWorks.step3Desc", "A multi-dimensional gap matrix pinpoints exactly where you stand versus the target role readiness benchmark."),
+      accent: "#55f2ff",
+    },
+    {
+      step: "04",
+      icon: Route,
+      title: t("howItWorks.step4Title", "Personalised Recommendations"),
+      desc: t("howItWorks.step4Desc", "Curated iGOT / NSSTA courses are ranked and served in priority order to close your specific gaps fastest."),
+      accent: "#39ff14",
+    },
+  ];
+
+  const features = [
+    {
+      icon: Activity,
+      title: t("features.assessmentTitle", "Real-time Assessment"),
+      desc: t("features.assessmentDesc", "Continuous cognitive evaluation with AI-generated quizzes that adapt to your response patterns in real time."),
+      tag: t("features.assessmentTag", "ASSESSMENT"),
+      accent: "#39ff14",
+    },
+    {
+      icon: Route,
+      title: t("features.learningTitle", "Personalised Learning Paths"),
+      desc: t("features.learningDesc", "Algorithmic generation of custom curricula optimised for rapid comprehension, recommending iGOT / NSSTA courses."),
+      tag: t("features.learningTag", "LEARNING"),
+      accent: "#d05bff",
+    },
+    {
+      icon: Radar,
+      title: t("features.mappingTitle", "Competency Mapping"),
+      desc: t("features.mappingDesc", "Multi-dimensional skill matrix generation for precise talent alignment and role readiness scoring."),
+      tag: t("features.mappingTag", "MAPPING"),
+      accent: "#55f2ff",
+    },
+    {
+      icon: Brain,
+      title: t("features.tutorTitle", "AI Tutor Chat"),
+      desc: t("features.tutorDesc", "Conversational AI tutor guides you through complex statistical concepts with examples drawn from official Indian datasets."),
+      tag: t("features.tutorTag", "AI TUTOR"),
+      accent: "#39ff14",
+    },
+    {
+      icon: BarChart3,
+      title: t("features.analyticsTitle", "Analytics Dashboard"),
+      desc: t("features.analyticsDesc", "Org-wide competency heatmaps and trend analytics for training officers to visualise workforce readiness at a glance."),
+      tag: t("features.analyticsTag", "ANALYTICS"),
+      accent: "#d05bff",
+    },
+    {
+      icon: ShieldCheck,
+      title: t("features.scoringTitle", "Role Readiness Score"),
+      desc: t("features.scoringDesc", "Instant readiness score for any target job role, benchmarked against the official NCS / DoPT competency framework."),
+      tag: t("features.scoringTag", "SCORING"),
+      accent: "#55f2ff",
+    },
+  ];
+
+  const useCases = [
+    {
+      role: t("useCases.officerRole", "Statistician / Officer"),
+      icon: TrendingUp,
+      points: [
+        t("useCases.officerPt1", "Know exactly which competencies you lack for the next role"),
+        t("useCases.officerPt2", "Get a prioritised reading list from official iGOT courses"),
+        t("useCases.officerPt3", "Track learning progress on your personal dashboard"),
+      ],
+      accent: "#39ff14",
+    },
+    {
+      role: t("useCases.trainerRole", "Training Officer / HoD"),
+      icon: Users,
+      points: [
+        t("useCases.trainerPt1", "View department-wide competency heatmaps"),
+        t("useCases.trainerPt2", "Schedule and assign targeted training batches"),
+        t("useCases.trainerPt3", "Generate compliance and readiness reports in one click"),
+      ],
+      accent: "#d05bff",
+    },
+    {
+      role: t("useCases.adminRole", "Ministry Administrator"),
+      icon: ShieldCheck,
+      points: [
+        t("useCases.adminPt1", "Monitor all-India statistical workforce intelligence"),
+        t("useCases.adminPt2", "Align NSSTA programmes to actual skill gaps"),
+        t("useCases.adminPt3", "Export competency data for APCTT / World Bank reporting"),
+      ],
+      accent: "#55f2ff",
+    },
+  ];
+
+  const officialSources = [
+    { label: t("sourcesSection.src1", "NSQF Occupational Standards"), tag: t("sourcesSection.tagRoles", "ROLES") },
+    { label: t("sourcesSection.src2", "NCS Job Role Taxonomy"), tag: t("sourcesSection.tagTaxonomy", "TAXONOMY") },
+    { label: t("sourcesSection.src3", "iGOT Karmayogi Course DB"), tag: t("sourcesSection.tagCourses", "COURSES") },
+    { label: t("sourcesSection.src4", "NSSTA Training Programmes"), tag: t("sourcesSection.tagTraining", "TRAINING") },
+    { label: t("sourcesSection.src5", "DoPT Competency Framework"), tag: t("sourcesSection.tagFramework", "FRAMEWORK") },
+    { label: t("sourcesSection.src6", "MoSPI Statistical Reports"), tag: t("sourcesSection.tagStats", "STATS") },
+  ];
 
   return (
     <>
@@ -255,19 +260,21 @@ export function HomeView({ stats, backend }: HomeViewProps) {
         {/* ── HOW IT WORKS ── */}
         <section className="space-y-16">
           <div className="text-center space-y-4 max-w-2xl mx-auto">
-            <p className="font-label-caps text-label-caps text-on-surface-variant tracking-widest">THE INTELLIGENCE LOOP</p>
+            <p className="font-label-caps text-label-caps text-on-surface-variant tracking-widest">
+              {t("howItWorks.loopBadge", "THE INTELLIGENCE LOOP")}
+            </p>
             <h2 className="font-display-lg-mobile text-display-lg-mobile md:font-display-lg md:text-display-lg font-bold text-on-surface tracking-tight">
-              {t("home.featuresSubtitle", "How It Works")}
+              {t("howItWorks.heading", "How It Works")}
             </h2>
             <p className="font-body-md text-body-md text-on-surface-variant">
-              A closed-loop system that continuously improves your competency passport from first login to promotion.
+              {t("howItWorks.subtitle", "A closed-loop system that continuously improves your competency passport from first login to promotion.")}
             </p>
           </div>
 
           <div className="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="hidden lg:block absolute top-12 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-primary-container/20 via-secondary-container/40 to-primary-container/20 z-0" />
 
-            {HOW_IT_WORKS.map((item) => {
+            {howItWorks.map((item) => {
               const Icon = item.icon;
               return (
                 <div key={item.step} className="glass-panel glass-panel-interactive rounded-xl p-8 flex flex-col gap-5 relative z-10">
@@ -286,7 +293,7 @@ export function HomeView({ stats, backend }: HomeViewProps) {
                   </div>
                   <div className="mt-auto flex items-center gap-1.5 text-xs font-label-caps" style={{ color: item.accent }}>
                     <CheckCircle2 className="w-4 h-4" />
-                    AUTOMATED
+                    {t("howItWorks.automated", "AUTOMATED")}
                   </div>
                 </div>
               );
@@ -294,27 +301,24 @@ export function HomeView({ stats, backend }: HomeViewProps) {
           </div>
         </section>
 
-        {/* ── FEATURE HIGHLIGHTS ── */}
+        {/* ── FEATURE HIGHLIGHTS (CARDS) ── */}
         <section className="space-y-16">
           <div className="text-center space-y-4 max-w-2xl mx-auto">
-            <p className="font-label-caps text-label-caps text-on-surface-variant tracking-widest">CORE CAPABILITIES</p>
+            <p className="font-label-caps text-label-caps text-on-surface-variant tracking-widest">
+              {t("home.featuresTitle", "CORE CAPABILITIES")}
+            </p>
             <h2 className="font-display-lg-mobile text-display-lg-mobile md:font-display-lg md:text-display-lg font-bold text-on-surface tracking-tight">
-              {t("home.featuresTitle", "Everything You Need")}
+              {t("home.featuresHeading", "Everything You Need")}
             </h2>
             <p className="font-body-md text-body-md text-on-surface-variant">
-              Purpose-built for India&apos;s statistical workforce. Not a generic LMS.
+              {t("home.featuresSubtitle", "Purpose-built for India's statistical workforce. Not a generic LMS.")}
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {FEATURES.map((feat) => {
+            {features.map((feat) => {
               const Icon = feat.icon;
-              const accentColors: Record<string, string> = {
-                "border-t-primary-container": "#39ff14",
-                "border-t-secondary-container": "#d05bff",
-                "border-t-tertiary-container": "#55f2ff",
-              };
-              const color = accentColors[feat.accent] ?? "#39ff14";
+              const color = feat.accent;
               return (
                 <div
                   key={feat.title}
@@ -344,7 +348,7 @@ export function HomeView({ stats, backend }: HomeViewProps) {
 
           <div className="text-center">
             <Link href="/features" className="glow-button-secondary px-8 py-3 rounded-full font-label-caps text-label-caps inline-flex items-center gap-2">
-              {t("common.viewAll", "SEE ALL FEATURES")}
+              {t("home.seeAllFeatures", "SEE ALL FEATURES")}
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
@@ -353,12 +357,14 @@ export function HomeView({ stats, backend }: HomeViewProps) {
         {/* ── DASHBOARD PREVIEW ── */}
         <section className="space-y-12">
           <div className="text-center space-y-4 max-w-3xl mx-auto">
-            <p className="font-label-caps text-label-caps text-on-surface-variant tracking-widest">INTELLIGENCE DASHBOARD</p>
+            <p className="font-label-caps text-label-caps text-on-surface-variant tracking-widest">
+              {t("dashboardPreview.badge", "INTELLIGENCE DASHBOARD")}
+            </p>
             <h2 className="font-display-lg-mobile text-display-lg-mobile md:font-display-lg md:text-display-lg font-bold text-on-surface tracking-tight">
-              Visualise Workforce Readiness
+              {t("dashboardPreview.heading", "Visualise Workforce Readiness")}
             </h2>
             <p className="font-body-md text-body-md text-on-surface-variant">
-              Military-grade precision dashboards for competency gaps, training coverage, and role readiness across every department.
+              {t("dashboardPreview.desc", "Military-grade precision dashboards for competency gaps, training coverage, and role readiness across every department.")}
             </p>
           </div>
 
@@ -373,14 +379,16 @@ export function HomeView({ stats, backend }: HomeViewProps) {
         {/* ── USE CASES ── */}
         <section className="space-y-16">
           <div className="text-center space-y-4 max-w-2xl mx-auto">
-            <p className="font-label-caps text-label-caps text-on-surface-variant tracking-widest">BUILT FOR EVERY ROLE</p>
+            <p className="font-label-caps text-label-caps text-on-surface-variant tracking-widest">
+              {t("useCases.badge", "BUILT FOR EVERY ROLE")}
+            </p>
             <h2 className="font-display-lg-mobile text-display-lg-mobile md:font-display-lg md:text-display-lg font-bold text-on-surface tracking-tight">
-              Who Uses StatIQ AI?
-            </h2>
+              {t("useCases.heading", "Who Uses StatIQ AI?")
+            }</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {USE_CASES.map((uc) => {
+            {useCases.map((uc) => {
               const Icon = uc.icon;
               return (
                 <div
@@ -398,8 +406,8 @@ export function HomeView({ stats, backend }: HomeViewProps) {
                     <h3 className="font-headline-md text-base text-on-surface font-bold leading-snug">{uc.role}</h3>
                   </div>
                   <ul className="space-y-3">
-                    {uc.points.map((pt) => (
-                      <li key={pt} className="flex items-start gap-3 text-sm text-on-surface-variant">
+                    {uc.points.map((pt, idx) => (
+                      <li key={idx} className="flex items-start gap-3 text-sm text-on-surface-variant">
                         <CheckCircle2 className="w-4 h-4 mt-0.5 shrink-0" style={{ color: uc.accent }} />
                         {pt}
                       </li>
@@ -441,29 +449,22 @@ export function HomeView({ stats, backend }: HomeViewProps) {
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary-container/10 border border-primary-container/30">
               <Zap className="w-4 h-4 text-primary-container" />
               <span className="font-label-caps text-label-caps text-primary-container text-xs">
-                {t("nav.dataSources", "OFFICIAL DATA SOURCES")}
+                {t("sourcesSection.badge", "OFFICIAL DATA SOURCES")}
               </span>
             </div>
             <h2 className="font-display-lg-mobile text-display-lg-mobile font-bold text-on-surface tracking-tight">
-              Backed by Real Government Data
+              {t("sourcesSection.heading", "Backed by Real Government Data")}
             </h2>
             <p className="font-body-md text-body-md text-on-surface-variant">
-              Every competency domain, every role, and every learning recommendation is derived from official MoSPI, NCS, and DoPT sources — not scraped or synthesised.
+              {t("sourcesSection.desc", "Every competency domain, every role, and every learning recommendation is derived from official MoSPI, NCS, and DoPT sources — not scraped or synthesised.")}
             </p>
             <Link href="/sources" className="glow-button text-black px-6 py-3 rounded-lg font-label-caps text-label-caps font-bold inline-flex items-center gap-2">
-              {t("home.ctaExplore", "EXPLORE SOURCES")}
+              {t("sourcesSection.cta", "EXPLORE SOURCES")}
               <Database className="w-4 h-4" />
             </Link>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            {[
-              { label: "NSQF Occupational Standards", tag: "ROLES" },
-              { label: "NCS Job Role Taxonomy", tag: "TAXONOMY" },
-              { label: "iGOT Karmayogi Course DB", tag: "COURSES" },
-              { label: "NSSTA Training Programmes", tag: "TRAINING" },
-              { label: "DoPT Competency Framework", tag: "FRAMEWORK" },
-              { label: "MoSPI Statistical Reports", tag: "STATS" },
-            ].map((s) => (
+            {officialSources.map((s) => (
               <div key={s.label} className="bg-surface-container-low rounded-lg p-4 border border-white/5 space-y-1">
                 <div className="font-label-caps text-label-caps text-primary-container text-xs">{s.tag}</div>
                 <div className="text-sm text-on-surface font-medium leading-snug">{s.label}</div>
@@ -486,16 +487,16 @@ export function HomeView({ stats, backend }: HomeViewProps) {
               {t("home.startJourney", "Ready to Accelerate India's Statistical Workforce?")}
             </h2>
             <p className="font-body-lg text-body-lg text-on-surface-variant max-w-xl">
-              {t("home.subtitle", "Join the demo and see how StatIQ AI transforms competency data into actionable learning in under 60 seconds.")}
+              {t("home.startJourneyDesc", "Join the demo and see how StatIQ AI transforms competency data into actionable learning in under 60 seconds.")}
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link href="/login" className="glow-button text-black px-10 py-4 rounded-xl font-label-caps text-label-caps font-bold tracking-widest inline-flex items-center gap-2">
-                {t("actions.signIn", "GET STARTED FREE")}
+                {t("home.getStartedFree", "GET STARTED FREE")}
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <Link href="/catalogue" className="glow-button-secondary px-10 py-4 rounded-xl font-label-caps text-label-caps font-bold tracking-widest inline-flex items-center gap-2">
                 <BookOpen className="w-5 h-5" />
-                {t("nav.catalogue", "BROWSE CATALOGUE")}
+                {t("home.browseCatalogue", "BROWSE CATALOGUE")}
               </Link>
             </div>
           </div>
