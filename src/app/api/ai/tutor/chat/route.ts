@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/session";
 import { askDualEngineTutor } from "@/lib/ai/dual-engine-tutor";
+import { addMessageToConversation, getConversationById } from "@/lib/tutor-store";
 
 export async function POST(request: Request) {
   const session = await getSession();
@@ -15,25 +16,51 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Message is required" }, { status: 400 });
   }
 
+  const userId = session.id || session.email || "default";
+  const convId = conversationId || `conv-${Date.now()}`;
+
+  // 1. Persist user message to store
+  addMessageToConversation(
+    convId,
+    {
+      id: `usr-${Date.now()}`,
+      role: "user",
+      content: message.trim(),
+    },
+    userId
+  );
+
+  // 2. Build history from stored conversation if available
+  const existingConv = getConversationById(convId);
+  const conversationHistory = existingConv
+    ? existingConv.messages.slice(-8).map(m => ({ role: m.role, content: m.content }))
+    : Array.isArray(history) ? history : [];
+
   try {
     const tutorResult = await askDualEngineTutor(
       message.trim(),
-      Array.isArray(history) ? history : []
+      conversationHistory
     );
 
+    const assistantMsg = {
+      id: `ast-${Date.now()}`,
+      role: "assistant" as const,
+      content: tutorResult.answer,
+      provider: tutorResult.provider,
+      engineLabel: tutorResult.engineLabel,
+      modelUsed: tutorResult.modelUsed,
+      failoverOccurred: tutorResult.failoverOccurred,
+      failoverReason: tutorResult.failoverReason,
+      sources: tutorResult.sources,
+      createdAt: new Date().toISOString(),
+    };
+
+    // 3. Persist assistant response to store
+    addMessageToConversation(convId, assistantMsg, userId);
+
     return NextResponse.json({
-      message: {
-        id: `msg-${Date.now()}`,
-        role: "assistant",
-        content: tutorResult.answer,
-        provider: tutorResult.provider,
-        engineLabel: tutorResult.engineLabel,
-        modelUsed: tutorResult.modelUsed,
-        failoverOccurred: tutorResult.failoverOccurred,
-        failoverReason: tutorResult.failoverReason,
-        sources: tutorResult.sources,
-        createdAt: new Date().toISOString(),
-      }
+      conversationId: convId,
+      message: assistantMsg,
     });
   } catch (err: any) {
     console.error("[tutor-chat] Dual-engine dispatcher error:", err);

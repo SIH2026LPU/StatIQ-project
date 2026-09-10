@@ -1,65 +1,47 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth/session";
-import { BACKEND_URL } from "@/lib/backend";
-import { cookies } from "next/headers";
-import { SESSION_COOKIE } from "@/lib/auth/token";
+import { 
+  getConversationsForUser, 
+  createConversation 
+} from "@/lib/tutor-store";
 
 export async function GET() {
   const session = await getSession();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-  const cookieStore = await cookies();
-  const token = cookieStore.get(SESSION_COOKIE)?.value;
+  const userId = session.id || session.email || "default";
+  const convs = getConversationsForUser(userId);
 
-  try {
-    const res = await fetch(`${BACKEND_URL}/api/tutor/conversations`, {
-      headers: { Authorization: `Bearer ${token}` },
-      signal: AbortSignal.timeout(2000),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (data?.conversations) return NextResponse.json(data);
-    }
-  } catch {}
-
-  // Fallback demo conversations
   return NextResponse.json({
-    conversations: [
-      { id: "conv-cpi-wpi", title: "CPI vs WPI Calculation", updatedAt: new Date().toISOString() },
-      { id: "conv-plfs", title: "PLFS Multiplier Weights", updatedAt: new Date(Date.now() - 86400000).toISOString() },
-    ]
+    conversations: convs.map(c => ({
+      id: c.id,
+      title: c.title,
+      updatedAt: c.updatedAt,
+      messageCount: c.messages.length,
+    }))
   });
 }
 
-export async function POST() {
+export async function POST(req: Request) {
   const session = await getSession();
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-  const cookieStore = await cookies();
-  const token = cookieStore.get(SESSION_COOKIE)?.value;
+  const userId = session.id || session.email || "default";
+  const body = await req.json().catch(() => ({}));
+  const id = body.id || `conv-${Date.now()}`;
+  const title = body.title || "New Conversation";
 
-  try {
-    const res = await fetch(`${BACKEND_URL}/api/tutor/conversations`, {
-      method: "POST",
-      headers: { 
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
-      },
-      signal: AbortSignal.timeout(2000),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      return NextResponse.json(data);
-    }
-  } catch {}
+  const conversation = createConversation(id, title, userId);
 
-  // Instant fallback conversation
-  const newId = `conv-${Date.now()}`;
   return NextResponse.json({
     conversation: {
-      id: newId,
-      title: "New Conversation",
-      updatedAt: new Date().toISOString(),
+      id: conversation.id,
+      title: conversation.title,
+      updatedAt: conversation.updatedAt,
     }
   });
 }

@@ -323,7 +323,29 @@ export function TutorChat() {
   
   const bottomRef = useRef<HTMLDivElement>(null);
 
+  const LS_CONV_KEY = "statiq_ai_tutor_convs_v2";
+  const LS_ACTIVE_KEY = "statiq_ai_tutor_active_id_v2";
+
   useEffect(() => {
+    // 1. Instant load from localStorage
+    try {
+      const savedConvs = localStorage.getItem(LS_CONV_KEY);
+      const savedActive = localStorage.getItem(LS_ACTIVE_KEY);
+      if (savedConvs) {
+        const parsed = JSON.parse(savedConvs);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setConversations(parsed);
+          const activeToLoad = savedActive || parsed[0].id;
+          setActiveConvId(activeToLoad);
+          const savedMsgs = localStorage.getItem(`statiq_msgs_${activeToLoad}`);
+          if (savedMsgs) {
+            setMessages(JSON.parse(savedMsgs));
+          }
+        }
+      }
+    } catch (e) {}
+
+    // 2. Sync with server
     fetchConversations();
   }, []);
 
@@ -336,19 +358,36 @@ export function TutorChat() {
       const res = await fetch("/api/ai/tutor/conversations");
       if (res.ok) {
         const data = await res.json();
-        setConversations(data.conversations || []);
+        if (Array.isArray(data.conversations)) {
+          setConversations(data.conversations);
+          try {
+            localStorage.setItem(LS_CONV_KEY, JSON.stringify(data.conversations));
+          } catch {}
+        }
       }
     } catch (e) {}
   }
 
   async function loadConversation(id: string) {
     setActiveConvId(id);
-    setMessages([]);
+    try {
+      localStorage.setItem(LS_ACTIVE_KEY, id);
+      const localMsgs = localStorage.getItem(`statiq_msgs_${id}`);
+      if (localMsgs) {
+        setMessages(JSON.parse(localMsgs));
+      }
+    } catch {}
+
     try {
       const res = await fetch(`/api/ai/tutor/conversations/${id}`);
       if (res.ok) {
         const data = await res.json();
-        setMessages(data.messages || []);
+        if (Array.isArray(data.messages)) {
+          setMessages(data.messages);
+          try {
+            localStorage.setItem(`statiq_msgs_${id}`, JSON.stringify(data.messages));
+          } catch {}
+        }
       }
     } catch (e) {}
   }
@@ -357,18 +396,32 @@ export function TutorChat() {
     e.stopPropagation();
     try {
       await fetch(`/api/ai/tutor/conversations/${id}`, { method: "DELETE" });
-      if (activeConvId === id) {
-        setActiveConvId(null);
-        setMessages([]);
-      }
-      fetchConversations();
     } catch (e) {}
+
+    const updated = conversations.filter(c => c.id !== id);
+    setConversations(updated);
+    try {
+      localStorage.setItem(LS_CONV_KEY, JSON.stringify(updated));
+      localStorage.removeItem(`statiq_msgs_${id}`);
+    } catch {}
+
+    if (activeConvId === id) {
+      if (updated.length > 0) {
+        loadConversation(updated[0].id);
+      } else {
+        startNewChat();
+      }
+    }
   }
 
   function startNewChat() {
-    setActiveConvId(null);
+    const newId = `conv-${Date.now()}`;
+    setActiveConvId(newId);
     setMessages([]);
     setInput("");
+    try {
+      localStorage.setItem(LS_ACTIVE_KEY, newId);
+    } catch {}
   }
 
   async function ask(e?: React.FormEvent, presetQuestion?: string) {
@@ -376,34 +429,21 @@ export function TutorChat() {
     const q = presetQuestion || input;
     if (!q.trim()) return;
 
-    const tempMsg: Message = { id: "temp-user", role: "user", content: q };
-    setMessages((prev) => [...prev, tempMsg]);
+    const tempUserMsg: Message = { id: `usr-${Date.now()}`, role: "user", content: q };
+    const currentMsgs = [...messages, tempUserMsg];
+    setMessages(currentMsgs);
     setInput("");
     setPending(true);
 
-    let currentConvId = activeConvId;
+    const currentConvId = activeConvId || `conv-${Date.now()}`;
+    if (!activeConvId) {
+      setActiveConvId(currentConvId);
+      try {
+        localStorage.setItem(LS_ACTIVE_KEY, currentConvId);
+      } catch {}
+    }
 
     try {
-      if (!currentConvId) {
-        try {
-          const cRes = await fetch("/api/ai/tutor/conversations", { method: "POST" });
-          if (cRes.ok) {
-            const cData = await cRes.json();
-            currentConvId = cData.conversation?.id || `conv-${Date.now()}`;
-            setActiveConvId(currentConvId);
-            if (cData.conversation) {
-              setConversations((prev) => [cData.conversation, ...prev]);
-            }
-          } else {
-            currentConvId = `conv-${Date.now()}`;
-            setActiveConvId(currentConvId);
-          }
-        } catch {
-          currentConvId = `conv-${Date.now()}`;
-          setActiveConvId(currentConvId);
-        }
-      }
-
       const historyPayload = messages.slice(-8).map((m) => ({
         role: m.role,
         content: m.content,
@@ -426,7 +466,7 @@ export function TutorChat() {
           aiContent = await translateDynamic(aiContent, currentLanguage.code);
         }
         
-        const translatedMsg: Message = { 
+        const assistantMsg: Message = { 
           ...data.message, 
           content: aiContent,
           engineLabel: data.message.engineLabel,
@@ -434,20 +474,38 @@ export function TutorChat() {
           failoverOccurred: data.message.failoverOccurred,
           failoverReason: data.message.failoverReason,
         };
-        setMessages((prev) => [...prev.filter((m) => m.id !== "temp-user"), tempMsg, translatedMsg]);
+        const finalMessages = [...messages, tempUserMsg, assistantMsg];
+        setMessages(finalMessages);
+
+        // Update localStorage
+        try {
+          localStorage.setItem(`statiq_msgs_${currentConvId}`, JSON.stringify(finalMessages));
+          
+          // Update conversation list title
+          const newTitle = q.length > 35 ? q.slice(0, 32) + "..." : q;
+          setConversations(prev => {
+            const exists = prev.some(c => c.id === currentConvId);
+            let updatedList: Conversation[];
+            if (exists) {
+              updatedList = prev.map(c => c.id === currentConvId ? { ...c, title: newTitle, updatedAt: new Date().toISOString() } : c);
+            } else {
+              updatedList = [{ id: currentConvId, title: newTitle, updatedAt: new Date().toISOString() }, ...prev];
+            }
+            localStorage.setItem(LS_CONV_KEY, JSON.stringify(updatedList));
+            return updatedList;
+          });
+        } catch {}
       } else if (data.error) {
         setMessages((prev) => [
-          ...prev.filter((m) => m.id !== "temp-user"),
-          tempMsg,
-          { id: "err", role: "assistant", content: `**Notice:** ${data.error}` },
+          ...prev,
+          { id: `err-${Date.now()}`, role: "assistant", content: `**Notice:** ${data.error}` },
         ]);
       }
       fetchConversations();
     } catch (err) {
       setMessages((prev) => [
-        ...prev.filter((m) => m.id !== "temp-user"),
-        tempMsg,
-        { id: "err", role: "assistant", content: "**Notice:** The AI Tutor is ready to answer your questions. Please try submitting again." },
+        ...prev,
+        { id: `err-${Date.now()}`, role: "assistant", content: "**Notice:** The AI Tutor is ready. Please try submitting your query again." },
       ]);
     } finally {
       setPending(false);
