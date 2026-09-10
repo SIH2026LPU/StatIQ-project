@@ -1,40 +1,13 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import Link from "next/link";
 import { ThemeToggle } from "@/components/theme-toggle";
+import Link from "next/link";
 import { OfflineIndicator } from "@/components/offline-indicator";
 import { SignOutButton } from "@/components/sign-out-button";
 import { LanguageSelector } from "@/components/language/language-selector";
 import { useTranslation } from "@/components/language/language-provider";
 import type { SessionUser } from "@/types/domain";
-import {
-  LayoutDashboard,
-  User,
-  ShieldCheck,
-  Target,
-  BarChart3,
-  Route,
-  BookOpen,
-  Award,
-  Sparkles,
-  FileText,
-  Bookmark,
-  Users,
-  Bell,
-  Bot,
-  Database,
-  Layers,
-  Activity,
-  HelpCircle,
-} from "lucide-react";
-
-interface NavItem {
-  href: string;
-  label: string;
-  icon: any;
-  badge?: boolean;
-}
 
 export function AppShell({
   session,
@@ -45,64 +18,61 @@ export function AppShell({
   area: "learner" | "trainer" | "admin";
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
   const { t } = useTranslation();
+  const pathname = usePathname();
 
-  const learnerNav: NavItem[] = [
-    { href: "/learner", label: t("nav.dashboard", "Dashboard"), icon: LayoutDashboard },
-    { href: "/learner/profile", label: t("nav.profile", "Profile"), icon: User },
-    { href: "/learner/competencies", label: t("nav.passport", "Passport"), icon: ShieldCheck },
-    { href: "/learner/gaps", label: t("nav.skillGaps", "Skill Gaps"), icon: Target },
-    { href: "/learner/skills", label: t("nav.gapAnalysis", "Gap Analysis"), icon: BarChart3 },
-    { href: "/learner/path", label: t("nav.learningPath", "Learning Path"), icon: Route },
-    { href: "/learner/courses", label: t("nav.courses", "Courses"), icon: BookOpen },
-    { href: "/learner/assessments", label: t("nav.assessments", "Assessments"), icon: Award },
-    { href: "/learner/achievements", label: t("nav.achievements", "Achievements"), icon: Sparkles },
-    { href: "/learner/notes", label: t("nav.notes", "Notes"), icon: FileText },
-    { href: "/learner/bookmarks", label: t("nav.bookmarks", "Bookmarks"), icon: Bookmark },
-    { href: "/learner/community", label: t("nav.community", "Community"), icon: Users },
-    { href: "/learner/notifications", label: t("nav.notifications", "Notifications"), icon: Bell, badge: true },
-    { href: "/learner/tutor", label: t("nav.aiTutor", "AI Tutor"), icon: Bot },
-    { href: "/learner/microdata", label: t("nav.microdata", "Microdata"), icon: Database },
+  const learnerNav = [
+    ["/learner", t("nav.dashboard", "Dashboard")],
+    ["/learner/profile", t("nav.profile", "Profile")],
+    ["/learner/competencies", t("nav.passport", "Passport")],
+    ["/learner/gaps", t("nav.skillGaps", "Skill Gaps")],
+    ["/learner/skills", t("nav.gapAnalysis", "Gap Analysis")],
+    ["/learner/path", t("nav.learningPath", "Learning Path")],
+    ["/learner/courses", t("nav.courses", "Courses")],
+    ["/learner/assessments", t("nav.assessments", "Assessments")],
+    ["/learner/achievements", t("nav.achievements", "Achievements")],
+    ["/learner/notes", t("nav.notes", "Notes")],
+    ["/learner/bookmarks", t("nav.bookmarks", "Bookmarks")],
+    ["/learner/community", t("nav.community", "Community")],
+    ["/learner/notifications", t("nav.notifications", "Notifications")],
+    ["/learner/tutor", t("nav.aiTutor", "AI Tutor")],
+    ["/learner/microdata", t("nav.microdata", "Microdata")],
   ];
 
-  const trainerNav: NavItem[] = [
-    { href: "/trainer", label: t("nav.dashboard", "Dashboard"), icon: LayoutDashboard },
-    { href: "/trainer/courses", label: t("nav.courses", "Courses"), icon: BookOpen },
-    { href: "/trainer/quiz", label: t("nav.quizStudio", "Quiz Studio"), icon: Award },
-    { href: "/trainer/learners", label: t("nav.learners", "Learners"), icon: Users },
-    { href: "/trainer/microdata", label: t("nav.microdata", "Microdata"), icon: Database },
+  const trainerNav = [
+    ["/trainer", t("nav.dashboard", "Dashboard")],
+    ["/trainer/courses", t("nav.courses", "Courses")],
+    ["/trainer/quiz", t("nav.quizStudio", "Quiz Studio")],
+    ["/trainer/learners", t("nav.learners", "Learners")],
+    ["/trainer/microdata", t("nav.microdata", "Microdata")],
   ];
 
-  const adminNav: NavItem[] = [
-    { href: "/admin", label: t("nav.commandCenter", "Command Center"), icon: LayoutDashboard },
-    { href: "/admin/data", label: t("nav.data", "Data"), icon: Layers },
-    { href: "/admin/data-sources", label: t("nav.dataSources", "Data Sources"), icon: Database },
-    { href: "/admin/heatmap", label: t("nav.heatmap", "Heatmap"), icon: BarChart3 },
-    { href: "/admin/risk", label: t("nav.skillRisk", "Skill Risk"), icon: Activity },
-    { href: "/admin/assistant", label: t("nav.analyticsAssistant", "Analytics Assistant"), icon: Bot },
+  const adminNav = [
+    ["/admin", t("nav.commandCenter", "Command Center")],
+    ["/admin/data", t("nav.data", "Data")],
+    ["/admin/data-sources", t("nav.dataSources", "Data Sources")],
+    ["/admin/heatmap", t("nav.heatmap", "Heatmap")],
+    ["/admin/risk", t("nav.skillRisk", "Skill Risk")],
+    ["/admin/assistant", t("nav.analyticsAssistant", "Analytics Assistant")],
   ];
 
   const nav = area === "learner" ? learnerNav : area === "trainer" ? trainerNav : adminNav;
 
   return (
-    <div className="min-h-screen bg-background text-on-surface md:grid md:grid-cols-[270px_1fr] relative transition-colors duration-300">
+    <div className="min-h-screen bg-background text-on-surface md:grid md:grid-cols-[260px_1fr] relative transition-colors duration-300">
       {/* Background mesh */}
       <div className="mesh-bg opacity-50 z-0 pointer-events-none" />
 
       {/* Sidebar */}
-      <aside className="border-b border-white/5 bg-surface-container-lowest/90 backdrop-blur-xl md:border-b-0 md:border-r z-10 sticky top-0 md:h-screen flex flex-col">
-        <div className="px-6 py-5 border-b border-white/5">
-          <Link href="/" className="inline-flex items-center gap-3 group">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-container to-primary-container/60 flex items-center justify-center font-bold text-black text-sm group-hover:scale-105 transition-transform">
+      <aside className="border-b border-white/5 bg-surface-container-lowest/80 backdrop-blur-xl md:border-b-0 md:border-r z-10 sticky top-0 md:h-screen flex flex-col">
+        <div className="px-6 py-6 border-b border-white/5">
+          <Link href="/" className="inline-flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-container to-primary-container/60 flex items-center justify-center font-bold text-black text-sm">
               Σ
             </div>
-            <div>
-              <p className="font-display text-lg font-bold tracking-tight">StatIQ AI</p>
-              <p className="text-[10px] text-on-surface-variant font-mono leading-none">MoSPI Intelligent System</p>
-            </div>
+            <p className="font-display text-lg font-bold tracking-tight">StatIQ AI</p>
           </Link>
-          <div className="mt-3 inline-flex items-center gap-2 px-2.5 py-1 rounded-full border border-primary-container/20 bg-primary-container/10">
+          <div className="mt-2 inline-flex items-center gap-2 px-2.5 py-1 rounded-full border border-primary-container/20 bg-primary-container/10">
             <span className="w-1.5 h-1.5 rounded-full bg-primary-container animate-pulse" />
             <span className="text-[10px] font-label-caps text-primary-container uppercase font-bold">
               {t(`role.${area}`, area)} {t("common.workspace", "Workspace")}
@@ -110,27 +80,25 @@ export function AppShell({
           </div>
         </div>
         
-        <nav className="flex-1 flex gap-1 overflow-x-auto px-3 py-3 md:flex-col md:overflow-y-auto custom-scrollbar space-y-0.5">
-          {nav.map((item) => {
-            const Icon = item.icon || HelpCircle;
-            const isActive = pathname === item.href || (item.href !== "/learner" && item.href !== "/trainer" && item.href !== "/admin" && pathname.startsWith(item.href));
+        <nav className="flex-1 flex gap-1 overflow-x-auto px-4 py-4 md:flex-col md:overflow-y-auto custom-scrollbar">
+          {nav.map(([href, label]) => {
+            const isActive =
+              pathname === href ||
+              (href !== "/learner" && href !== "/trainer" && href !== "/admin" && pathname.startsWith(href));
 
             return (
               <Link
-                key={item.href}
-                href={item.href}
-                className={`whitespace-nowrap rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-200 flex items-center justify-between group ${
+                key={href}
+                href={href}
+                className={`whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-medium transition-all flex items-center justify-between ${
                   isActive
-                    ? "bg-primary-container/15 text-primary-container font-bold border border-primary-container/30 shadow-[0_0_15px_rgba(57,255,20,0.06)]"
-                    : "text-on-surface-variant hover:bg-black/5 dark:hover:bg-white/5 hover:text-on-surface border border-transparent"
+                    ? "bg-primary-container/15 text-primary-container font-bold border border-primary-container/30 shadow-[0_0_15px_rgba(57,255,20,0.08)]"
+                    : "text-on-surface-variant hover:bg-black/5 dark:hover:bg-white/5 hover:text-on-surface active:scale-98"
                 }`}
               >
-                <div className="flex items-center gap-3">
-                  <Icon className={`w-4 h-4 transition-colors ${isActive ? "text-primary-container" : "text-on-surface-variant group-hover:text-on-surface"}`} />
-                  <span>{item.label}</span>
-                </div>
-                {item.badge && (
-                  <span className="w-2 h-2 rounded-full bg-secondary-container animate-pulse" />
+                <span>{label}</span>
+                {label === t("nav.notifications", "Notifications") && (
+                  <span className="w-2 h-2 rounded-full bg-secondary-container" />
                 )}
               </Link>
             );
@@ -147,7 +115,7 @@ export function AppShell({
         {/* Top Header */}
         <header className="flex items-center justify-between border-b border-white/5 bg-surface/80 backdrop-blur-md px-6 py-4 sticky top-0 z-20">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-container/20 to-secondary-container/20 border border-white/10 flex items-center justify-center font-display font-bold text-on-surface text-sm">
+            <div className="w-10 h-10 rounded-full bg-surface-container-high border border-white/10 flex items-center justify-center font-display font-bold text-on-surface">
               {session.name.charAt(0)}
             </div>
             <div>

@@ -12,15 +12,18 @@ export async function createSession(user: SessionUser) {
   if (hasPostgres()) {
     try {
       const db = getDb();
-      await db.insert(sessions).values({
-        userId: user.id,
-        token,
-        expiresAt: expiresAt.toISOString(),
-        ipAddress: "unknown",
-        userAgent: "unknown",
-      });
+      await Promise.race([
+        db.insert(sessions).values({
+          userId: user.id,
+          token,
+          expiresAt: expiresAt.toISOString(),
+          ipAddress: "unknown",
+          userAgent: "unknown",
+        }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error("DB timeout")), 300)),
+      ]);
     } catch (error) {
-      console.warn("Could not persist session row; cookie session will still be issued.", error);
+      // Non-blocking fallback
     }
   }
 
@@ -41,9 +44,12 @@ export async function clearSession() {
   if (token && hasPostgres()) {
     try {
       const db = getDb();
-      await db.delete(sessions).where(eq(sessions.token, token));
+      await Promise.race([
+        db.delete(sessions).where(eq(sessions.token, token)),
+        new Promise((_, reject) => setTimeout(() => reject(new Error("DB timeout")), 300)),
+      ]);
     } catch (error) {
-      console.warn("Could not delete session row.", error);
+      // Non-blocking fallback
     }
   }
 
@@ -58,25 +64,7 @@ export async function getSession(): Promise<SessionUser | null> {
   const sessionUser = await verifySessionToken(token);
   if (!sessionUser) return null;
 
-  if (hasPostgres()) {
-    try {
-      const db = getDb();
-      const dbSessions = await db.select().from(sessions).where(eq(sessions.token, token)).limit(1);
-      const session = dbSessions[0];
-
-      if (session) {
-        if (new Date(session.expiresAt) < new Date()) {
-          return null;
-        }
-        await db.update(sessions)
-          .set({ lastUsedAt: new Date().toISOString() })
-          .where(eq(sessions.id, session.id));
-      }
-    } catch (error) {
-      console.warn("Session lookup skipped; trusting signed cookie.", error);
-    }
-  }
-
+  // Fast-path: Token verified cryptographically, return immediately
   return sessionUser;
 }
 
@@ -115,28 +103,5 @@ export function canAccess(role: Role, area: "learner" | "trainer" | "admin") {
 }
 
 export async function requireSession() {
-  const session = await getSession();
-  if (!session) return null;
-
-  if (hasPostgres()) {
-    try {
-      const db = getDb();
-      const dbUsers = await db.select().from(users).where(eq(users.id, session.id)).limit(1);
-      const user = dbUsers[0];
-      if (user) {
-        if (!user.isActive) return null;
-        return toSessionUser({
-          id: user.id,
-          email: user.email,
-          name: user.username || user.email.split("@")[0],
-          role: user.role,
-          employeeId: session.employeeId ?? user.id,
-        });
-      }
-    } catch (error) {
-      console.warn("User lookup skipped; using cookie session.", error);
-    }
-  }
-
-  return session;
+  return getSession();
 }

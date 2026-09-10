@@ -64,7 +64,7 @@ export function BookmarksClient({ initialBookmarks }: { initialBookmarks: Bookma
             <div className="flex items-center justify-between mb-3">
               <h2 className="font-display text-lg font-bold text-on-surface">{tEntity(courseName)}</h2>
               {cId !== "none" && (
-                <Link href={`/courses/${cId}/learn`} className="text-xs text-primary-container hover:underline font-label-caps">
+                <Link href={`/learner/courses/${cId}/learn`} className="text-xs text-primary-container hover:underline font-label-caps">
                   {t("bookmarks.continue", "CONTINUE")} →
                 </Link>
               )}
