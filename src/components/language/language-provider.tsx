@@ -118,7 +118,7 @@ export function LanguageProvider({
     [dictionary]
   );
 
-  // Entity and term translator for competencies, roles, domains, departments
+  // Entity and term translator for competencies, roles, domains, departments, and course metadata
   const tEntity = useCallback(
     (text: string | null | undefined, fallback?: string): string => {
       if (!text) return fallback || "";
@@ -129,6 +129,16 @@ export function LanguageProvider({
       const entityLookup = dictionary?.entities?.[trimmed];
       if (typeof entityLookup === "string" && entityLookup) {
         return entityLookup;
+      }
+
+      // 1b. Case-insensitive entity lookup
+      if (dictionary?.entities) {
+        const lowerTrimmed = trimmed.toLowerCase();
+        for (const [key, val] of Object.entries(dictionary.entities)) {
+          if (key.toLowerCase() === lowerTrimmed && typeof val === "string") {
+            return val;
+          }
+        }
       }
 
       // 2. Synthetic skill patterns: e.g. "Behavioural skill 63", "Digital skill 74"
@@ -143,12 +153,29 @@ export function LanguageProvider({
       }
 
       // 3. Check role dictionary
-      const roleLookup = dictionary?.role?.[trimmed.toLowerCase().replace(/[^a-z0-9]/g, "_")];
+      const roleKey = trimmed.toLowerCase().replace(/[^a-z0-9]/g, "_");
+      const roleLookup = dictionary?.role?.[roleKey];
       if (typeof roleLookup === "string" && roleLookup) {
         return roleLookup;
       }
 
-      // 4. Check direct key
+      // 4. Common words & difficulty levels
+      const lower = trimmed.toLowerCase();
+      if (lower === "easy" || lower === "beginner" || lower === "foundational") {
+        return dictionary?.passport?.level1 || dictionary?.common?.easy || trimmed;
+      }
+      if (lower === "medium" || lower === "intermediate") {
+        return dictionary?.passport?.level2 || dictionary?.common?.medium || trimmed;
+      }
+      if (lower === "hard" || lower === "advanced" || lower === "specialized") {
+        return dictionary?.passport?.level3 || dictionary?.common?.hard || trimmed;
+      }
+
+      if (dictionary?.common?.[lower]) {
+        return dictionary.common[lower];
+      }
+
+      // 5. Check direct key
       const directTrans = t(trimmed);
       if (directTrans !== trimmed) {
         return directTrans;

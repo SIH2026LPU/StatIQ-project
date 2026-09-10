@@ -144,17 +144,21 @@ export function AppShell({
 }
 
 export function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
+  const { t, tEntity } = useTranslation();
+  const transLabel = t(label, tEntity(label, label));
+  const transHint = hint ? t(hint, tEntity(hint, hint)) : undefined;
+
   return (
     <div className="glass-panel glass-panel-interactive rounded-2xl p-6 flex flex-col justify-between group">
       <div>
-        <p className="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">{label}</p>
+        <p className="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">{transLabel}</p>
         <p className="mt-2 font-display text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary-container to-secondary-container">
           {value}
         </p>
       </div>
-      {hint ? (
-        <p className="mt-4 text-xs text-on-surface-variant/80 border-t border-white/5 pt-3 group-hover:text-on-surface-variant transition-colors line-clamp-1" title={hint}>
-          {hint}
+      {transHint ? (
+        <p className="mt-4 text-xs text-on-surface-variant/80 border-t border-white/5 pt-3 group-hover:text-on-surface-variant transition-colors line-clamp-1" title={transHint}>
+          {transHint}
         </p>
       ) : null}
     </div>

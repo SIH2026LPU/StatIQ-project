@@ -4,8 +4,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { useLanguage, useTranslation } from "./language-provider";
 import { SUPPORTED_LANGUAGES } from "@/lib/translation/language-registry";
 import { Check, Globe, ChevronDown } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export function LanguageSelector({ variant = "dropdown" }: { variant?: "dropdown" | "modal" }) {
+  const router = useRouter();
   const { currentLanguage, setLanguage } = useLanguage();
   const { t } = useTranslation();
   const [showModal, setShowModal] = useState(false);
@@ -37,6 +39,11 @@ export function LanguageSelector({ variant = "dropdown" }: { variant?: "dropdown
     if (variant === "modal") {
       localStorage.setItem("statiq_has_visited", "true");
       setShowModal(false);
+    }
+    try {
+      router.refresh();
+    } catch (e) {
+      // Ignored if router is not mounted in some context
     }
   };
 
