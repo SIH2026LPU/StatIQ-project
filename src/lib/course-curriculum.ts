@@ -396,3 +396,31 @@ export function getCurriculumForCourse(courseTitle: string, provider: string): C
 
   return COURSE_CURRICULA.default;
 }
+
+export function getAllCurriculumSummaries(): string {
+  return `
+1. Course: "Data Ingestion & Microdata ETL with Python" (Provider: MoSPI DIID / Sunbird)
+   - Modules: Ingestion & Validation of MoSPI Microdata, Weighted Survey Tabulations in Pandas, Automated Quality Audits.
+   - Topics: PLFS, ASI, HCES fixed-width schedules, chunked Parquet export, Pandera validation, multiplier applications.
+
+2. Course: "Survey Querying & Analysis using SQL" (Provider: MoSPI / eSankhyiki)
+   - Modules: Relational Architecture for Statistical Microdata, Weighted Aggregations & Grouped Estimations, Codebook Joins & Quality Audit Checks.
+   - Topics: PostgreSQL analytical functions, domain-level survey ratios, foreign key linkages, eSankhyiki schema mapping.
+
+3. Course: "Wholesale & Consumer Price Index (WPI & CPI) Compilations" (Provider: Office of Economic Adviser / MoSPI)
+   - Modules: Principles of Economic Price Indices, Mathematical Formulation & Laspeyres Aggregation, Official Data Pipeline & Real-Time Analytics.
+   - Topics: Laspeyres price index formula, base year 2011-12=100, 697 commodities basket, Primary Articles, Fuel & Power, Manufactured Products.
+
+4. Course: "Sampling Methods & Survey Design for Official Statistics" (Provider: NSO SDRD / NSSTA)
+   - Modules: Sample Design & Stratification Protocols, Unit-Record Microdata Structure & Multipliers, Labor Force & Expenditure Aggregate Estimation.
+   - Topics: Multi-stage stratified sampling, First Stage Units (FSUs), Urban Frame Survey (UFS), Circular Systematic Sampling, LFPR, WPR, MPCE fractiles.
+
+5. Course: "National Accounts & GDP Compilation Framework" (Provider: National Accounts Division NAD / MoSPI)
+   - Modules: System of National Accounts (SNA 2008) Framework, Production vs Expenditure Approaches.
+   - Topics: Gross Value Added (GVA), basic prices vs factor cost, Supply-Use Tables (SUT), double deflation, GDP deflator.
+
+6. Course: "Statistical Disclosure Control (SDC) & Microdata Governance" (Provider: MoSPI Microdata Access Lab)
+   - Modules: Anonymization Standards, k-anonymity (k>=3), top/bottom coding, NADA metadata dissemination.
+`;
+}
+

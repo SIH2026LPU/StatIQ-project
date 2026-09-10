@@ -10,6 +10,10 @@ type Message = {
   role: "user" | "assistant" | "system";
   content: string;
   sources?: any[];
+  engineLabel?: string;
+  provider?: string;
+  failoverOccurred?: boolean;
+  failoverReason?: string;
 };
 
 type Conversation = {
@@ -400,10 +404,19 @@ export function TutorChat() {
         }
       }
 
+      const historyPayload = messages.slice(-8).map((m) => ({
+        role: m.role,
+        content: m.content,
+      }));
+
       const res = await fetch("/api/ai/tutor/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ conversationId: currentConvId, message: q }),
+        body: JSON.stringify({ 
+          conversationId: currentConvId, 
+          message: q,
+          history: historyPayload
+        }),
       });
       const data = await res.json();
       
@@ -413,7 +426,14 @@ export function TutorChat() {
           aiContent = await translateDynamic(aiContent, currentLanguage.code);
         }
         
-        const translatedMsg = { ...data.message, content: aiContent };
+        const translatedMsg: Message = { 
+          ...data.message, 
+          content: aiContent,
+          engineLabel: data.message.engineLabel,
+          provider: data.message.provider,
+          failoverOccurred: data.message.failoverOccurred,
+          failoverReason: data.message.failoverReason,
+        };
         setMessages((prev) => [...prev.filter((m) => m.id !== "temp-user"), tempMsg, translatedMsg]);
       } else if (data.error) {
         setMessages((prev) => [
@@ -441,10 +461,11 @@ export function TutorChat() {
   }
 
   const suggestedQuestions = [
-    "How is Wholesale Price Index (WPI) calculated in India?",
-    "Explain PLFS sampling design and multiplier weights.",
-    "What are the mandatory Statistical Disclosure Control (SDC) rules?",
+    "What is the best course for me to start learning MoSPI statistics?",
+    "How is Wholesale Price Index (WPI) calculated with Laspeyres formula?",
+    "Explain PLFS sampling design, FSUs, and multiplier weights.",
     "How do Laspeyres and Paasche index formulas differ in national accounts?",
+    "How to load and filter survey microdata using Python & Pandas?",
   ];
 
   return (
@@ -498,6 +519,26 @@ export function TutorChat() {
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col min-w-0 bg-surface-container-lowest/30 overflow-hidden">
         
+        {/* Dual AI Engine Top Status Bar */}
+        <div className="px-6 py-2.5 bg-surface-container-high/80 border-b border-outline-variant/30 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="font-label-caps font-bold text-on-surface text-[11px]">
+              DUAL-ENGINE AI TUTOR
+            </span>
+            <span className="text-[10px] font-mono text-primary-container bg-primary-container/10 px-2 py-0.5 rounded border border-primary-container/20">
+              Gemini 3.6 ⇄ Groq OSS Auto-Failover
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 text-[10px] font-label-caps text-on-surface-variant">
+            <span className="flex items-center gap-1">
+              <Sparkles className="w-3 h-3 text-primary-container" />
+              ChromaDB Grounded (StatlQAi123)
+            </span>
+          </div>
+        </div>
+
         {/* Messages Scroll Area */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6 overflow-x-hidden custom-scrollbar">
           {messages.length === 0 && !pending && (
@@ -509,7 +550,7 @@ export function TutorChat() {
                 {t("tutor.title", "StatIQ AI Statistical Tutor")}
               </h2>
               <p className="text-on-surface-variant mb-8 leading-relaxed text-sm md:text-base">
-                {t("tutor.subtitle", "Grounded in official MoSPI methodologies, National Accounts, Sampling Theory, and Price Statistics.")}
+                {t("tutor.subtitle", "Grounded in official MoSPI methodologies, Sunbird Courses, National Accounts, and Sampling Theory.")}
               </p>
               
               <div className="w-full grid gap-3 sm:grid-cols-2">
@@ -547,14 +588,32 @@ export function TutorChat() {
                 </div>
               ) : (
                 <div className="w-full max-w-full rounded-3xl bg-surface-container-low/90 border border-outline-variant/40 p-5 sm:p-6 md:p-8 rounded-tl-sm text-on-surface shadow-md break-words overflow-hidden">
-                  <div className="flex items-center justify-between mb-4 border-b border-outline-variant/25 pb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="w-6 h-6 rounded-lg bg-primary-container/20 text-primary-container flex items-center justify-center border border-primary-container/30">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-4 border-b border-outline-variant/25 pb-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="w-6 h-6 rounded-lg bg-primary-container/20 text-primary-container flex items-center justify-center border border-primary-container/30 shrink-0">
                         <Sparkles className="w-3.5 h-3.5" />
                       </span>
                       <span className="text-xs font-label-caps text-primary-container font-bold tracking-wider">
-                        {t("tutor.title", "STATIQ AI STATISTICAL TUTOR")}
+                        STATIQ AI STATISTICAL TUTOR
                       </span>
+
+                      {/* Engine Label Badge */}
+                      {msg.engineLabel && (
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-surface-container-high border border-outline-variant/30 text-on-surface-variant flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary-container" />
+                          {msg.engineLabel}
+                        </span>
+                      )}
+
+                      {/* Failover Indicator */}
+                      {msg.failoverOccurred && (
+                        <span 
+                          className="text-[9px] font-label-caps font-bold px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center gap-1"
+                          title={msg.failoverReason || "Automatic failover switched engine"}
+                        >
+                          🔄 Failover Active
+                        </span>
+                      )}
                     </div>
 
                     <button
