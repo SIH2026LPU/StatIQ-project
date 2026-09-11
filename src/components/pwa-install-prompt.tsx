@@ -139,9 +139,6 @@ export function PWAInstallPrompt() {
               <h4 className="text-sm font-bold text-white tracking-tight truncate">
                 {t("pwa.installTitle", "Install StatIQ AI")}
               </h4>
-              <span className="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded">
-                PWA
-              </span>
             </div>
             <p className="text-xs text-neutral-300 dark:text-neutral-400 mt-1 line-clamp-2 leading-relaxed">
               {t("pwa.installDesc", "Install for ultra-fast load times, offline access, and full screen experience.")}
