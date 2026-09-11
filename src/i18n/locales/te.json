@@ -452,5 +452,22 @@
     "Open Data & API Cell": "ఓపెన్ డేటా & API సెల్",
     "Microdata Access Lab": "మైక్రోడేటా యాక్సెస్ ల్యాబ్",
     "Field Operations Division": "క్షేత్ర కార్యకలాపాల విభాగం"
+  },
+  "pwa": {
+    "installPrompt": "StatIQ AI యాప్ ఇన్‌స్టాల్ చేయండి",
+    "installTitle": "StatIQ AI ఇన్‌స్టాల్ చేయండి",
+    "installDesc": "వేగవంతమైన లోడింగ్, ఆఫ్‌లైన్ యాక్సెస్ మరియు పూర్తి స్క్రీన్ అనుభవం కోసం ఇన్‌స్టాల్ చేయండి.",
+    "installBtn": "యాప్ ఇన్‌స్టాల్ చేయండి",
+    "notNow": "ఇప్పుడు కాదు",
+    "installed": "StatIQ AI విజయవంతంగా ఇన్‌స్టాల్ చేయబడింది!",
+    "iosGuideTitle": "iOS / Safari లో ఇన్‌స్టాల్ చేయండి",
+    "iosStep1": "దిగువన ",
+    "iosStep1Suffix": " బటన్‌ను నొక్కండి.",
+    "iosStep2": "క్రిందికి స్క్రోల్ చేసి ఎంచుకోండి ",
+    "iosStep2Action": "Add to Home Screen",
+    "iosStep3": "ఎగువ కుడి మూలలో ",
+    "iosStep3Action": "Add",
+    "iosStep3Suffix": " నొక్కండి.",
+    "gotIt": "అర్థమైంది"
   }
 }

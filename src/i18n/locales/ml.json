@@ -452,5 +452,22 @@
     "Open Data & API Cell": "ഡാറ്റയും എപിഐ സെല്ലും തുറക്കുക",
     "Microdata Access Lab": "മൈക്രോഡാറ്റ ആക്സസ് ലാബ്",
     "Field Operations Division": "ഫീൽഡ് ഓപ്പറേഷൻസ് ഡിവിഷൻ"
+  },
+  "pwa": {
+    "installPrompt": "StatIQ AI ആപ്പ് ഇൻസ്റ്റാൾ ചെയ്യുക",
+    "installTitle": "StatIQ AI ഇൻസ്റ്റാൾ ചെയ്യുക",
+    "installDesc": "വേഗതയേറിയ ലോഡിംഗ്, ഓഫ്‌ലൈൻ ആക്‌സസ്, പൂർണ്ണ സ്‌ക്രീൻ അനുഭവം എന്നിവയ്‌ക്കായി ഇൻസ്റ്റാൾ ചെയ്യുക.",
+    "installBtn": "ആപ്പ് ഇൻസ്റ്റാൾ ചെയ്യുക",
+    "notNow": "ഇപ്പോൾ വേണ്ട",
+    "installed": "StatIQ AI വിജയകരമായി ഇൻസ്റ്റാൾ ചെയ്തു!",
+    "iosGuideTitle": "iOS / Safari-ൽ ഇൻസ്റ്റാൾ ചെയ്യുക",
+    "iosStep1": "താഴെയുള്ള ",
+    "iosStep1Suffix": " ബട്ടൺ ടാപ്പ് ചെയ്യുക.",
+    "iosStep2": "താഴേക്ക് സ്ക്രോൾ ചെയ്ത് തിരഞ്ഞെടുക്കുക ",
+    "iosStep2Action": "Add to Home Screen",
+    "iosStep3": "മുകളിൽ വലത് കോണിൽ ",
+    "iosStep3Action": "Add",
+    "iosStep3Suffix": " ടാപ്പ് ചെയ്യുക.",
+    "gotIt": "മനസ്സിലായി"
   }
 }

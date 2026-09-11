@@ -134,12 +134,16 @@ export function PWAInstallPrompt() {
 
           {/* Details */}
           <div className="flex-1 min-w-0 pr-6">
-            <div className="flex items-center gap-2">
-              <h4 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight truncate">
-                {t("pwa.installTitle", "Install StatIQ AI")}
-              </h4>
-            </div>
-            <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 line-clamp-2 leading-relaxed">
+            <h4
+              style={{ color: "#0f172a" }}
+              className="dark:!text-white text-[15px] font-bold tracking-tight block mb-1"
+            >
+              {t("pwa.installTitle", "Install StatIQ AI")}
+            </h4>
+            <p
+              style={{ color: "#475569" }}
+              className="dark:!text-slate-300 text-xs leading-relaxed"
+            >
               {t("pwa.installDesc", "Install for ultra-fast load times, offline access, and full screen experience.")}
             </p>
 
@@ -190,7 +194,10 @@ export function PWAInstallPrompt() {
 
             <div className="flex items-center gap-3 mb-4">
               <Smartphone className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
-              <h3 className="text-base font-bold text-slate-900 dark:text-white">
+              <h3
+                style={{ color: "#0f172a" }}
+                className="dark:!text-white text-base font-bold"
+              >
                 {t("pwa.iosGuideTitle", "Install on iOS / Safari")}
               </h3>
             </div>

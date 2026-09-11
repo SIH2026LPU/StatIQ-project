@@ -452,5 +452,22 @@
     "Open Data & API Cell": "திறந்த தரவு மற்றும் ஏபிஐ செல்",
     "Microdata Access Lab": "மைக்ரோடேட்டா அணுகல் ஆய்வகம்",
     "Field Operations Division": "கள செயல்பாட்டு பிரிவு"
+  },
+  "pwa": {
+    "installPrompt": "StatIQ AI செயலியை நிறுவுங்கள்",
+    "installTitle": "StatIQ AI ஐ நிறுவுங்கள்",
+    "installDesc": "விரைவான ஏற்றுதல், ஆஃப்லைன் பயன்பாடு மற்றும் முழு திரை அனுபவத்திற்கு நிறுவுங்கள்.",
+    "installBtn": "செயலியை நிறுவு",
+    "notNow": "இப்போது வேண்டாம்",
+    "installed": "StatIQ AI வெற்றிகரமாக நிறுவப்பட்டது!",
+    "iosGuideTitle": "iOS / Safari இல் நிறுவவும்",
+    "iosStep1": "கீழே உள்ள ",
+    "iosStep1Suffix": " பொத்தானைத் தட்டவும்.",
+    "iosStep2": "கீழே உருட்டி தேர்ந்தெடுக்கவும் ",
+    "iosStep2Action": "Add to Home Screen",
+    "iosStep3": "மேல் வலது மூலையில் ",
+    "iosStep3Action": "Add",
+    "iosStep3Suffix": " தட்டவும்.",
+    "gotIt": "புரிந்தது"
   }
 }

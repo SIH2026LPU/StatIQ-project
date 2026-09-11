@@ -452,5 +452,22 @@
     "Open Data & API Cell": "তথ্য আৰু এ. পি. আই. কোষ খোলক",
     "Microdata Access Lab": "মাইক্ৰ 'ডাটা এক্সেস লেব",
     "Field Operations Division": "ক্ষেত্ৰ পৰিচালনা বিভাগ"
+  },
+  "pwa": {
+    "installPrompt": "StatIQ AI এপ ইনষ্টল কৰক",
+    "installTitle": "StatIQ AI ইনষ্টল কৰক",
+    "installDesc": "দ্ৰুত ল’ড, অফলাইন ব্যৱহাৰ আৰু সম্পূৰ্ণ স্ক্ৰীণ অভিজ্ঞতাৰ বাবে ইনষ্টল কৰক।",
+    "installBtn": "এপ ইনষ্টল কৰক",
+    "notNow": "এতিয়া নহয়",
+    "installed": "StatIQ AI সফলভাৱে ইনষ্টল কৰা হ’ল!",
+    "iosGuideTitle": "iOS / Safari ত ইনষ্টল কৰক",
+    "iosStep1": "তলৰ ",
+    "iosStep1Suffix": " বুটামত টেপ কৰক।",
+    "iosStep2": "তললৈ স্ক্ৰল কৰি বাছনি কৰক ",
+    "iosStep2Action": "Add to Home Screen",
+    "iosStep3": "ওপৰৰ সোঁ কোণত ",
+    "iosStep3Action": "Add",
+    "iosStep3Suffix": " টেপ কৰক।",
+    "gotIt": "বুজি পালোঁ"
   }
 }

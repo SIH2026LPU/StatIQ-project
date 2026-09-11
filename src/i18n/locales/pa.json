@@ -452,5 +452,22 @@
     "Open Data & API Cell": "ਡਾਟਾ ਅਤੇ ਏਪੀਆਈ ਸੈੱਲ ਖੋਲ੍ਹੋ",
     "Microdata Access Lab": "ਮਾਈਕਰੋਡਾਟਾ ਐਕਸੈਸ ਲੈਬ",
     "Field Operations Division": "ਫੀਲਡ ਅਪਰੇਸ਼ਨ ਡਿਵੀਜ਼ਨ"
+  },
+  "pwa": {
+    "installPrompt": "StatIQ AI ਐਪ ਸਥਾਪਿਤ ਕਰੋ",
+    "installTitle": "StatIQ AI ਸਥਾਪਿਤ ਕਰੋ",
+    "installDesc": "ਤੇਜ਼ ਲੋਡ ਸਮੇਂ, ਔਫਲਾਈਨ ਪਹੁੰਚ ਅਤੇ ਪੂਰੀ ਸਕ੍ਰੀਨ ਅਨੁਭਵ ਲਈ ਸਥਾਪਿਤ ਕਰੋ।",
+    "installBtn": "ਐਪ ਸਥਾਪਿਤ ਕਰੋ",
+    "notNow": "ਹੁਣੇ ਨਹੀਂ",
+    "installed": "StatIQ AI ਤੁਹਾਡੀ ਡਿਵਾਈਸ ਤੇ ਸਫਲਤਾਪੂਰਵਕ ਸਥਾਪਿਤ ਹੋ ਗਿਆ!",
+    "iosGuideTitle": "iOS / Safari ਤੇ ਸਥਾਪਿਤ ਕਰੋ",
+    "iosStep1": "ਹੇਠਾਂ ",
+    "iosStep1Suffix": " ਬਟਨ ਦਬਾਓ।",
+    "iosStep2": "ਹੇਠਾਂ ਸਕ੍ਰੌਲ ਕਰੋ ਅਤੇ ਚੁਣੋ ",
+    "iosStep2Action": "ਹੋਮ ਸਕ੍ਰੀਨ ਤੇ ਜੋੜੋ (Add to Home Screen)",
+    "iosStep3": "ਉੱਪਰ ਸੱਜੇ ਕੋਨੇ ਵਿੱਚ ",
+    "iosStep3Action": "ਜੋੜੋ (Add)",
+    "iosStep3Suffix": " ਦਬਾਓ।",
+    "gotIt": "ਸਮਝ ਗਿਆ"
   }
 }
