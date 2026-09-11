@@ -619,10 +619,7 @@ export function TutorChat() {
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span className="font-label-caps font-bold text-on-surface text-[11px]">
-              DUAL-ENGINE AI TUTOR
-            </span>
-            <span className="text-[10px] font-mono text-primary-container bg-primary-container/10 px-2 py-0.5 rounded border border-primary-container/20">
-              Gemini 3.6 ⇄ Groq OSS Auto-Failover
+              {t("nav.aiTutor", "AI TUTOR")}
             </span>
           </div>
 

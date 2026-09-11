@@ -28,19 +28,35 @@ export type BackendHealth = {
   error?: string;
 };
 
+let cachedHealth: { data: BackendHealth; timestamp: number } | null = null;
+const HEALTH_CACHE_TTL = 10_000; // 10 seconds
+
 export async function getBackendHealth(): Promise<BackendHealth> {
+  const now = Date.now();
+  if (cachedHealth && now - cachedHealth.timestamp < HEALTH_CACHE_TTL) {
+    return cachedHealth.data;
+  }
+
   try {
     const response = await fetch(`${BACKEND_URL}/api/health`, {
       cache: "no-store",
-      signal: AbortSignal.timeout(2000),
+      signal: AbortSignal.timeout(1000), // Fast 1s timeout
     });
-    if (!response.ok) return { status: "error", error: `HTTP ${response.status}` };
-    return (await response.json()) as BackendHealth;
+    if (!response.ok) {
+      const errRes: BackendHealth = { status: "error", error: `HTTP ${response.status}` };
+      cachedHealth = { data: errRes, timestamp: now };
+      return errRes;
+    }
+    const data = (await response.json()) as BackendHealth;
+    cachedHealth = { data, timestamp: now };
+    return data;
   } catch (error) {
-    return {
+    const fallbackRes: BackendHealth = {
       status: "error",
       error: error instanceof Error ? error.message : "backend unreachable",
     };
+    cachedHealth = { data: fallbackRes, timestamp: now };
+    return fallbackRes;
   }
 }
 
@@ -53,7 +69,7 @@ export async function backendJson<T>(path: string, init?: RequestInit): Promise<
         "Content-Type": "application/json",
         ...(init?.headers ?? {}),
       },
-      signal: AbortSignal.timeout(8000),
+      signal: AbortSignal.timeout(4000),
     });
     if (!response.ok) return null;
     return (await response.json()) as T;

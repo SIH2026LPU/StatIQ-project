@@ -22,8 +22,8 @@ export function getDb() {
     global.__statiq_pg_client ??
     postgres(connectionString, {
       max: process.env.NODE_ENV === "production" ? 5 : 1,
-      idle_timeout: 20,
-      connect_timeout: 10,
+      idle_timeout: 10,
+      connect_timeout: 1,
     });
 
   if (process.env.NODE_ENV !== "production") {
