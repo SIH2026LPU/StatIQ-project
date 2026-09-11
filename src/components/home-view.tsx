@@ -184,17 +184,6 @@ export function HomeView({ stats, backend }: HomeViewProps) {
             <p className="font-body-lg text-body-lg text-on-surface-variant max-w-xl">
               {t("home.subtitle", "AI-driven competency mapping, automated skill-gap analysis, personalized MoSPI-aligned learning paths, and real-time statistical intelligence for Indian Official Statistics.")}
             </p>
-
-            {/* Live backend status pill */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container border border-white/10 text-xs font-label-caps text-on-surface-variant">
-              <span
-                className={`w-1.5 h-1.5 rounded-full ${backend?.status === "ok" ? "bg-primary-container animate-pulse" : "bg-error"}`}
-              />
-              {backend?.status === "ok"
-                ? `BACKEND LIVE · POSTGRES ${backend.services?.database?.status ?? "CONNECTED"}`
-                : `BACKEND OFFLINE — ${backend?.error ?? "start npm run dev:backend"}`}
-            </div>
-
             <div className="flex flex-col sm:flex-row gap-4 pt-2">
               <Link
                 href="/login"
