@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json().catch(() => ({}));
   const question = String(body.question ?? "").trim();
-  
+
   if (!question) {
     return NextResponse.json({ error: "Question required." }, { status: 400 });
   }
