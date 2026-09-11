@@ -21,7 +21,7 @@ import {
   ToolboxComponent,
   DatasetComponent,
 } from "echarts/components";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/components/theme-provider";
 import { ChartSpec } from "@/lib/visualization/chart-schema";
 import { validateChartSpec } from "@/lib/visualization/chart-validation";
 import { ChartDataNormalizer } from "@/lib/visualization/chart-normalizer";
