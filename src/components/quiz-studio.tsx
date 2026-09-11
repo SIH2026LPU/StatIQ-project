@@ -126,19 +126,52 @@ export function QuizStudio({
           </div>
         </div>
 
-        <div className="space-y-1.5">
-          <div className="flex justify-between text-xs font-label-caps text-on-surface-variant">
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-xs font-label-caps text-on-surface-variant">
             <span>{t("assessments.questionCount", "Question Count")}</span>
-            <span className="font-mono text-primary font-bold">{count} {t("quiz.items", "items")}</span>
+            <div className="flex items-center gap-1.5">
+              <input
+                type="number"
+                min={1}
+                max={50}
+                value={count}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value, 10);
+                  if (isNaN(val)) setCount(1);
+                  else setCount(Math.max(1, Math.min(50, val)));
+                }}
+                className="w-14 text-center font-mono font-bold text-xs py-1 px-1.5 rounded-lg bg-surface-container-high border border-outline-variant/50 text-primary focus:outline-none focus:border-primary"
+              />
+              <span className="text-[11px] text-on-surface-variant font-medium">/ 50 {t("quiz.items", "items")}</span>
+            </div>
           </div>
+
           <input
             type="range"
             min={1}
-            max={6}
+            max={50}
             value={count}
             onChange={(e) => setCount(Number(e.target.value))}
-            className="w-full accent-primary"
+            className="w-full accent-primary cursor-pointer"
           />
+
+          {/* Quick Count Selection Pills */}
+          <div className="grid grid-cols-4 gap-1.5 pt-1">
+            {[5, 10, 25, 50].map((num) => (
+              <button
+                key={num}
+                type="button"
+                onClick={() => setCount(num)}
+                className={`py-1 rounded-lg text-[11px] font-mono font-semibold transition-all border ${
+                  count === num
+                    ? "bg-primary-container text-black border-primary font-bold shadow-xs"
+                    : "bg-surface-container-high/60 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high border-outline-variant/30"
+                }`}
+              >
+                {num} Qs
+              </button>
+            ))}
+          </div>
         </div>
 
         <button

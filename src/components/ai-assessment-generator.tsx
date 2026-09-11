@@ -148,9 +148,11 @@ export function AiAssessmentGenerator({
             onChange={(e) => setCount(Number(e.target.value))}
             className="w-full px-4 py-2.5 rounded-xl bg-surface-container-high border border-white/10 text-on-surface text-sm focus:outline-none focus:border-primary-container"
           >
-            <option value={3}>3 {t("assessments.questionsQuick", "Questions (Quick Check)")}</option>
-            <option value={4}>4 {t("assessments.questionsStandard", "Questions (Standard)")}</option>
-            <option value={5}>5 {t("assessments.questionsInDepth", "Questions (In-Depth)")}</option>
+            <option value={5}>5 Questions (Quick Check)</option>
+            <option value={10}>10 Questions (Standard Assessment)</option>
+            <option value={20}>20 Questions (Comprehensive Test)</option>
+            <option value={30}>30 Questions (In-Depth Certification Practice)</option>
+            <option value={50}>50 Questions (Full National Exam Simulation)</option>
           </select>
         </div>
       </div>

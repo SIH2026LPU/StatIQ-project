@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     const topic = String(body.topic || "MoSPI National Statistics & Microdata Analysis");
     const competencyId = String(body.competencyId || "c-stat-methods");
     const difficulty = (body.difficulty === "easy" || body.difficulty === "hard") ? body.difficulty : "medium";
-    const count = Number(body.count || 4);
+    const count = Math.max(1, Math.min(Number(body.count || 5), 50));
 
     const documents = db.listDocuments();
     const excerpt = documents[0]?.excerpt || "Official statistical standards, sampling procedures, and index compilation guidelines.";
