@@ -2,6 +2,9 @@ import { db } from "@/db";
 import { employeeCompetencies, roleCompetencies, jobRoles, competencies } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const isUuid = (s: string) => UUID_RE.test(s);
+
 export interface SkillGap {
   competencyId: string;
   competencyName: string;
@@ -31,6 +34,9 @@ export async function computeSkillGaps(
   jobRoleId: string,
   options: GapAnalysisOptions = {}
 ): Promise<SkillGap[]> {
+  // Guard: reject non-UUID IDs (e.g. mock store IDs like "role-da") before hitting Postgres
+  if (!isUuid(employeeId) || !isUuid(jobRoleId)) return [];
+
   const { organizationalPriority = 1.0, careerRelevance = 1.0 } = options;
 
   const requirements = await db

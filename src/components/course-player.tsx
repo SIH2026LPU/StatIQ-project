@@ -100,7 +100,7 @@ export function CoursePlayer({ course }: { course: Course }) {
             </div>
 
             {/* Video Viewport */}
-            <div className="bg-black aspect-video relative flex items-center justify-center overflow-hidden w-full">
+            <div className="bg-[#080c10] aspect-video relative flex items-center justify-center overflow-hidden w-full">
               {courseComplete ? (
                 <div className="relative z-10 flex flex-col items-center p-8 text-center animate-in zoom-in duration-500">
                   <div className="w-20 h-20 rounded-full bg-primary-container/20 border-2 border-primary-container flex items-center justify-center text-primary-container mb-4 shadow-[0_0_30px_rgba(57,255,20,0.3)]">
@@ -120,6 +120,7 @@ export function CoursePlayer({ course }: { course: Course }) {
                   </Link>
                 </div>
               ) : isPlaying ? (
+                /* ── Real Video Player with YouTube iframe ── */
                 <div className="w-full h-full relative">
                   <iframe
                     key={activeModule.id}
@@ -127,82 +128,102 @@ export function CoursePlayer({ course }: { course: Course }) {
                     title={activeModule.title}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen
-                    className="w-full h-full border-0"
+                    className="w-full h-full border-0 absolute inset-0"
                   />
                 </div>
               ) : (
+                /* ── Paused / Thumbnail State ── */
                 <div 
                   className="relative w-full h-full flex items-center justify-center group cursor-pointer" 
                   onClick={() => setIsPlaying(true)}
                 >
-                  {/* Background Backdrop with Gradient */}
-                  <div className="absolute inset-0 opacity-40 bg-[url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop')] bg-cover bg-center" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-                  
+                  {/* Themed abstract backdrop — no external image dependency */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#0d1f12] via-[#081510] to-[#050a08]" />
+                  <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(57,255,20,0.07) 0%, transparent 70%)' }} />
+                  {/* Grid pattern */}
+                  <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(rgba(57,255,20,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(57,255,20,0.3) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+                  {/* Module meta top-left */}
+                  <div className="absolute top-4 left-4 flex items-center gap-2">
+                    <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-sm border border-primary-container/30 text-[10px] font-label-caps text-primary-container font-bold tracking-wider">
+                      {t("courses.lesson", "LESSON")} {activeIndex + 1}
+                    </span>
+                    <span className="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-sm border border-white/10 text-[10px] font-label-caps text-white/60">
+                      {activeModule.duration}
+                    </span>
+                  </div>
+
                   {/* Center Play Button */}
-                  <div className="relative z-10 flex flex-col items-center gap-3">
+                  <div className="relative z-10 flex flex-col items-center gap-4">
                     <button 
                       type="button"
-                      className="w-20 h-20 rounded-full bg-primary-container/20 border-2 border-primary-container flex items-center justify-center text-primary-container backdrop-blur-sm transition-all group-hover:scale-110 group-hover:bg-primary-container group-hover:text-black shadow-[0_0_35px_rgba(57,255,20,0.35)]"
+                      className="w-20 h-20 rounded-full bg-primary-container/15 border-2 border-primary-container flex items-center justify-center text-primary-container backdrop-blur-sm transition-all duration-300 group-hover:scale-110 group-hover:bg-primary-container group-hover:text-black shadow-[0_0_40px_rgba(57,255,20,0.3)] group-hover:shadow-[0_0_60px_rgba(57,255,20,0.5)]"
                     >
                       <Play className="w-8 h-8 ml-1" fill="currentColor" />
                     </button>
                     <div className="text-center">
-                      <p className="text-xs font-label-caps tracking-widest text-primary-container font-bold">
-                        CLICK TO STREAM SUNBIRD LESSON
+                      <p className="text-sm font-bold text-white group-hover:text-primary-container transition-colors line-clamp-1 max-w-xs">
+                        {tEntity(activeModule.title)}
                       </p>
-                      <p className="text-[11px] text-white/70 mt-0.5">
-                        {activeModule.duration} · High Bitrate Official Audio/Video
+                      <p className="text-[11px] text-white/50 mt-1 font-label-caps tracking-wider">
+                        CLICK TO STREAM · HIGH BITRATE OFFICIAL AUDIO/VIDEO
                       </p>
                     </div>
                   </div>
 
-                  {/* Progress bar */}
-                  <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-white/20">
-                    <div className={`h-full bg-primary-container ${isComplete ? 'w-full' : 'w-0'}`} />
+                  {/* Bottom progress bar */}
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/10">
+                    <div className={`h-full bg-primary-container transition-all duration-500 ${isComplete ? 'w-full' : 'w-0'}`} />
                   </div>
                 </div>
               )}
             </div>
 
             {/* Lesson Bar Details */}
-            <div className="p-6 md:p-8 space-y-6 bg-surface-container-lowest">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2.5 py-1 rounded bg-surface-container border border-white/5 text-[10px] font-label-caps text-primary-container tracking-wider font-bold">
-                      {t("courses.lesson", "LESSON")} {activeIndex + 1} {t("common.of", "OF")} {modules.length}
-                    </span>
-                    <span className="text-xs text-on-surface-variant font-label-caps">{activeModule.duration}</span>
-                  </div>
-                  <h2 className="font-display text-2xl md:text-3xl font-bold text-on-surface">
-                    {tEntity(activeModule.title)}
-                  </h2>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <button 
-                    onClick={() => setIsPlaying(!isPlaying)}
-                    className="glow-button-secondary flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-label-caps tracking-widest text-xs font-bold"
-                  >
-                    {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                    {isPlaying ? "STOP STREAM" : "START STREAM"}
-                  </button>
-
-                  <button 
-                    onClick={toggleComplete}
-                    className={`flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-label-caps tracking-widest text-xs font-bold transition-all border shrink-0 ${
-                      isComplete 
-                      ? 'bg-primary-container/10 border-primary-container/40 text-primary-container shadow-[0_0_15px_rgba(57,255,20,0.1)]' 
-                      : 'glow-button text-black'
-                    }`}
-                  >
-                    <CheckCircle2 className={`w-4 h-4 ${isComplete ? 'fill-primary-container/20' : ''}`} />
-                    {isComplete ? t("courses.completed", "COMPLETED") : t("courses.markComplete", "MARK LESSON COMPLETE")}
-                  </button>
-                </div>
+            <div className="p-5 md:p-7 bg-surface-container-lowest border-t border-white/5">
+              {/* Top row: lesson badge + duration */}
+              <div className="flex items-center gap-2 mb-3">
+                <span className="px-2.5 py-1 rounded-lg bg-primary-container/10 border border-primary-container/30 text-[10px] font-label-caps text-primary-container tracking-wider font-bold">
+                  {t("courses.lesson", "LESSON")} {activeIndex + 1} {t("common.of", "OF")} {modules.length}
+                </span>
+                <span className="text-[10px] text-on-surface-variant font-label-caps tracking-wider">{activeModule.duration}</span>
+                {isComplete && (
+                  <span className="ml-auto px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[9px] font-label-caps text-emerald-400 font-bold tracking-wider">
+                    ✓ COMPLETED
+                  </span>
+                )}
               </div>
 
+              {/* Module title */}
+              <h2 className="font-display text-xl md:text-2xl font-bold text-on-surface mb-4 leading-snug">
+                {tEntity(activeModule.title)}
+              </h2>
+
+              {/* Action buttons row — flex-wrap prevents cutoff */}
+              <div className="flex flex-wrap items-center gap-2 mb-5">
+                <button 
+                  onClick={() => setIsPlaying(!isPlaying)}
+                  className="glow-button-secondary inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-label-caps tracking-widest text-xs font-bold whitespace-nowrap shrink-0"
+                >
+                  {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                  {isPlaying ? t("courses.stopStream", "STOP STREAM") : t("courses.startStream", "START STREAM")}
+                </button>
+
+                <button 
+                  onClick={toggleComplete}
+                  className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-label-caps tracking-widest text-xs font-bold transition-all border whitespace-nowrap shrink-0 ${
+                    isComplete 
+                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' 
+                    : 'glow-button text-black'
+                  }`}
+                >
+                  <CheckCircle2 className={`w-3.5 h-3.5 ${isComplete ? 'fill-emerald-500/20' : ''}`} />
+                  {isComplete ? t("courses.completed", "COMPLETED") : t("courses.markComplete", "MARK LESSON COMPLETE")}
+                </button>
+              </div>
+
+              {/* Overview text */}
               <p className="text-on-surface-variant text-sm leading-relaxed border-t border-white/5 pt-4">
                 {tEntity(activeModule.overview)}
               </p>

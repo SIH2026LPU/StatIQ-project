@@ -246,22 +246,71 @@ export function LMSPlayerClient({
               {/* Module content by type */}
               {activeModule.moduleType === "VIDEO" && (
                 <div className="space-y-6">
-                  <div className="aspect-video bg-black rounded-2xl flex items-center justify-center border border-white/15 relative overflow-hidden group shadow-2xl">
+                  <div className="aspect-video bg-[#080c10] rounded-2xl flex items-center justify-center border border-white/10 relative overflow-hidden shadow-2xl">
                     {/* Stream Provenance Tag */}
-                    <div className="absolute top-3.5 left-3.5 z-20 flex items-center gap-2 bg-black/80 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
+                    <div className="absolute top-3.5 left-3.5 z-20 flex items-center gap-2 bg-black/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-primary-container/20">
                       <span className="w-2 h-2 rounded-full bg-primary-container animate-pulse" />
-                      <span className="text-[10px] font-label-caps text-white font-bold tracking-wider">
+                      <span className="text-[10px] font-label-caps text-primary-container font-bold tracking-wider">
                         {course.provider.toUpperCase()} SUNBIRD STREAM
                       </span>
                     </div>
 
-                    <iframe
-                      src="https://www.youtube.com/embed/LHBE6Q9XlzI?autoplay=0&rel=0&modestbranding=1"
-                      title={activeModule.title}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      allowFullScreen
-                      className="w-full h-full border-0"
-                    />
+                    {/* Quality badge top-right */}
+                    <div className="absolute top-3.5 right-3.5 z-20 px-2 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/10 text-[9px] font-label-caps text-white/60 font-bold">
+                      1080p HD
+                    </div>
+
+                    {/* Scanline overlay */}
+                    <div className="absolute inset-0 pointer-events-none z-10" style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px)' }} />
+
+                    {/* Abstract themed backdrop */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#0d1f12] via-[#081510] to-[#050a08]" />
+                    <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(57,255,20,0.06) 0%, transparent 70%)' }} />
+                    <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(rgba(57,255,20,0.25) 1px, transparent 1px), linear-gradient(90deg, rgba(57,255,20,0.25) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+
+                    {/* Center: Animated waveform + Play button */}
+                    <div className="relative z-10 flex flex-col items-center gap-5">
+                      {/* Waveform */}
+                      <div className="flex items-end gap-1 h-14 opacity-60">
+                        {[35,60,80,50,88,65,40,75,55,92,48,70,84,45,62,80,42,68,88,52].map((h, i) => (
+                          <div
+                            key={i}
+                            className="w-1 rounded-full bg-primary-container"
+                            style={{
+                              height: `${h}%`,
+                              animation: `pulse ${0.5 + (i % 4) * 0.2}s ease-in-out infinite alternate`,
+                              animationDelay: `${(i * 0.08) % 0.7}s`,
+                            }}
+                          />
+                        ))}
+                      </div>
+
+                      {/* Play button */}
+                      <button
+                        type="button"
+                        className="w-16 h-16 rounded-full bg-primary-container/15 border-2 border-primary-container flex items-center justify-center text-primary-container backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:bg-primary-container hover:text-black shadow-[0_0_35px_rgba(57,255,20,0.25)] hover:shadow-[0_0_55px_rgba(57,255,20,0.45)]"
+                      >
+                        <Play className="w-6 h-6 ml-0.5" fill="currentColor" />
+                      </button>
+
+                      <div className="text-center">
+                        <p className="text-xs font-bold text-white/80 line-clamp-1 max-w-xs">{activeModule.title}</p>
+                        <p className="text-[10px] font-label-caps text-primary-container/60 mt-1 tracking-widest">OFFICIAL CERTIFIED CONTENT</p>
+                      </div>
+                    </div>
+
+                    {/* Bottom player bar */}
+                    <div className="absolute bottom-0 left-0 right-0 px-4 pb-3 pt-2 bg-gradient-to-t from-black/90 to-transparent space-y-1.5">
+                      <div className="h-0.5 bg-white/10 rounded-full overflow-hidden">
+                        <div className="h-full w-0 bg-primary-container rounded-full" />
+                      </div>
+                      <div className="flex items-center justify-between text-[9px] font-mono text-white/40">
+                        <span>00:00</span>
+                        <span className="font-label-caps text-primary-container/50 tracking-widest">● LIVE OFFICIAL SUNBIRD FEED</span>
+                        <span>{activeModule.durationMinutes}:00</span>
+                      </div>
+                    </div>
                   </div>
 
                   <div className="p-4 rounded-xl bg-surface-container-low border border-white/5 space-y-2">

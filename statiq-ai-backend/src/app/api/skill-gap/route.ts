@@ -7,6 +7,9 @@ import { db } from "@/db";
 import { employees, jobRoles } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const isUuid = (s: string) => UUID_RE.test(s);
+
 const querySchema = z.object({
   employeeId: z.string().optional(),
   jobRoleId: z.string(),
@@ -32,6 +35,18 @@ export async function GET(req: NextRequest) {
   }
 
   const targetEmployeeId = parsed.data.employeeId ?? (user?.employeeId ?? "emp-ananya");
+  const { jobRoleId } = parsed.data;
+
+  // Guard: non-UUID IDs come from the mock/local store — skip DB entirely and
+  // return an empty gaps response so the frontend fallback logic can take over.
+  if (!isUuid(jobRoleId) || !isUuid(targetEmployeeId)) {
+    return NextResponse.json({
+      employeeId: targetEmployeeId,
+      jobRoleId,
+      gaps: [],
+      explanation: null,
+    });
+  }
 
   let currentRoleTitle = "Statistical Officer";
   let targetRoleTitle = "Data Analyst (Official Statistics)";
@@ -47,16 +62,16 @@ export async function GET(req: NextRequest) {
       if (currentRole?.title) currentRoleTitle = currentRole.title;
     }
 
-    const [targetRole] = await db.select({ title: jobRoles.title }).from(jobRoles).where(eq(jobRoles.id, parsed.data.jobRoleId));
+    const [targetRole] = await db.select({ title: jobRoles.title }).from(jobRoles).where(eq(jobRoles.id, jobRoleId));
     if (targetRole?.title) targetRoleTitle = targetRole.title;
   } catch {}
 
-  const gaps = await computeSkillGaps(targetEmployeeId, parsed.data.jobRoleId);
+  const gaps = await computeSkillGaps(targetEmployeeId, jobRoleId);
   const explanation = await explainSkillGaps(currentRoleTitle, targetRoleTitle, gaps);
 
   return NextResponse.json({ 
     employeeId: targetEmployeeId, 
-    jobRoleId: parsed.data.jobRoleId, 
+    jobRoleId, 
     gaps,
     explanation 
   });
