@@ -699,5 +699,22 @@
     "Open Data & API Cell": "Open Data & API Cell",
     "Microdata Access Lab": "Microdata Access Lab",
     "Field Operations Division": "Field Operations Division"
+  },
+  "pwa": {
+    "installPrompt": "Install StatIQ AI Application",
+    "installTitle": "Install StatIQ AI",
+    "installDesc": "Install for ultra-fast load times, offline access, and full screen experience.",
+    "installBtn": "Install App",
+    "notNow": "Not now",
+    "installed": "StatIQ AI successfully installed on your device!",
+    "iosGuideTitle": "Install on iOS / Safari",
+    "iosStep1": "Tap the ",
+    "iosStep1Suffix": " button at the bottom of your Safari browser bar.",
+    "iosStep2": "Scroll down and select ",
+    "iosStep2Action": "Add to Home Screen",
+    "iosStep3": "Tap ",
+    "iosStep3Action": "Add",
+    "iosStep3Suffix": " in the top-right corner to finish installation.",
+    "gotIt": "Got it"
   }
 }
